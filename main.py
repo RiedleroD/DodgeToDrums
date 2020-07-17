@@ -47,7 +47,7 @@ class GameWin(pyglet.window.Window):
 		if scr==0:
 			if BTNS.back.pressed:
 				print("got exit button")
-				quit()
+				pyglet.app.exit()
 			elif BTNS.sett.pressed:
 				self.curscr=1
 				BTNS.sett.release()
@@ -60,6 +60,8 @@ class GameWin(pyglet.window.Window):
 				CONF.showfps=BTNS.showfps.pressed
 				CONF.dump(conffp)
 				print("\033[1mRESTARTING PROGRAM…\033[22m")
+				self.set_fullscreen(False)#bc restarting with fullscreen on is troubeling.
+				pyglet.app.exit()#closes pyglet window
 				os.execv(__file__,sys.argv)#restarts the whole program to ensure applied settings
 			elif BTNS.cancle.pressed:
 				self.curscr=0
