@@ -74,7 +74,7 @@ class Entity:
 
 class Label(Entity):
 	def __init__(self,x,y,w,h,text,anch=0,color=(255,255,255,255),bgcolor=(0,0,0,0),size=12,batch=None):
-		self.label=pyglet.text.Label(text,x=0,y=-size,color=color,font_size=size,batch=batch)
+		self.label=pyglet.text.Label(text,x=x,y=y,color=color,font_size=size,batch=batch)
 		self.setText(text)
 		self.setColor(color)
 		self.setBgColor(bgcolor)
