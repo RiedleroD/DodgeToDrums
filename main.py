@@ -142,7 +142,6 @@ class GameWin(pyglet.window.Window):
 				if ret:
 					return ret
 
-config = pyglet.gl.Config(sample_buffers=1, samples=4)#just to make the graphics a little crisper, maybe a setting gets added later that lets control the sample size
 #I don't like window borders & I have a tiling window manager so I couldn't test it anyway.
 window=GameWin(
 		WIDTH,HEIGHT,
@@ -150,7 +149,6 @@ window=GameWin(
 		style=GameWin.WINDOW_STYLE_BORDERLESS,
 		screen=SCREEN,
 		caption="Testing Pyglet",
-		config=config,
 		vsync=True,visible=True)
 window.set_location(0,0)
 print(f"opened window with size {WIDTH}x{HEIGHT}")
