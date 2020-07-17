@@ -10,12 +10,13 @@ class GameWin(pyglet.window.Window):
 	fps=0#maximum fps and ups
 	tc=0#how many cycles have passed since ups label has last been updated
 	dt=0#how much time has passed since ups label has last been updated
-	batch=None
+	batch=None#gets renewed when scene changes
+	gbatch=None#this one doesn't
 	def __init__(self,*args,**kwargs):
 		self.set_fps(60)
 		self.batch=pyglet.graphics.Batch()
-		LABELS.fps=entities.Label(0,HEIGHT,0,0,"FPS:60",6,batch=self.batch)
-		LABELS.ups=entities.Label(0,HEIGHT-13,0,0,"UPS:60",6,batch=self.batch)
+		LABELS.fps=entities.Label(0,HEIGHT,0,0,"FPS:60",6,batch=self.gbatch)
+		LABELS.ups=entities.Label(0,HEIGHT-13,0,0,"UPS:60",6,batch=self.gbatch)
 		super().__init__(*args,**kwargs)
 	def set_fps(self,fps):
 		if fps!=self.fps and fps>0:
@@ -43,18 +44,45 @@ class GameWin(pyglet.window.Window):
 			if BTNS.exit.pressed:
 				print("got exit button")
 				quit()
+			elif BTNS.sett.pressed:
+				self.curscr=1
+				BTNS.sett.release()
+			elif BTNS.start.pressed:
+				self.curscr=2
+				BTNS.start.release()
+		elif scr==1:
+			if BTNS.back.pressed:
+				self.curscr=0
+		elif scr==2:
+			if BTNS.back.pressed:
+				self.curscr=0
 	def clear_scene(self,scr):
 		if scr==None:
 			pass
 		elif scr==0:
 			BTNS.exit=None
+			BTNS.sett=None
+			BTNS.start=None
+			self.batch=pyglet.graphics.Batch()
+		elif scr==1:
+			BTNS.back=None
+			self.batch=pyglet.graphics.Batch()
+		elif scr==2:
+			BTNS.back=None
+			self.batch=pyglet.graphics.Batch()
 		else:
 			raise ValueError(f"Scene {scr} does not exist to clear")
 	def construct_scene(self,scr):
 		if scr==None:
 			pass
 		elif scr==0:
-				BTNS.exit=entities.Button(WIDTH2,BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Exit",1,key=key.ESCAPE)
+			BTNS.exit=entities.Button(WIDTH2,BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Exit",anch=4,key=key.ESCAPE,batch=self.batch)
+			BTNS.start=entities.Button(WIDTH2,HEIGHT2,BTNWIDTH,BTNHEIGHT,"Start",anch=4,key=key.ENTER,batch=self.batch)
+			BTNS.sett=entities.Button(WIDTH2,HEIGHT2-BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Settings",anch=7,batch=self.batch)
+		elif scr==1:
+			BTNS.back=entities.Button(WIDTH-BTNWIDTH,BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Back",anch=4,key=key.ESCAPE,batch=self.batch)
+		elif scr==2:
+			BTNS.back=entities.Button(WIDTH2,BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Back",anch=4,key=key.ESCAPE,batch=self.batch)
 		else:
 			raise ValueError(f"Scene {scr} does not exist to construct")
 	def on_draw(self):#gets called on draw (duh)

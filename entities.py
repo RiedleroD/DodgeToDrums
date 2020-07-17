@@ -155,7 +155,7 @@ class LabelMultiline(Label):
 				label.draw()
 
 class Button(Label):
-	def __init__(self,x,y,w,h,text,anch=0,key=None,size=12,pressedText=None,batch=None):
+	def __init__(self,x,y,w,h,text,anch=0,key=None,size=16,pressedText=None,batch=None):
 		self.pressed=False
 		self.key=key
 		if pressedText:
