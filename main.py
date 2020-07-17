@@ -7,6 +7,8 @@ class GameWin(pyglet.window.Window):
 	curscr=0#which scene is shown
 	#scenes include:
 	#0 → menu
+	#1 → settings
+	#2 → game mode select
 	fps=0#maximum fps and ups
 	tc=0#how many cycles have passed since ups label has last been updated
 	dt=0#how much time has passed since ups label has last been updated
@@ -15,8 +17,9 @@ class GameWin(pyglet.window.Window):
 	def __init__(self,*args,**kwargs):
 		self.set_fps(60)
 		self.batch=pyglet.graphics.Batch()
-		LABELS.fps=entities.Label(0,HEIGHT,0,0,"FPS:60",6,batch=self.gbatch)
-		LABELS.ups=entities.Label(0,HEIGHT-13,0,0,"UPS:60",6,batch=self.gbatch)
+		if CONF.showfps:
+			LABELS.fps=entities.Label(0,HEIGHT,0,0,"FPS:60.0",6,batch=self.gbatch)
+			LABELS.ups=entities.Label(0,HEIGHT-13,0,0,"UPS:60.0",6,batch=self.gbatch)
 		super().__init__(*args,**kwargs)
 	def set_fps(self,fps):
 		if fps!=self.fps and fps>0:
@@ -28,7 +31,8 @@ class GameWin(pyglet.window.Window):
 		self.dt+=dt
 		if self.dt>=0.1:
 			#update ups counter
-			LABELS.ups.setText("UPS:%02i/%02i"%(round(self.tc/self.dt),self.fps))
+			if CONF.showfps:
+				LABELS.ups.setText(f"UPS:{self.tc/self.dt:.1f}/{self.fps}")
 			#set tc and dt to 0
 			self.tc=0
 			self.dt=0
@@ -41,7 +45,7 @@ class GameWin(pyglet.window.Window):
 		self.pressproc(self.curscr)
 	def pressproc(self,scr):
 		if scr==0:
-			if BTNS.exit.pressed:
+			if BTNS.back.pressed:
 				print("got exit button")
 				quit()
 			elif BTNS.sett.pressed:
@@ -52,6 +56,12 @@ class GameWin(pyglet.window.Window):
 				BTNS.start.release()
 		elif scr==1:
 			if BTNS.back.pressed:
+				CONF.fullscreen=BTNS.fullscr.pressed
+				CONF.showfps=BTNS.showfps.pressed
+				CONF.dump(conffp)
+				print("\033[1mRESTARTING PROGRAM…\033[22m")
+				os.execv(__file__,sys.argv)#restarts the whole program to ensure applied settings
+			elif BTNS.cancle.pressed:
 				self.curscr=0
 		elif scr==2:
 			if BTNS.back.pressed:
@@ -60,12 +70,15 @@ class GameWin(pyglet.window.Window):
 		if scr==None:
 			pass
 		elif scr==0:
-			BTNS.exit=None
+			BTNS.back=None
 			BTNS.sett=None
 			BTNS.start=None
 			self.batch=pyglet.graphics.Batch()
 		elif scr==1:
 			BTNS.back=None
+			BTNS.cancle=None
+			BTNS.fullscr=None
+			BTNS.showfps=None
 			self.batch=pyglet.graphics.Batch()
 		elif scr==2:
 			BTNS.back=None
@@ -76,11 +89,18 @@ class GameWin(pyglet.window.Window):
 		if scr==None:
 			pass
 		elif scr==0:
-			BTNS.exit=entities.Button(WIDTH2,BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Exit",anch=4,key=key.ESCAPE,batch=self.batch)
+			BTNS.back=entities.Button(WIDTH2,BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Exit",anch=4,key=key.ESCAPE,batch=self.batch)
 			BTNS.start=entities.Button(WIDTH2,HEIGHT2,BTNWIDTH,BTNHEIGHT,"Start",anch=4,key=key.ENTER,batch=self.batch)
 			BTNS.sett=entities.Button(WIDTH2,HEIGHT2-BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Settings",anch=7,batch=self.batch)
 		elif scr==1:
-			BTNS.back=entities.Button(WIDTH-BTNWIDTH,BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Back",anch=4,key=key.ESCAPE,batch=self.batch)
+			BTNS.back=entities.Button(WIDTH-BTNWIDTH*2.5,BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Save & Restart",anch=4,key=key.ENTER,batch=self.batch)
+			BTNS.cancle=entities.Button(WIDTH-BTNWIDTH,BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Cancle",anch=4,key=key.ESCAPE,batch=self.batch)
+			BTNS.fullscr=entities.ButtonSwitch(0,HEIGHT-BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Borderless",pressedText="Fullscreen",anch=6,batch=self.batch)
+			if CONF.fullscreen:
+				BTNS.fullscr.press()
+			BTNS.showfps=entities.ButtonSwitch(0,HEIGHT-BTNHEIGHT*2.5,BTNWIDTH,BTNHEIGHT,"Show FPS/UPS",pressedText="Hide FPS/UPS",anch=6,batch=self.batch)
+			if CONF.showfps:
+				BTNS.showfps.press()
 		elif scr==2:
 			BTNS.back=entities.Button(WIDTH2,BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Back",anch=4,key=key.ESCAPE,batch=self.batch)
 		else:
@@ -91,7 +111,8 @@ class GameWin(pyglet.window.Window):
 		DTIME+=t-TIME
 		TIMEC+=1
 		if DTIME>=0.1:
-			LABELS.fps.setText("FPS:%02i/%02i"%(round(TIMEC/DTIME),self.fps))
+			if CONF.showfps:
+				LABELS.fps.setText(f"FPS:{TIMEC/DTIME:.1f}/{self.fps}")
 			TIMEC=0
 			DTIME=0
 		TIME=t
@@ -123,7 +144,7 @@ config = pyglet.gl.Config(sample_buffers=1, samples=4)#just to make the graphics
 #I don't like window borders & I have a tiling window manager so I couldn't test it anyway.
 window=GameWin(
 		WIDTH,HEIGHT,
-		fullscreen=True,#TODO: add option to en/disable fullscreen
+		fullscreen=CONF.fullscreen,
 		style=GameWin.WINDOW_STYLE_BORDERLESS,
 		screen=SCREEN,
 		caption="Testing Pyglet",
