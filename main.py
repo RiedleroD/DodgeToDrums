@@ -14,6 +14,7 @@ class GameWin(pyglet.window.Window):
 	dt=0#how much time has passed since ups label has last been updated
 	batch=None#gets renewed when scene changes
 	gbatch=None#this one doesn't
+	diffmode=1#difficulty mode
 	def __init__(self,*args,**kwargs):
 		self.set_fps(60)
 		self.batch=pyglet.graphics.Batch()
@@ -65,6 +66,10 @@ class GameWin(pyglet.window.Window):
 		elif scr==2:
 			if BTNS.back.pressed:
 				self.curscr=0
+				self.diffmode=BTNS.mode.getSelected()
+			elif BTNS.start.pressed:
+				self.curscr=3
+				self.diffmode=BTNS.mode.getSelected()
 	def clear_scene(self,scr):
 		if scr==None:
 			pass
@@ -86,6 +91,8 @@ class GameWin(pyglet.window.Window):
 			BTNS.mode=None
 			BTNS.start=None
 			self.batch=pyglet.graphics.Batch()
+		elif scr==3:
+			pass
 		else:
 			raise ValueError(f"Scene {scr} does not exist to clear")
 	def construct_scene(self,scr):
@@ -111,7 +118,9 @@ class GameWin(pyglet.window.Window):
 		elif scr==2:
 			BTNS.back=entities.Button(WIDTH2,BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Back",anch=4,key=key.ESCAPE,batch=self.batch)
 			BTNS.start=entities.Button(WIDTH2,HEIGHT-BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Start",anch=4,key=key.ENTER,batch=self.batch)
-			BTNS.mode=entities.RadioList(WIDTH2,HEIGHT2,BTNWIDTH,BTNHEIGHT*3,["Normal","Normal","also Normal lol"],selected=1,anch=1,batch=self.batch)
+			BTNS.mode=entities.RadioList(WIDTH2,HEIGHT2,BTNWIDTH,BTNHEIGHT*3,["Normal","Normal","also Normal lol"],selected=self.diffmode,anch=1,batch=self.batch)
+		elif scr==3:
+			pass
 		else:
 			raise ValueError(f"Scene {scr} does not exist to construct")
 	def on_draw(self):#gets called on draw (duh)
