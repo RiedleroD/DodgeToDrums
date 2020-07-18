@@ -83,6 +83,8 @@ class GameWin(pyglet.window.Window):
 			self.batch=pyglet.graphics.Batch()
 		elif scr==2:
 			BTNS.back=None
+			BTNS.mode=None
+			BTNS.start=None
 			self.batch=pyglet.graphics.Batch()
 		else:
 			raise ValueError(f"Scene {scr} does not exist to clear")
@@ -108,6 +110,8 @@ class GameWin(pyglet.window.Window):
 				BTNS.vsync.press()
 		elif scr==2:
 			BTNS.back=entities.Button(WIDTH2,BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Back",anch=4,key=key.ESCAPE,batch=self.batch)
+			BTNS.start=entities.Button(WIDTH2,HEIGHT-BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Start",anch=4,key=key.ENTER,batch=self.batch)
+			BTNS.mode=entities.RadioList(WIDTH2,HEIGHT2,BTNWIDTH,BTNHEIGHT*3,["Normal","Normal","also Normal lol"],selected=1,anch=1,batch=self.batch)
 		else:
 			raise ValueError(f"Scene {scr} does not exist to construct")
 	def on_draw(self):#gets called on draw (duh)

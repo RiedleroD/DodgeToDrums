@@ -272,14 +272,13 @@ class IntEdit(TextEdit):
 		return self.preval
 
 class RadioList(Entity):
-	def __init__(self,x,y,w,h,texts,anch=0,keys=None,pressedTexts=None,selected=None,size=12,batch=None):
+	def __init__(self,x,y,w,h,texts,anch=0,keys=None,pressedTexts=None,selected=None,size=16,batch=None):
 		btnc=len(texts)
 		if keys==None:
 			keys=[None for i in range(btnc)]
 		if pressedTexts==None:
 			pressedTexts=[None for i in range(btnc)]
 		self.btns=[Button(x,y-i*h/btnc,w,h/btnc,text,anch,keys[i],size,pressedTexts[i],batch=batch) for i,text in enumerate(texts)]
-		self.setBgColor((192,192,192))#average color in btns
 		if selected!=None:
 			self.btns[selected].press()
 		super().__init__(x,y,w,h,anch,batch=batch)
@@ -314,7 +313,6 @@ class RadioList(Entity):
 	def draw(self):
 		if not self.rendered:
 			self.render()
-		pyglet.graphics.draw(4,pyglet.gl.GL_QUADS,self.quad,self.cquad)
 		for btn in self.btns:
 			btn.draw()
 	def getSelected(self):

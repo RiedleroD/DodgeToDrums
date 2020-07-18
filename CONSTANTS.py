@@ -78,7 +78,7 @@ class LABELS(ENTCONTAINER):
 
 class BTNS(ENTCONTAINER):
 	#menu
-	start=None
+	start=None#also in gmselect
 	sett=None
 	#generic back & cancle buttons
 	back=None
@@ -87,6 +87,8 @@ class BTNS(ENTCONTAINER):
 	fullscr=None
 	showfps=None
 	vsync=None
+	#game mode select
+	mode=None
 	@classmethod
 	def all(cls):
 		yield cls.start
@@ -96,5 +98,6 @@ class BTNS(ENTCONTAINER):
 		yield cls.fullscr
 		yield cls.showfps
 		yield cls.vsync
+		yield cls.mode
 
 print("initialized entity containers")
