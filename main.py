@@ -9,6 +9,7 @@ class GameWin(pyglet.window.Window):
 	#0 → menu
 	#1 → settings
 	#2 → game mode select
+	#3 → the game itself
 	fps=0#maximum fps and ups
 	tc=0#how many cycles have passed since ups label has last been updated
 	dt=0#how much time has passed since ups label has last been updated
