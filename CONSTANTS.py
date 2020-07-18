@@ -12,8 +12,7 @@ curdir=os.path.abspath(os.path.dirname(__file__))
 conffp=os.path.join(curdir,"conf.json")
 
 class CONF:
-	fullscreen=None
-	showfps=None
+	defaults={"fullscreen":True,"showfps":True,"vsync":True}
 	@classmethod
 	def load(cls,fp):
 		with open(fp,"r") as f:
@@ -22,8 +21,12 @@ class CONF:
 		print(f"loaded config:\n {data}")
 	@classmethod
 	def loads(cls,data):
-		cls.fullscreen=data["fullscreen"]
-		cls.showfps=data["showfps"]
+		for sett, default in cls.defaults.items():
+			if sett in data:
+				val=data[sett]
+			else:
+				val=default
+			setattr(cls,sett,val)
 	@classmethod
 	def dump(cls,fp):
 		with open(fp,"w+") as f:
@@ -31,12 +34,12 @@ class CONF:
 		print("dumped config")
 	@classmethod
 	def dumps(cls):
-		return {"fullscreen":cls.fullscreen,"showfps":cls.showfps}
+		return {name:getattr(cls,name) for name in cls.defaults.keys()}
 
 if os.path.exists(conffp):
 	CONF.load(conffp)
 else:
-	CONF.loads({"fullscreen":True,"showfps":True})
+	CONF.loads({})
 	CONF.dump(conffp)
 
 DISPLAY=pyglet.canvas.get_display()#It took ages to find these functions, so don't question them.

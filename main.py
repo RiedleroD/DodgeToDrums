@@ -149,7 +149,8 @@ window=GameWin(
 		style=GameWin.WINDOW_STYLE_BORDERLESS,
 		screen=SCREEN,
 		caption="Testing Pyglet",
-		vsync=True,visible=True)
+		vsync=CONF.vsync,
+		visible=True)
 window.set_location(0,0)
 print(f"opened window with size {WIDTH}x{HEIGHT}")
 
