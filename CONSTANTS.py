@@ -50,6 +50,8 @@ WIDTH2=WIDTH/2
 HEIGHT2=HEIGHT/2
 BTNHEIGHT=HEIGHT/15
 BTNWIDTH=WIDTH/10
+BTNHEIGHT2=BTNHEIGHT/2
+BTNWIDTH2=BTNWIDTH/2
 ANCHORSy=("bottom","center","top")
 ANCHORSx=("left","center","right")
 print(f"initialized screen with size {WIDTH}x{HEIGHT}")

@@ -59,10 +59,7 @@ class GameWin(pyglet.window.Window):
 				CONF.fullscreen=BTNS.fullscr.pressed
 				CONF.showfps=BTNS.showfps.pressed
 				CONF.dump(conffp)
-				print("\033[1mRESTARTING PROGRAM…\033[22m")
-				self.set_fullscreen(False)#bc restarting with fullscreen on is troubeling.
-				pyglet.app.exit()#closes pyglet window
-				os.execv(__file__,sys.argv)#restarts the whole program to ensure applied settings
+				self.curscr=0
 			elif BTNS.cancle.pressed:
 				self.curscr=0
 		elif scr==2:
@@ -79,6 +76,7 @@ class GameWin(pyglet.window.Window):
 		elif scr==1:
 			BTNS.back=None
 			BTNS.cancle=None
+			LABELS.notice=None
 			BTNS.fullscr=None
 			BTNS.showfps=None
 			self.batch=pyglet.graphics.Batch()
@@ -95,8 +93,9 @@ class GameWin(pyglet.window.Window):
 			BTNS.start=entities.Button(WIDTH2,HEIGHT2,BTNWIDTH,BTNHEIGHT,"Start",anch=4,key=key.ENTER,batch=self.batch)
 			BTNS.sett=entities.Button(WIDTH2,HEIGHT2-BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Settings",anch=7,batch=self.batch)
 		elif scr==1:
-			BTNS.back=entities.Button(WIDTH-BTNWIDTH*2.5,BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Save & Restart",anch=4,key=key.ENTER,batch=self.batch)
+			BTNS.back=entities.Button(WIDTH-BTNWIDTH*2.5,BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Save",anch=4,key=key.ENTER,batch=self.batch)
 			BTNS.cancle=entities.Button(WIDTH-BTNWIDTH,BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Cancle",anch=4,key=key.ESCAPE,batch=self.batch)
+			LABELS.notice=entities.Label(5,BTNHEIGHT2,0,0,"Restart the game to fully apply the settings",anch=0,batch=self.batch)
 			BTNS.fullscr=entities.ButtonSwitch(0,HEIGHT-BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Borderless",pressedText="Fullscreen",anch=6,batch=self.batch)
 			if CONF.fullscreen:
 				BTNS.fullscr.press()
