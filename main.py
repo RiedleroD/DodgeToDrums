@@ -79,6 +79,7 @@ class GameWin(pyglet.window.Window):
 			LABELS.notice=None
 			BTNS.fullscr=None
 			BTNS.showfps=None
+			BTNS.vsync=None
 			self.batch=pyglet.graphics.Batch()
 		elif scr==2:
 			BTNS.back=None
@@ -102,6 +103,9 @@ class GameWin(pyglet.window.Window):
 			BTNS.showfps=entities.ButtonSwitch(0,HEIGHT-BTNHEIGHT*2.5,BTNWIDTH,BTNHEIGHT,"Show FPS/UPS",pressedText="Hide FPS/UPS",anch=6,batch=self.batch)
 			if CONF.showfps:
 				BTNS.showfps.press()
+			BTNS.vsync=entities.ButtonSwitch(0,HEIGHT-BTNHEIGHT*4,BTNWIDTH,BTNHEIGHT,"Vsync OFF",pressedText="Vsync ON",anch=6,batch=self.batch)
+			if CONF.vsync:
+				BTNS.vsync.press()
 		elif scr==2:
 			BTNS.back=entities.Button(WIDTH2,BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Back",anch=4,key=key.ESCAPE,batch=self.batch)
 		else:

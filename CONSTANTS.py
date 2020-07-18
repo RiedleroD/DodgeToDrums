@@ -86,6 +86,7 @@ class BTNS(ENTCONTAINER):
 	#settings
 	fullscr=None
 	showfps=None
+	vsync=None
 	@classmethod
 	def all(cls):
 		yield cls.start
@@ -94,5 +95,6 @@ class BTNS(ENTCONTAINER):
 		yield cls.back
 		yield cls.fullscr
 		yield cls.showfps
+		yield cls.vsync
 
 print("initialized entity containers")
