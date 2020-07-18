@@ -151,7 +151,7 @@ window=GameWin(
 		fullscreen=CONF.fullscreen,
 		style=GameWin.WINDOW_STYLE_BORDERLESS,
 		screen=SCREEN,
-		caption="Testing Pyglet",
+		caption="Dodge to Drums",
 		vsync=CONF.vsync,
 		visible=True)
 window.set_location(0,0)
