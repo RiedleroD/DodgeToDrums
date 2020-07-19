@@ -122,7 +122,7 @@ class GameWin(pyglet.window.Window):
 			BTNS.mode=entities.RadioList(WIDTH2,HEIGHT2,BTNWIDTH,BTNHEIGHT*3,["Normal","Normal","also Normal lol"],selected=self.diffmode,anch=1,batch=self.batch)
 		elif scr==3:
 			PHYS.walls.append(entities.Wall(0,0,WIDTH,HEIGHT4,(128,128,128,255)))
-			PHYS.char=entities.Hooman(WIDTH2,HEIGHT2,BTNWIDTH2,BTNHEIGHT,(64,64,255,255))
+			PHYS.char=entities.Hooman(WIDTH2,HEIGHT2,BTNWIDTH2,BTNHEIGHT*2,(64,64,255,255))
 			PHYS.char.set_floor(HEIGHT4)
 		else:
 			raise ValueError(f"Scene {scr} does not exist to construct")

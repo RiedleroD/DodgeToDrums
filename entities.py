@@ -432,6 +432,7 @@ class Hooman(PhysEntity):
 	u=False
 	d=False
 	fy=None
+	bh=None#holds the base height when crouching
 	def set_floor(self,y):
 		self.fy=y
 	def checkKey(self,k,prsd):
@@ -446,9 +447,25 @@ class Hooman(PhysEntity):
 	def cycle(self):
 		self.spdx=0
 		if self.l:
-			self.spdx-=10
+			if self.d:
+				self.spdx-=5
+			else:
+				self.spdx-=10
 		if self.r:
-			self.spdx+=10
+			if self.d:
+				self.spdx+=5
+			else:
+				self.spdx+=10
+		if self.d:
+			self.spdy-=5
+			if self.bh==None:
+				self.bh=self.h
+			if self.h!=self.bh/2:
+				self.set_size(self.w,self.bh/2)
+		else:
+			if self.bh!=None and self.h!=self.bh:
+				self.set_size(self.w,self.bh)
+				self.bh=None
 		if self.y==self.fy and self.u:
 			self.spdy+=30
 		elif self.y>self.fy:
