@@ -16,9 +16,11 @@ class GameWin(pyglet.window.Window):
 	batch=None#gets renewed when scene changes
 	gbatch=None#this one doesn't
 	diffmode=1#difficulty mode
+	paused=False
 	def __init__(self,*args,**kwargs):
 		self.set_fps(60)
 		self.batch=pyglet.graphics.Batch()
+		self.gbatch=pyglet.graphics.Batch()
 		if CONF.showfps:
 			LABELS.fps=entities.Label(0,HEIGHT,0,0,"FPS:60.0",6,batch=self.gbatch)
 			LABELS.ups=entities.Label(0,HEIGHT-13,0,0,"UPS:60.0",6,batch=self.gbatch)
@@ -45,6 +47,9 @@ class GameWin(pyglet.window.Window):
 			self.prvscr=self.curscr
 		#process pressed buttons
 		self.pressproc(self.curscr)
+		#cycle all physical objects that need cycling
+		if PHYS.char and not self.paused:
+			PHYS.char.cycle()
 	def pressproc(self,scr):
 		if scr==0:
 			if BTNS.back.pressed:
@@ -71,6 +76,18 @@ class GameWin(pyglet.window.Window):
 			elif BTNS.start.pressed:
 				self.curscr=3
 				self.diffmode=BTNS.mode.getSelected()
+		elif scr==3:
+			if BTNS.pause.pressed:
+				self.paused=not self.paused
+				BTNS.pause.release()
+				if self.paused:
+					#to ensure that the button only shows up when paused and vanishes afterwards, it has to have no batch attached
+					BTNS.back=entities.Button(WIDTH2,HEIGHT-HEIGHT4,BTNWIDTH,BTNHEIGHT,"Exit",anch=4,batch=None)
+				else:
+					BTNS.back=None
+			elif BTNS.back and BTNS.back.pressed:
+				self.curscr=0
+				self.paused=False
 	def clear_scene(self,scr):
 		if scr==None:
 			pass
@@ -94,6 +111,10 @@ class GameWin(pyglet.window.Window):
 			self.batch=pyglet.graphics.Batch()
 		elif scr==3:
 			PHYS.walls.clear()
+			PHYS.char=None
+			MISCE.overlay=None
+			BTNS.pause=None
+			BTNS.back=None
 		else:
 			raise ValueError(f"Scene {scr} does not exist to clear")
 	def construct_scene(self,scr):
@@ -121,9 +142,11 @@ class GameWin(pyglet.window.Window):
 			BTNS.start=entities.Button(WIDTH2,HEIGHT-BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Start",anch=4,key=key.ENTER,batch=self.batch)
 			BTNS.mode=entities.RadioList(WIDTH2,HEIGHT2,BTNWIDTH,BTNHEIGHT*3,["Normal","Normal","also Normal lol"],selected=self.diffmode,anch=1,batch=self.batch)
 		elif scr==3:
+			BTNS.pause=entities.Button(0,0,0,0,"",0,key=key.ESCAPE,batch=self.batch)
 			PHYS.walls.append(entities.Wall(0,0,WIDTH,HEIGHT4,(128,128,128,255)))
 			PHYS.char=entities.Hooman(WIDTH2,HEIGHT2,BTNWIDTH2,BTNHEIGHT*2,(64,64,255,255))
 			PHYS.char.set_floor(HEIGHT4)
+			MISCE.overlay=entities.Overlay(0,0,WIDTH,HEIGHT,(0,0,0,64))
 		else:
 			raise ValueError(f"Scene {scr} does not exist to construct")
 	def on_draw(self):#gets called on draw (duh)
@@ -144,6 +167,9 @@ class GameWin(pyglet.window.Window):
 		phbatch=pyglet.graphics.Batch()
 		PHYS.draw(phbatch)
 		phbatch.draw()
+		if self.paused:
+			MISCE.overlay.draw()
+		self.gbatch.draw()
 		self.batch.draw()
 		pyglet.clock.tick()
 	def on_mouse_press(self,x,y,button,modifiers):
@@ -179,6 +205,10 @@ window=GameWin(
 		vsync=CONF.vsync,
 		visible=True)
 window.set_location(0,0)
+
+#enable transparency
+pyglet.gl.glEnable(pyglet.gl.GL_BLEND)
+
 print(f"opened window with size {WIDTH}x{HEIGHT}")
 
 pyglet.app.run()

@@ -90,6 +90,8 @@ class BTNS(ENTCONTAINER):
 	vsync=None
 	#game mode select
 	mode=None
+	#while in game
+	pause=None
 	@classmethod
 	def all(cls):
 		yield cls.start
@@ -100,6 +102,7 @@ class BTNS(ENTCONTAINER):
 		yield cls.showfps
 		yield cls.vsync
 		yield cls.mode
+		yield cls.pause
 
 class PHYS(ENTCONTAINER):#physical objects
 	walls=[]
@@ -107,5 +110,11 @@ class PHYS(ENTCONTAINER):#physical objects
 	@classmethod
 	def all(cls):
 		return (*cls.walls,cls.char)
+
+class MISCE(ENTCONTAINER):#miscellanious entities
+	overlay=None#for pause screen
+	@classmethod
+	def all(cls):
+		yield cls.overlay
 
 print("initialized entity containers")

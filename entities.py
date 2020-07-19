@@ -72,6 +72,21 @@ class Entity:
 			self.render()
 		pyglet.graphics.draw(4,pyglet.gl.GL_QUADS,self.quad)
 
+class Overlay(Entity):
+	def __init__(self,x,y,w,h,c):
+		super().__init__(x,y,w,h)
+		self.set_color(c)
+	def set_color(self,c):
+		if len(c)!=4:
+			raise ValueError(f"Invalid color tuple {c}: must be exactly 3 integers long")
+		elif max(c)>255 or min(c)<0:
+			raise ValueError(f"Invalid color tuple {c}: numbers must range between 0 and 255")
+		self.cquad=('c4B',c*4)
+	def draw(self):
+		if not self.rendered:
+			self.render()
+		pyglet.graphics.draw(4,pyglet.gl.GL_QUADS,self.quad,self.cquad)
+
 class Label(Entity):
 	def __init__(self,x,y,w,h,text,anch=0,color=(255,255,255,255),bgcolor=(0,0,0,0),size=12,batch=None):
 		self.label=pyglet.text.Label(text,x=x,y=y,color=color,font_size=size,batch=batch)
@@ -417,7 +432,6 @@ class PhysEntity(Entity):
 		self.quad=('v2f',(self.x,self.y,self._x,self.y,self._x,self._y,self.x,self._y))
 		self.rendered=True
 	def draw(self,batch):
-		self.cycle()
 		if not self.rendered:
 			self.render()
 		batch.add(4,pyglet.gl.GL_QUADS,None,self.quad,self.cquad)
