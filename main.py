@@ -35,7 +35,7 @@ class GameWin(pyglet.window.Window):
 		self.dt+=dt
 		if self.dt>=0.1:
 			#update ups counter
-			if CONF.showfps:
+			if LABELS.ups:
 				LABELS.ups.setText(f"UPS:{self.tc/self.dt:.1f}/{self.fps}")
 			#set tc and dt to 0
 			self.tc=0
@@ -155,7 +155,7 @@ class GameWin(pyglet.window.Window):
 		DTIME+=t-TIME
 		TIMEC+=1
 		if DTIME>=0.1:
-			if CONF.showfps:
+			if LABELS.fps:
 				LABELS.fps.setText(f"FPS:{TIMEC/DTIME:.1f}/{self.fps}")
 			TIMEC=0
 			DTIME=0
