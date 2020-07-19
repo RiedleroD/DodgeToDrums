@@ -1,6 +1,7 @@
 *.pyc
 __pycache__/
 *.so
-*.dist/
-*.build/
+dist/
+build/
 conf.json
+*spec

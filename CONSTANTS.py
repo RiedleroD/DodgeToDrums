@@ -8,7 +8,13 @@ import pyglet.window as pgw
 from time import time
 print("imported libraries")
 
-curdir=os.path.abspath(os.path.dirname(__file__))
+if getattr(sys, 'frozen', False):
+	curdir=os.path.abspath(os.path.dirname(sys.executable))
+else:
+	curdir=os.path.abspath(os.path.dirname(__file__))
+
+print(f"started in dir {curdir} with arguments {sys.argv}")
+
 conffp=os.path.join(curdir,"conf.json")
 
 class CONF:
@@ -18,7 +24,7 @@ class CONF:
 		with open(fp,"r") as f:
 			data=json.load(f)
 		cls.loads(data)
-		print(f"loaded config:\n {data}")
+		print(f"loaded config from {fp}:\n {data}")
 	@classmethod
 	def loads(cls,data):
 		for sett, default in cls.defaults.items():
@@ -31,7 +37,7 @@ class CONF:
 	def dump(cls,fp):
 		with open(fp,"w+") as f:
 			json.dump(cls.dumps(),f)
-		print("dumped config")
+		print(f"dumped config to {fp}")
 	@classmethod
 	def dumps(cls):
 		return {name:getattr(cls,name) for name in cls.defaults.keys()}
