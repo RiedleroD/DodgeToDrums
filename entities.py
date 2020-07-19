@@ -395,4 +395,68 @@ class RadioListPaged(RadioList):
 			self.prev.release()
 		if self.next.pressed:
 			self.next.release()
+
+class PhysEntity(Entity):
+	def __init__(self,x,y,w,h,c,spdx=0,spdy=0):
+		super().__init__(x,y,w,h,0,None)
+		self.set_speed(spdx,spdy)
+		self.set_color(c)
+	def set_speed(self,x,y):
+		self.spdx=x
+		self.spdy=y
+	def set_color(self,c):
+		if len(c)!=4:
+			raise ValueError(f"Invalid color tuple {c}: must be exactly 3 integers long")
+		elif max(c)>255 or min(c)<0:
+			raise ValueError(f"Invalid color tuple {c}: numbers must range between 0 and 255")
+		self.cquad=('c4B',c*4)
+	def cycle(self):
+		if self.spdx>0 or self.spdy>0:
+			self.move(self.spdx,self.spdy)
+	def render(self):
+		self.quad=('v2f',(self.x,self.y,self._x,self.y,self._x,self._y,self.x,self._y))
+		self.rendered=True
+	def draw(self,batch):
+		self.cycle()
+		if not self.rendered:
+			self.render()
+		batch.add(4,pyglet.gl.GL_QUADS,None,self.quad,self.cquad)
+
+class Wall(PhysEntity):
+	def __init__(self,x,y,w,h,c):
+		super().__init__(x,y,w,h,c,0,0)
+
+class Hooman(PhysEntity):
+	l=False
+	r=False
+	u=False
+	d=False
+	fy=None
+	def set_floor(self,y):
+		self.fy=y
+	def checkKey(self,k,prsd):
+		if k in (key.LEFT,key.A):
+			self.l=prsd
+		elif k in (key.RIGHT,key.D):
+			self.r=prsd
+		elif k in (key.DOWN,key.S):
+			self.d=prsd
+		elif k in (key.UP,key.SPACE,key.W):
+			self.u=prsd
+	def cycle(self):
+		self.spdx=0
+		if self.l:
+			self.spdx-=10
+		if self.r:
+			self.spdx+=10
+		if self.y==self.fy and self.u:
+			self.spdy+=30
+		elif self.y>self.fy:
+			self.spdy-=2
+		else:
+			self.spdy=0
+		self.move(self.spdx,self.spdy)
+		if self.y<self.fy:
+			self.set_pos(self.x,self.fy)
+
 print("defined entities")

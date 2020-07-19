@@ -93,7 +93,7 @@ class GameWin(pyglet.window.Window):
 			BTNS.start=None
 			self.batch=pyglet.graphics.Batch()
 		elif scr==3:
-			pass
+			PHYS.walls.clear()
 		else:
 			raise ValueError(f"Scene {scr} does not exist to clear")
 	def construct_scene(self,scr):
@@ -121,7 +121,9 @@ class GameWin(pyglet.window.Window):
 			BTNS.start=entities.Button(WIDTH2,HEIGHT-BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Start",anch=4,key=key.ENTER,batch=self.batch)
 			BTNS.mode=entities.RadioList(WIDTH2,HEIGHT2,BTNWIDTH,BTNHEIGHT*3,["Normal","Normal","also Normal lol"],selected=self.diffmode,anch=1,batch=self.batch)
 		elif scr==3:
-			pass
+			PHYS.walls.append(entities.Wall(0,0,WIDTH,HEIGHT4,(128,128,128,255)))
+			PHYS.char=entities.Hooman(WIDTH2,HEIGHT2,BTNWIDTH2,BTNHEIGHT,(64,64,255,255))
+			PHYS.char.set_floor(HEIGHT4)
 		else:
 			raise ValueError(f"Scene {scr} does not exist to construct")
 	def on_draw(self):#gets called on draw (duh)
@@ -139,6 +141,9 @@ class GameWin(pyglet.window.Window):
 		self.clear()
 		LABELS.draw()
 		BTNS.draw()
+		phbatch=pyglet.graphics.Batch()
+		PHYS.draw(phbatch)
+		phbatch.draw()
 		self.batch.draw()
 		pyglet.clock.tick()
 	def on_mouse_press(self,x,y,button,modifiers):
@@ -153,11 +158,16 @@ class GameWin(pyglet.window.Window):
 		elif button==pgw.mouse.MIDDLE:
 			pass
 	def on_key_press(self,symbol,modifiers):
+		if PHYS.char:
+			PHYS.char.checkKey(symbol,True)
 		for item in BTNS.all():
 			if item:
 				ret=item.checkKey(symbol)
 				if ret:
 					return ret
+	def on_key_release(self,symbol,modifiers):
+		if PHYS.char:
+			PHYS.char.checkKey(symbol,False)
 
 #I don't like window borders & I have a tiling window manager so I couldn't test it anyway.
 window=GameWin(

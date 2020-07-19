@@ -48,6 +48,7 @@ WIDTH=SCREEN.width
 HEIGHT=SCREEN.height
 WIDTH2=WIDTH/2
 HEIGHT2=HEIGHT/2
+HEIGHT4=HEIGHT/4
 BTNHEIGHT=HEIGHT/15
 BTNWIDTH=WIDTH/10
 BTNHEIGHT2=BTNHEIGHT/2
@@ -63,10 +64,10 @@ print(f"initialized time {TIME}")
 
 class ENTCONTAINER:#base class for all entity containers
 	@classmethod
-	def draw(cls):
+	def draw(cls,*args,**kwargs):
 		for ent in cls.all():
 			if ent:
-				ent.draw()
+				ent.draw(*args,**kwargs)
 
 class LABELS(ENTCONTAINER):
 	fps=None
@@ -99,5 +100,12 @@ class BTNS(ENTCONTAINER):
 		yield cls.showfps
 		yield cls.vsync
 		yield cls.mode
+
+class PHYS(ENTCONTAINER):#physical objects
+	walls=[]
+	char=None
+	@classmethod
+	def all(cls):
+		return (*cls.walls,cls.char)
 
 print("initialized entity containers")
