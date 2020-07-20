@@ -144,7 +144,7 @@ class GameWin(pyglet.window.Window):
 			BTNS.mode=entities.RadioList(WIDTH2,HEIGHT2,BTNWIDTH,BTNHEIGHT*3,["Normal","Normal","also Normal lol"],selected=self.diffmode,anch=1,batch=self.batch,group=GRmp)
 		elif scr==3:
 			BTNS.pause=entities.Button(0,0,0,0,"",0,key=key.ESCAPE,batch=self.batch,group=GRmp)
-			PHYS.char=entities.Hooman(WIDTH2,HEIGHT2,BTNWIDTH2,BTNHEIGHT*2,(64,64,255,255))
+			PHYS.char=entities.Hooman(WIDTH2,HEIGHT2,SIZE/24,SIZE/16,(64,64,255,255))
 			PHYS.char.set_boundaries(WIDTH,HEIGHT)
 			MISCE.overlay=entities.Overlay(0,0,WIDTH,HEIGHT,(0,0,0,64))
 		else:

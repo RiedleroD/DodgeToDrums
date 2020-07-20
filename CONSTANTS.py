@@ -60,6 +60,7 @@ BTNHEIGHT=HEIGHT/15
 BTNWIDTH=WIDTH/10
 BTNHEIGHT2=BTNHEIGHT/2
 BTNWIDTH2=BTNWIDTH/2
+SIZE=(WIDTH+HEIGHT)/2#for scaling stuff where the aspect ratio shouldn't be changed but the size should
 ANCHORSy=("bottom","center","top")
 ANCHORSx=("left","center","right")
 print(f"initialized screen with size {WIDTH}x{HEIGHT}")
