@@ -37,7 +37,7 @@ It <u>should</u> also run on everything above including Windows XP, but only Win
 ## Screenshots
 
 No screenshots are yet available, because it's so early in development right now, but Dark Rosemary drew an amazing sketch of what it's going to look like:
-(still need the ok from DR to post it here)
+![Sketch of DTD](https://riedler.wien/sfto/DTD_sketch1.jpg)
 
 ## Usage
 
