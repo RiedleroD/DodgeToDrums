@@ -11,6 +11,9 @@ class Sprite():
 	def __init__(self,x,y,w,h,img,batch,group):
 		self.x=x
 		self.y=y
+		#nearest-neighbour texture upscaling
+		pyglet.gl.glTexParameteri(pyglet.gl.GL_TEXTURE_2D,pyglet.gl.GL_TEXTURE_MAG_FILTER,pyglet.gl.GL_NEAREST)
+		pyglet.gl.glTexParameteri(pyglet.gl.GL_TEXTURE_2D,pyglet.gl.GL_TEXTURE_MIN_FILTER,pyglet.gl.GL_NEAREST)
 		self.sprite=pyglet.sprite.Sprite(img,x,y,batch=batch,group=group)
 		self.ow=self.sprite.width
 		self.oh=self.sprite.height
@@ -52,9 +55,14 @@ class AnimSprite(Sprite):
 		self.curs=0
 		self.curw=0
 		self.lens=len(imgs)
-		self.sprites=[pyglet.sprite.Sprite(img,x,y,batch=batch,group=group) for img in imgs]
-		for sprite in self.sprites[1:]:
+		self.sprites=[]
+		for img in imgs:
+			#nearest-neighbour texture upscaling
+			pyglet.gl.glTexParameteri(pyglet.gl.GL_TEXTURE_2D,pyglet.gl.GL_TEXTURE_MAG_FILTER,pyglet.gl.GL_NEAREST)
+			pyglet.gl.glTexParameteri(pyglet.gl.GL_TEXTURE_2D,pyglet.gl.GL_TEXTURE_MIN_FILTER,pyglet.gl.GL_NEAREST)
+			sprite=pyglet.sprite.Sprite(img,x,y,batch=batch,group=group)
 			sprite.visible=False
+			self.sprites.append(sprite)
 		self.set_size(w,h)
 	def set_size(self,w,h):
 		self.w=w
