@@ -16,6 +16,7 @@ else:
 print(f"started in dir {curdir} with arguments {sys.argv}")
 
 conffp=os.path.join(curdir,"conf.json")
+datafp=os.path.join(curdir,"data")
 
 class CONF:
 	defaults={"fullscreen":True,"showfps":True,"vsync":True}
@@ -67,60 +68,3 @@ TIME=time()
 TIMEC=0
 DTIME=0
 print(f"initialized time {TIME}")
-
-class ENTCONTAINER:#base class for all entity containers
-	@classmethod
-	def draw(cls,*args,**kwargs):
-		for ent in cls.all():
-			if ent:
-				ent.draw(*args,**kwargs)
-
-class LABELS(ENTCONTAINER):
-	fps=None
-	ups=None
-	@classmethod
-	def all(cls):
-		yield cls.fps
-		yield cls.ups
-
-class BTNS(ENTCONTAINER):
-	#menu
-	start=None#also in gmselect
-	sett=None
-	#generic back & cancle buttons
-	back=None
-	cancle=None
-	#settings
-	fullscr=None
-	showfps=None
-	vsync=None
-	#game mode select
-	mode=None
-	#while in game
-	pause=None
-	@classmethod
-	def all(cls):
-		yield cls.start
-		yield cls.sett
-		yield cls.cancle
-		yield cls.back
-		yield cls.fullscr
-		yield cls.showfps
-		yield cls.vsync
-		yield cls.mode
-		yield cls.pause
-
-class PHYS(ENTCONTAINER):#physical objects
-	walls=[]
-	char=None
-	@classmethod
-	def all(cls):
-		return (*cls.walls,cls.char)
-
-class MISCE(ENTCONTAINER):#miscellanious entities
-	overlay=None#for pause screen
-	@classmethod
-	def all(cls):
-		yield cls.overlay
-
-print("initialized entity containers")

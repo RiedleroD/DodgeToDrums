@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+from containers import MEDIA
 from CONSTANTS import *
 
 class Entity:
@@ -124,6 +125,8 @@ class Label(Entity):
 			pyglet.graphics.draw(4,pyglet.gl.GL_QUADS,self.quad,self.cquad)
 		if self.batch==None:
 			self.label.draw()
+	def __del__(self):
+		self.label.delete()
 
 class LabelMultiline(Label):
 	def __init__(self,x,y,w,h,text,anch=0,color=(255,255,255,255),bgcolor=(0,0,0,0),size=12,batch=None):
@@ -168,6 +171,9 @@ class LabelMultiline(Label):
 		if self.batch==None:
 			for label in self.labels:
 				label.draw()
+	def __del__(self):
+		for label in self.labels:
+			label.delete()
 
 class Button(Label):
 	def __init__(self,x,y,w,h,text,anch=0,key=None,size=16,pressedText=None,batch=None):
@@ -179,6 +185,14 @@ class Button(Label):
 		else:
 			self.pressedText=self.unpressedText=text
 		super().__init__(x,y,w,h,text,anch,(0,0,0,255),(255,255,255,255),size,batch=batch)
+		if MEDIA.btn and batch:
+			self.sprite=MEDIA.btn.get(self.x,self.y,w,h,batch)
+		else:
+			self.sprite=None
+		if MEDIA.btnp and batch:
+			self.psprit=MEDIA.btnp.get(self.x,self.y,w,h,batch)
+		else:
+			self.psprit=None
 	def setBgColor(self,color):
 		if self.pressed:
 			self.cquad=("c4B",(*color,*color,128,128,128,255,128,128,128,255))
@@ -202,6 +216,22 @@ class Button(Label):
 			self.setText(self.unpressedText)
 			self.setBgColor((255,255,255,255))
 			return pyglet.event.EVENT_HANDLED
+	def draw(self):
+		if not self.rendered:
+			self.render()
+		if self.sprite and self.pressed:
+			self.sprite.hide()
+		elif self.psprit and not self.pressed:
+			self.psprit.hide()
+		if self.psprit and self.pressed:
+			self.psprit.show()
+		elif self.sprite and not self.pressed:
+			self.sprite.show()
+		else:
+			if self.w>0 and self.h>0:
+				pyglet.graphics.draw(4,pyglet.gl.GL_QUADS,self.quad,self.cquad)
+		if self.batch==None:
+			self.label.draw()
 
 class ButtonSwitch(Button):
 	def checkpress(self,x,y):

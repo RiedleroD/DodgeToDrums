@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 from CONSTANTS import *
 import entities
+from containers import LABELS,BTNS,PHYS,MISCE
 
 class GameWin(pyglet.window.Window):
 	prvscr=None#which scene was shown last frame
@@ -82,7 +83,7 @@ class GameWin(pyglet.window.Window):
 				BTNS.pause.release()
 				if self.paused:
 					#to ensure that the button only shows up when paused and vanishes afterwards, it has to have no batch attached
-					BTNS.back=entities.Button(WIDTH2,HEIGHT-HEIGHT4,BTNWIDTH,BTNHEIGHT,"Exit",anch=4,batch=None)
+					BTNS.back=entities.Button(WIDTH2,HEIGHT-HEIGHT4,BTNWIDTH,BTNHEIGHT,"Exit",anch=4,batch=self.batch)
 				else:
 					BTNS.back=None
 			elif BTNS.back and BTNS.back.pressed:
