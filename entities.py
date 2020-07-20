@@ -478,7 +478,12 @@ class Hooman(PhysEntity):
 	u=False
 	d=False
 	sh=False#shift → crouch
+	wb=None#width boundary
+	hb=None#height boundary
 	bh=None#holds the base height when crouching
+	def set_boundaries(self,w,h):
+		self.wb=w
+		self.hb=h
 	def checkKey(self,k,prsd):
 		if k in (key.LEFT,key.A):
 			self.l=prsd
@@ -491,7 +496,9 @@ class Hooman(PhysEntity):
 		elif k in (key.LSHIFT,key.RSHIFT):
 			self.sh=prsd
 	def cycle(self):
+		#reset speed
 		self.spdx=self.spdy=0
+		#slowdown on crouch
 		if self.sh:
 			if self.bh==None:
 				self.bh=self.h
@@ -502,6 +509,7 @@ class Hooman(PhysEntity):
 				self.set_size(self.w,self.bh)
 				self.bh=None
 			acc=10
+		#moving on button press
 		if self.l:
 			self.spdx-=acc
 		if self.r:
@@ -510,6 +518,24 @@ class Hooman(PhysEntity):
 			self.spdy+=acc
 		if self.d:
 			self.spdy-=acc
-		self.move(self.spdx,self.spdy)
+		if self.spdx!=0 or self.spdy!=0:
+			self.move(self.spdx,self.spdy)
+		#repecting boundaries
+		if self.x<0:
+			x=0
+		elif self.x+self.w>self.wb:
+			x=self.wb-self.w
+		else:
+			x=None
+		if self.y<0:
+			y=0
+		elif self.y+self.h>self.hb:
+			y=self.hb-self.h
+		else:
+			y=None
+		if not (x==None and y==None):
+			x=self.x if x==None else x
+			y=self.y if y==None else y
+			self.set_pos(x,y)
 
 print("defined entities")
