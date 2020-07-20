@@ -477,10 +477,8 @@ class Hooman(PhysEntity):
 	r=False
 	u=False
 	d=False
-	fy=None
+	sh=False#shift → crouch
 	bh=None#holds the base height when crouching
-	def set_floor(self,y):
-		self.fy=y
 	def checkKey(self,k,prsd):
 		if k in (key.LEFT,key.A):
 			self.l=prsd
@@ -488,38 +486,30 @@ class Hooman(PhysEntity):
 			self.r=prsd
 		elif k in (key.DOWN,key.S):
 			self.d=prsd
-		elif k in (key.UP,key.SPACE,key.W):
+		elif k in (key.UP,key.W):
 			self.u=prsd
+		elif k in (key.LSHIFT,key.RSHIFT):
+			self.sh=prsd
 	def cycle(self):
-		self.spdx=0
-		if self.l:
-			if self.d:
-				self.spdx-=5
-			else:
-				self.spdx-=10
-		if self.r:
-			if self.d:
-				self.spdx+=5
-			else:
-				self.spdx+=10
-		if self.d:
-			self.spdy-=5
+		self.spdx=self.spdy=0
+		if self.sh:
 			if self.bh==None:
 				self.bh=self.h
-			if self.h!=self.bh/2:
-				self.set_size(self.w,self.bh/2)
+				self.set_size(self.w,self.h/2)
+			acc=5
 		else:
-			if self.bh!=None and self.h!=self.bh:
+			if self.bh!=None:
 				self.set_size(self.w,self.bh)
 				self.bh=None
-		if self.y==self.fy and self.u:
-			self.spdy+=30
-		elif self.y>self.fy:
-			self.spdy-=2
-		else:
-			self.spdy=0
+			acc=10
+		if self.l:
+			self.spdx-=acc
+		if self.r:
+			self.spdx+=acc
+		if self.u:
+			self.spdy+=acc
+		if self.d:
+			self.spdy-=acc
 		self.move(self.spdx,self.spdy)
-		if self.y<self.fy:
-			self.set_pos(self.x,self.fy)
 
 print("defined entities")

@@ -146,7 +146,6 @@ class GameWin(pyglet.window.Window):
 			BTNS.pause=entities.Button(0,0,0,0,"",0,key=key.ESCAPE,batch=self.batch,group=GRmp)
 			PHYS.walls.append(entities.Wall(0,0,WIDTH,HEIGHT4,(128,128,128,255)))
 			PHYS.char=entities.Hooman(WIDTH2,HEIGHT2,BTNWIDTH2,BTNHEIGHT*2,(64,64,255,255))
-			PHYS.char.set_floor(HEIGHT4)
 			MISCE.overlay=entities.Overlay(0,0,WIDTH,HEIGHT,(0,0,0,64))
 		else:
 			raise ValueError(f"Scene {scr} does not exist to construct")
