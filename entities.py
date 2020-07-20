@@ -3,12 +3,13 @@ from containers import MEDIA
 from CONSTANTS import *
 
 class Entity:
-	def __init__(self,x,y,w,h,anch=0,batch=None):
+	def __init__(self,x,y,w,h,anch=0,batch=None,group=None):
 		self.w=w
 		self.h=h
 		self.set_pos(x,y,anch)
 		self.rendered=False
 		self.batch=batch
+		self.group=group
 	def set_pos(self,x,y,anch=0):
 		#anchor:
 		#______
@@ -75,7 +76,7 @@ class Entity:
 
 class Overlay(Entity):
 	def __init__(self,x,y,w,h,c):
-		super().__init__(x,y,w,h)
+		super().__init__(x,y,w,h,group=GRobg)
 		self.set_color(c)
 	def set_color(self,c):
 		if len(c)!=4:
@@ -89,14 +90,14 @@ class Overlay(Entity):
 		pyglet.graphics.draw(4,pyglet.gl.GL_QUADS,self.quad,self.cquad)
 
 class Label(Entity):
-	def __init__(self,x,y,w,h,text,anch=0,color=(255,255,255,255),bgcolor=(0,0,0,0),size=12,batch=None):
-		self.label=pyglet.text.Label(text,x=x,y=y,color=color,font_size=size,batch=batch)
+	def __init__(self,x,y,w,h,text,anch=0,color=(255,255,255,255),bgcolor=(0,0,0,0),size=12,batch=None,group=None):
+		self.label=pyglet.text.Label(text,x=x,y=y,color=color,font_size=size,batch=batch,group=group)
 		self.setText(text)
 		self.setColor(color)
 		self.setBgColor(bgcolor)
 		self.anch=anch
 		self.size=size
-		super().__init__(x,y,w,h,anch,batch=batch)
+		super().__init__(x,y,w,h,anch,batch=batch,group=group)
 	def setBgColor(self,color):
 		self.cquad=("c4B",color*4)
 	def setColor(self,color):
@@ -129,9 +130,10 @@ class Label(Entity):
 		self.label.delete()
 
 class LabelMultiline(Label):
-	def __init__(self,x,y,w,h,text,anch=0,color=(255,255,255,255),bgcolor=(0,0,0,0),size=12,batch=None):
+	def __init__(self,x,y,w,h,text,anch=0,color=(255,255,255,255),bgcolor=(0,0,0,0),size=12,batch=None,group=None):
 		self.labels=[pyglet.text.Label(text,x=0,y=-size*1.5,color=color,font_size=size,batch=batch) for line in text.split("\n")]
-		super().__init__(x,y,w,h,text,anch,color,bgcolor,size,batch)
+		super().__init__(x,y,w,h,text,anch,color,bgcolor,size,batch,group)
+		self.label.delete()
 		del self.label
 	def setColor(self,color):
 		self.color=color
@@ -141,7 +143,7 @@ class LabelMultiline(Label):
 		self.text=text
 		text=text.split("\n")
 		while len(self.labels)<len(text):
-			self.labels.append(pyglet.text.Label("",x=0,y=-self.size*1.5,color=self.color,font_size=self.size,batch=self.batch))
+			self.labels.append(pyglet.text.Label("",x=0,y=-self.size*1.5,color=self.color,font_size=self.size,batch=self.batch,group=self.group))
 		self.rendered=False
 		for label in reversed(self.labels):
 			try:
@@ -176,7 +178,7 @@ class LabelMultiline(Label):
 			label.delete()
 
 class Button(Label):
-	def __init__(self,x,y,w,h,text,anch=0,key=None,size=16,pressedText=None,batch=None):
+	def __init__(self,x,y,w,h,text,anch=0,key=None,size=16,pressedText=None,batch=None,group=None):
 		self.pressed=False
 		self.key=key
 		if pressedText:
@@ -184,13 +186,13 @@ class Button(Label):
 			self.unpressedText=text
 		else:
 			self.pressedText=self.unpressedText=text
-		super().__init__(x,y,w,h,text,anch,(0,0,0,255),(255,255,255,255),size,batch=batch)
+		super().__init__(x,y,w,h,text,anch,(0,0,0,255),(255,255,255,255),size,batch=batch,group=GRs[GRs.index(group)+1])
 		if MEDIA.btn and batch:
-			self.sprite=MEDIA.btn.get(self.x,self.y,w,h,batch)
+			self.sprite=MEDIA.btn.get(self.x,self.y,w,h,batch,group)
 		else:
 			self.sprite=None
 		if MEDIA.btnp and batch:
-			self.psprit=MEDIA.btnp.get(self.x,self.y,w,h,batch)
+			self.psprit=MEDIA.btnp.get(self.x,self.y,w,h,batch,group)
 		else:
 			self.psprit=None
 	def setBgColor(self,color):
@@ -242,11 +244,11 @@ class ButtonSwitch(Button):
 				self.press()
 
 class ButtonFlipthrough(Button):
-	def __init__(self,x,y,w,h,text,values,anch=0,key=None,size=12,batch=None):
+	def __init__(self,x,y,w,h,text,values,anch=0,key=None,size=12,batch=None,group=None):
 		self.vals=values
 		self.i=0
 		self.text=text
-		super().__init__(x,y,w,h,text%values[0],anch,key,size,batch=batch)
+		super().__init__(x,y,w,h,text%values[0],anch,key,size,batch=batch,group=group)
 	def setText(self,text):
 		self.label.text=text
 	def getCurval(self):
@@ -258,10 +260,10 @@ class ButtonFlipthrough(Button):
 		return pyglet.event.EVENT_HANDLED
 
 class TextEdit(Button):#also unused
-	def __init__(self,x,y,w,h,desc,value="",anch=0,key=None,size=12,batch=None):
+	def __init__(self,x,y,w,h,desc,value="",anch=0,key=None,size=12,batch=None,group=None):
 		self.desc=desc
 		self.value=value
-		super().__init__(x,y,w,h,desc,anch,key,size,batch=batch)
+		super().__init__(x,y,w,h,desc,anch,key,size,batch=batch,group=group)
 	def checkKey(self,key):
 		if self.pressed:
 			if key==pgw.key.BACKSPACE:
@@ -317,16 +319,16 @@ class IntEdit(TextEdit):
 		return self.preval
 
 class RadioList(Entity):
-	def __init__(self,x,y,w,h,texts,anch=0,keys=None,pressedTexts=None,selected=None,size=16,batch=None):
+	def __init__(self,x,y,w,h,texts,anch=0,keys=None,pressedTexts=None,selected=None,size=16,batch=None,group=None):
 		btnc=len(texts)
 		if keys==None:
 			keys=[None for i in range(btnc)]
 		if pressedTexts==None:
 			pressedTexts=[None for i in range(btnc)]
-		self.btns=[Button(x,y-i*h/btnc,w,h/btnc,text,anch,keys[i],size,pressedTexts[i],batch=batch) for i,text in enumerate(texts)]
+		self.btns=[Button(x,y-i*h/btnc,w,h/btnc,text,anch,keys[i],size,pressedTexts[i],batch=batch,group=group) for i,text in enumerate(texts)]
 		if selected!=None:
 			self.btns[selected].press()
-		super().__init__(x,y,w,h,anch,batch=batch)
+		super().__init__(x,y,w,h,anch,batch=batch,group=group)
 	def checkpress(self,x,y):
 		prsd=None
 		for i,btn in enumerate(self.btns):
@@ -366,12 +368,12 @@ class RadioList(Entity):
 				return i
 
 class RadioListPaged(RadioList):
-	def __init__(self,x,y,w,h,texts,pageic,anch=0,keys=None,pressedTexts=None,selected=None,size=12,batch=None):
+	def __init__(self,x,y,w,h,texts,pageic,anch=0,keys=None,pressedTexts=None,selected=None,size=12,batch=None,group=None):
 		self.pageic=pageic
 		self.page=0
 		btnc=len(texts)
 		btnh=h/(pageic+1)
-		super().__init__(x,y,w,h,texts,anch,keys,pressedTexts,selected,size,batch)
+		super().__init__(x,y,w,h,texts,anch,keys,pressedTexts,selected,size,batch,group)
 		onscr=self.btns[self.page*self.pageic:(self.page+1)*self.pageic]#get buttons which should be on screen
 		for i,btn in enumerate(self.btns):#correct btn position and height based on pages and set label text to none
 			btn.set_size(w,btnh)
@@ -461,10 +463,10 @@ class PhysEntity(Entity):
 	def render(self):
 		self.quad=('v2f',(self.x,self.y,self._x,self.y,self._x,self._y,self.x,self._y))
 		self.rendered=True
-	def draw(self,batch):
+	def draw(self,batch,group=None):
 		if not self.rendered:
 			self.render()
-		batch.add(4,pyglet.gl.GL_QUADS,None,self.quad,self.cquad)
+		batch.add(4,pyglet.gl.GL_QUADS,group,self.quad,self.cquad)
 
 class Wall(PhysEntity):
 	def __init__(self,x,y,w,h,c):

@@ -4,14 +4,14 @@ from CONSTANTS import *
 class IMGC():
 	def __init__(self,fp):
 		self.img=pyglet.image.load(fp)
-	def get(self,x,y,w,h,batch):
-		return Sprite(x,y,w,h,self.img,batch=batch)
+	def get(self,x,y,w,h,batch,group):
+		return Sprite(x,y,w,h,self.img,batch,group)
 
 class Sprite():
-	def __init__(self,x,y,w,h,img,batch):
+	def __init__(self,x,y,w,h,img,batch,group):
 		self.x=x
 		self.y=y
-		self.sprite=pyglet.sprite.Sprite(img,x,y,batch=batch)
+		self.sprite=pyglet.sprite.Sprite(img,x,y,batch=batch,group=group)
 		self.ow=self.sprite.width
 		self.oh=self.sprite.height
 		self.set_size(w,h)
@@ -38,11 +38,11 @@ class ANIMC(IMGC):
 	def __init__(self,fps,wait):
 		self.imgs=[pyglet.image.load(fp) for fp in fps]
 		self.wait=wait
-	def get(self,x,y,w,h,batch):
-		return AnimSprite(x,y,w,h,self.imgs,wait,batch=batch)
+	def get(self,x,y,w,h,batch,group):
+		return AnimSprite(x,y,w,h,self.imgs,wait,batch,group)
 
 class AnimSprite(Sprite):
-	def __init__(self,x,y,w,h,imgs,wait,batch):
+	def __init__(self,x,y,w,h,imgs,wait,batch,group):
 		self.x=x
 		self.y=y
 		self.ow=self.sprite.width
@@ -52,7 +52,7 @@ class AnimSprite(Sprite):
 		self.curs=0
 		self.curw=0
 		self.lens=len(imgs)
-		self.sprites=[pyglet.sprite.Sprite(img,x,y,batch=batch) for img in imgs]
+		self.sprites=[pyglet.sprite.Sprite(img,x,y,batch=batch,group=group) for img in imgs]
 		for sprite in self.sprites[1:]:
 			sprite.visible=False
 		self.set_size(w,h)

@@ -68,3 +68,11 @@ TIME=time()
 TIMEC=0
 DTIME=0
 print(f"initialized time {TIME}")
+
+GRbg=pyglet.graphics.OrderedGroup(0)#background
+GRmp=pyglet.graphics.OrderedGroup(1)#midpoint (widgets, objects)
+GRfg=pyglet.graphics.OrderedGroup(2)#foreground (labels)
+GRobg=pyglet.graphics.OrderedGroup(3)#overlay background
+GRomp=pyglet.graphics.OrderedGroup(4)#overlay midpoint (overlay widgets)
+GRofg=pyglet.graphics.OrderedGroup(5)#overlay foreground (overlay labels)
+GRs=[GRbg,GRmp,GRfg,GRobg,GRomp,GRofg]
