@@ -2,19 +2,24 @@
 from CONSTANTS import *
 
 class IMGC():
-	def __init__(self,fp):
+	def __init__(self,fp,nn):
 		self.img=pyglet.image.load(fp)
+		self.nn=nn
 	def get(self,x,y,w,h,batch,group):
-		return Sprite(x,y,w,h,self.img,batch,group)
+		return Sprite(x,y,w,h,self.img,self.nn,batch,group)
 
 class Sprite():
-	def __init__(self,x,y,w,h,img,batch,group):
+	def __init__(self,x,y,w,h,img,nn,batch,group):
 		self.x=x
 		self.y=y
-		#nearest-neighbour texture upscaling
-		pyglet.gl.glTexParameteri(pyglet.gl.GL_TEXTURE_2D,pyglet.gl.GL_TEXTURE_MAG_FILTER,pyglet.gl.GL_NEAREST)
-		pyglet.gl.glTexParameteri(pyglet.gl.GL_TEXTURE_2D,pyglet.gl.GL_TEXTURE_MIN_FILTER,pyglet.gl.GL_NEAREST)
 		self.sprite=pyglet.sprite.Sprite(img,x,y,batch=batch,group=group)
+		if nn:
+			#nearest-neighbour texture upscaling
+			pyglet.gl.glTexParameteri(pyglet.gl.GL_TEXTURE_2D,pyglet.gl.GL_TEXTURE_MAG_FILTER,pyglet.gl.GL_NEAREST)
+			pyglet.gl.glTexParameteri(pyglet.gl.GL_TEXTURE_2D,pyglet.gl.GL_TEXTURE_MIN_FILTER,pyglet.gl.GL_NEAREST)
+		else:
+			pyglet.gl.glTexParameteri(pyglet.gl.GL_TEXTURE_2D,pyglet.gl.GL_TEXTURE_MAG_FILTER,pyglet.gl.GL_LINEAR)
+			pyglet.gl.glTexParameteri(pyglet.gl.GL_TEXTURE_2D,pyglet.gl.GL_TEXTURE_MIN_FILTER,pyglet.gl.GL_LINEAR)
 		self.ow=self.sprite.width
 		self.oh=self.sprite.height
 		self.set_size(w,h)
@@ -38,14 +43,15 @@ class Sprite():
 		self.sprite.delete()
 
 class ANIMC(IMGC):
-	def __init__(self,fps,wait):
+	def __init__(self,fps,nn,wait):
 		self.imgs=[pyglet.image.load(fp) for fp in fps]
 		self.wait=wait
+		self.nn=nn
 	def get(self,x,y,w,h,batch,group):
-		return AnimSprite(x,y,w,h,self.imgs,self.wait,batch,group)
+		return AnimSprite(x,y,w,h,self.imgs,self.nn,self.wait,batch,group)
 
 class AnimSprite(Sprite):
-	def __init__(self,x,y,w,h,imgs,wait,batch,group):
+	def __init__(self,x,y,w,h,imgs,nn,wait,batch,group):
 		self.x=x
 		self.y=y
 		self.ow=imgs[0].width
@@ -57,10 +63,14 @@ class AnimSprite(Sprite):
 		self.lens=len(imgs)
 		self.sprites=[]
 		for img in imgs:
-			#nearest-neighbour texture upscaling
-			pyglet.gl.glTexParameteri(pyglet.gl.GL_TEXTURE_2D,pyglet.gl.GL_TEXTURE_MAG_FILTER,pyglet.gl.GL_NEAREST)
-			pyglet.gl.glTexParameteri(pyglet.gl.GL_TEXTURE_2D,pyglet.gl.GL_TEXTURE_MIN_FILTER,pyglet.gl.GL_NEAREST)
 			sprite=pyglet.sprite.Sprite(img,x,y,batch=batch,group=group)
+			if nn:
+				#nearest-neighbour texture upscaling
+				pyglet.gl.glTexParameteri(pyglet.gl.GL_TEXTURE_2D,pyglet.gl.GL_TEXTURE_MAG_FILTER,pyglet.gl.GL_NEAREST)
+				pyglet.gl.glTexParameteri(pyglet.gl.GL_TEXTURE_2D,pyglet.gl.GL_TEXTURE_MIN_FILTER,pyglet.gl.GL_NEAREST)
+			else:
+				pyglet.gl.glTexParameteri(pyglet.gl.GL_TEXTURE_2D,pyglet.gl.GL_TEXTURE_MAG_FILTER,pyglet.gl.GL_LINEAR)
+				pyglet.gl.glTexParameteri(pyglet.gl.GL_TEXTURE_2D,pyglet.gl.GL_TEXTURE_MIN_FILTER,pyglet.gl.GL_LINEAR)
 			sprite.visible=False
 			self.sprites.append(sprite)
 		self.set_size(w,h)
@@ -116,23 +126,23 @@ class MEDIA:
 	def loads_all(cls,data):
 		for n in ("floor","walk","idle","crawl","cidle","btn","btnp"):
 			if n in data:
-				if isinstance(data[n],str):
-					fn=data[n]
+				if isinstance(data[n][0],str):
+					fn,nn=data[n]
 					fp=os.path.join(datafp,f"{fn}.png")
 					if os.path.exists(fp):
-						setattr(cls,n,IMGC(fp))
+						setattr(cls,n,IMGC(fp,nn))
 					else:
 						print(f"Not loading {fn} as it wasn't found")
 				else:
 					fps=[]
-					for fn in data[n][:-1]:
+					for fn in data[n][0]:
 						fp=os.path.join(datafp,f"{fn}.png")
 						if os.path.exists(fp):
 							fps.append(fp)
 						else:
 							print(f"Not loading {fn} as it wasn't found")
 					if len(fps)>0:
-						setattr(cls,n,ANIMC(fps,data[n][-1]))
+						setattr(cls,n,ANIMC(fps,*data[n][1][:2]))
 					else:
 						print(f"Not loading animation {n} as no frames were found")
 			else:
