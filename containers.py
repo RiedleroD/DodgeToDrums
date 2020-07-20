@@ -39,14 +39,14 @@ class ANIMC(IMGC):
 		self.imgs=[pyglet.image.load(fp) for fp in fps]
 		self.wait=wait
 	def get(self,x,y,w,h,batch,group):
-		return AnimSprite(x,y,w,h,self.imgs,wait,batch,group)
+		return AnimSprite(x,y,w,h,self.imgs,self.wait,batch,group)
 
 class AnimSprite(Sprite):
 	def __init__(self,x,y,w,h,imgs,wait,batch,group):
 		self.x=x
 		self.y=y
-		self.ow=self.sprite.width
-		self.oh=self.sprite.height
+		self.ow=imgs[0].width
+		self.oh=imgs[0].height
 		self.visible=True
 		self.wait=wait
 		self.curs=0
@@ -83,12 +83,13 @@ class AnimSprite(Sprite):
 	def hide(self):
 		self.visible=False
 		self.sprites[self.curs].visible=False
+		self.curs=0
+		self.curw=0
 	def __del__(self):
 		for sprite in self.sprites:
 			sprite.delete()
 
 class MEDIA:
-	floor=None
 	walk=None
 	idle=None
 	crawl=None

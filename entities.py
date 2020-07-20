@@ -481,6 +481,25 @@ class Hooman(PhysEntity):
 	wb=None#width boundary
 	hb=None#height boundary
 	bh=None#holds the base height when crouching
+	s_walk=None
+	s_idle=None
+	s_crawl=None
+	s_cidle=None
+	a=None
+	preva=None
+	def __init__(self,x,y,w,h,c,batch,group):
+		if MEDIA.walk:
+			self.s_walk=MEDIA.walk.get(x,y,w,h,batch,group)
+			self.s_walk.hide()
+		if MEDIA.idle:
+			self.s_idle=MEDIA.idle.get(x,y,w,h,batch,group)
+		if MEDIA.crawl:
+			self.s_crawl=MEDIA.crawl.get(x,y,w,h/2,batch,group)
+			self.s_crawl.hide()
+		if MEDIA.cidle:
+			self.s_cidle=MEDIA.cidle.get(x,y,w,h/2,batch,group)
+			self.s_cidle.hide()
+		super().__init__(x,y,w,h,c)
 	def set_boundaries(self,w,h):
 		self.wb=w
 		self.hb=h
@@ -519,7 +538,24 @@ class Hooman(PhysEntity):
 		if self.d:
 			self.spdy-=acc
 		if self.spdx!=0 or self.spdy!=0:
+			if self.s_crawl and self.sh:
+				self.s_crawl.cycle()
+				self.a=self.s_crawl
+			elif self.s_walk and not self.sh:
+				self.s_walk.cycle()
+				self.a=self.s_walk
+			else:
+				self.a=None
 			self.move(self.spdx,self.spdy)
+		else:
+			if self.s_cidle and self.sh:
+				self.s_cidle.cycle()
+				self.a=self.s_cidle
+			elif self.s_idle and not self.sh:
+				self.s_idle.cycle()
+				self.a=self.s_idle
+			else:
+				self.a=None
 		#repecting boundaries
 		if self.x<0:
 			x=0
@@ -534,8 +570,18 @@ class Hooman(PhysEntity):
 		else:
 			y=None
 		if not (x==None and y==None):
-			x=self.x if x==None else x
-			y=self.y if y==None else y
-			self.set_pos(x,y)
+			self.set_pos(x if x else self.x,y if y else self.y)
+		self.a.set_pos(self.x,self.y)
+	def draw(self,batch,group=None):
+		if not self.rendered:
+			self.render()
+		if self.a==None:
+			batch.add(4,pyglet.gl.GL_QUADS,group,self.quad,self.cquad)
+		if self.preva!=self.a:
+			if self.preva:
+				self.preva.hide()
+			if self.a:
+				self.a.show()
+			self.preva=self.a
 
 print("defined entities")
