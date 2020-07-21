@@ -433,7 +433,7 @@ class Hooman(PhysEntity):
 		else:
 			y=None
 		if not (x==None and y==None):
-			self.set_pos(x if x else self.x,y if y else self.y)
+			self.set_pos(x if x!=None else self.x,y if y!=None else self.y)
 		self.a.set_pos(self.x,self.y)
 	def draw(self):
 		if self.a:
