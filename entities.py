@@ -226,8 +226,10 @@ class Button(Label):
 		elif self.psprit and not self.pressed:
 			self.psprit.hide()
 		if self.psprit and self.pressed:
+			self.psprit.nn()
 			self.psprit.show()
 		elif self.sprite and not self.pressed:
+			self.sprite.nn()
 			self.sprite.show()
 		else:
 			if self.w>0 and self.h>0:
@@ -578,6 +580,8 @@ class Hooman(PhysEntity):
 			self.set_pos(x if x else self.x,y if y else self.y)
 		self.a.set_pos(self.x,self.y)
 	def draw(self,batch,group=None):
+		if self.a:
+			self.a.nn()
 		if not self.rendered:
 			self.render()
 		if self.a==None:

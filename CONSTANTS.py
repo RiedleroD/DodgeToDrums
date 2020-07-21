@@ -77,3 +77,4 @@ GRobg=pyglet.graphics.OrderedGroup(3)#overlay background
 GRomp=pyglet.graphics.OrderedGroup(4)#overlay midpoint (overlay widgets)
 GRofg=pyglet.graphics.OrderedGroup(5)#overlay foreground (overlay labels)
 GRs=[GRbg,GRmp,GRfg,GRobg,GRomp,GRofg]
+print(f"Initialized OpenGL groups")

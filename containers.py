@@ -12,14 +12,13 @@ class Sprite():
 	def __init__(self,x,y,w,h,img,nn,batch,group):
 		self.x=x
 		self.y=y
-		self.sprite=pyglet.sprite.Sprite(img,x,y,batch=batch,group=group)
 		if nn:
 			#nearest-neighbour texture upscaling
-			pyglet.gl.glTexParameteri(pyglet.gl.GL_TEXTURE_2D,pyglet.gl.GL_TEXTURE_MAG_FILTER,pyglet.gl.GL_NEAREST)
-			pyglet.gl.glTexParameteri(pyglet.gl.GL_TEXTURE_2D,pyglet.gl.GL_TEXTURE_MIN_FILTER,pyglet.gl.GL_NEAREST)
+			self.nn=lambda:pyglet.gl.glTexParameteri(pyglet.gl.GL_TEXTURE_2D,pyglet.gl.GL_TEXTURE_MAG_FILTER,pyglet.gl.GL_NEAREST)
 		else:
-			pyglet.gl.glTexParameteri(pyglet.gl.GL_TEXTURE_2D,pyglet.gl.GL_TEXTURE_MAG_FILTER,pyglet.gl.GL_LINEAR)
-			pyglet.gl.glTexParameteri(pyglet.gl.GL_TEXTURE_2D,pyglet.gl.GL_TEXTURE_MIN_FILTER,pyglet.gl.GL_LINEAR)
+			self.nn=lambda:pyglet.gl.glTexParameteri(pyglet.gl.GL_TEXTURE_2D,pyglet.gl.GL_TEXTURE_MAG_FILTER,pyglet.gl.GL_LINEAR)
+		self.nn()
+		self.sprite=pyglet.sprite.Sprite(img,x,y,batch=batch,group=group)
 		self.flipped=False
 		self.ow=self.sprite.width
 		self.oh=self.sprite.height
@@ -71,16 +70,15 @@ class AnimSprite(Sprite):
 		self.curw=0
 		self.flipped=False
 		self.lens=len(imgs)
+		if nn:
+			#nearest-neighbour texture upscaling
+			self.nn=lambda:pyglet.gl.glTexParameteri(pyglet.gl.GL_TEXTURE_2D,pyglet.gl.GL_TEXTURE_MAG_FILTER,pyglet.gl.GL_NEAREST)
+		else:
+			self.nn=lambda:pyglet.gl.glTexParameteri(pyglet.gl.GL_TEXTURE_2D,pyglet.gl.GL_TEXTURE_MAG_FILTER,pyglet.gl.GL_LINEAR)
 		self.sprites=[]
 		for img in imgs:
+			self.nn()
 			sprite=pyglet.sprite.Sprite(img,x,y,batch=batch,group=group)
-			if nn:
-				#nearest-neighbour texture upscaling
-				pyglet.gl.glTexParameteri(pyglet.gl.GL_TEXTURE_2D,pyglet.gl.GL_TEXTURE_MAG_FILTER,pyglet.gl.GL_NEAREST)
-				pyglet.gl.glTexParameteri(pyglet.gl.GL_TEXTURE_2D,pyglet.gl.GL_TEXTURE_MIN_FILTER,pyglet.gl.GL_NEAREST)
-			else:
-				pyglet.gl.glTexParameteri(pyglet.gl.GL_TEXTURE_2D,pyglet.gl.GL_TEXTURE_MAG_FILTER,pyglet.gl.GL_LINEAR)
-				pyglet.gl.glTexParameteri(pyglet.gl.GL_TEXTURE_2D,pyglet.gl.GL_TEXTURE_MIN_FILTER,pyglet.gl.GL_LINEAR)
 			sprite.visible=False
 			self.sprites.append(sprite)
 		self.set_size(w,h)
