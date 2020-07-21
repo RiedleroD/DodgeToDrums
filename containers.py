@@ -148,7 +148,7 @@ class MEDIA:
 			print(f"No resources loaded as sprites.json wasn't found in {fp}")
 	@classmethod
 	def loads_all(cls,data):
-		for n in ("floor","walk","idle","crawl","cidle","btn","btnp","menu"):
+		for n in ("walk","idle","crawl","cidle","btn","btnp","menu"):
 			if n in data:
 				if isinstance(data[n][0],str):
 					fn,nn=data[n]

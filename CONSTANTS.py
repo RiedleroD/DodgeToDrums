@@ -68,7 +68,6 @@ print(f"initialized screen with size {WIDTH}x{HEIGHT}")
 TIME=time()
 TIMEC=0
 DTIME=0
-print(f"initialized time {TIME}")
 
 GRbg=pyglet.graphics.OrderedGroup(0)#background
 GRmp=pyglet.graphics.OrderedGroup(1)#midpoint (widgets, objects)
