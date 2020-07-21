@@ -387,6 +387,8 @@ class Hooman(PhysEntity):
 				self.set_size(self.w,self.bh)
 				self.bh=None
 			acc=10
+		if abs(self.l-self.r)+abs(self.u-self.d)>1:
+			acc=math.sqrt(2*acc**2)/2
 		#moving on button press
 		if self.l:
 			self.spdx-=acc

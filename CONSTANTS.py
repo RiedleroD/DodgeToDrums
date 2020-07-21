@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 print("started")
-import os,sys
+import os,sys,math
 import json
 import pyglet
 from pyglet.window import key
