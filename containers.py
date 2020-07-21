@@ -23,6 +23,12 @@ class Sprite():
 		self.ow=self.sprite.width
 		self.oh=self.sprite.height
 		self.set_size(w,h)
+	def flip(self):
+		self.flipped=not self.flipped
+		if self.flipped:
+			self.sprite.update(x=self.x+self.w,scale_x=-self.w/self.ow)
+		else:
+			self.sprite.update(x=self.x,scale_x=self.w/self.ow)
 	def set_size(self,w,h):
 		self.w=w
 		self.h=h
@@ -30,6 +36,8 @@ class Sprite():
 	def set_pos(self,x,y):
 		self.x=x
 		self.y=y
+		if self.flipped:
+			x+=self.w
 		self.sprite.update(x=x,y=y)
 	def set_rotation(self,rot):
 		self.sprite.update(rotation=rot)
@@ -60,6 +68,7 @@ class AnimSprite(Sprite):
 		self.wait=wait
 		self.curs=0
 		self.curw=0
+		self.flipped=False
 		self.lens=len(imgs)
 		self.sprites=[]
 		for img in imgs:
@@ -74,17 +83,31 @@ class AnimSprite(Sprite):
 			sprite.visible=False
 			self.sprites.append(sprite)
 		self.set_size(w,h)
+	def flip(self):
+		self.flipped=not self.flipped
+		if self.flipped:
+			for sprite in self.sprites:
+				sprite.update(x=self.x+self.w,scale_x=-self.w/self.ow)
+		else:
+			for sprite in self.sprites:
+				sprite.update(x=self.x,scale_x=self.w/self.ow)
 	def set_size(self,w,h):
 		self.w=w
 		self.h=h
+		if self.flipped:
+			w=-w
 		for sprite in self.sprites:
 			sprite.update(scale_x=w/self.ow,scale_y=h/self.oh)
 	def set_pos(self,x,y):
 		self.x=x
 		self.y=y
+		if self.flipped:
+			x+=self.w
 		for sprite in self.sprites:
 			sprite.update(x=x,y=y)
 	def set_rotation(self,rot):
+		if self.flipped:
+			rot=(360-rot)%360
 		for sprite in self.sprites:
 			sprite.update(rotation=rot)
 	def cycle(self):

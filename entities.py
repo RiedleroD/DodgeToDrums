@@ -487,6 +487,7 @@ class Hooman(PhysEntity):
 	s_cidle=None
 	a=None
 	preva=None
+	flipped=False
 	def __init__(self,x,y,w,h,c,batch,group):
 		if MEDIA.walk:
 			self.s_walk=MEDIA.walk.get(x,y,w,h,batch,group)
@@ -556,6 +557,10 @@ class Hooman(PhysEntity):
 				self.a=self.s_idle
 			else:
 				self.a=None
+		if self.spdx<0:
+			self.flipped=True
+		elif self.spdx>0:
+			self.flipped=False
 		#repecting boundaries
 		if self.x<0:
 			x=0
@@ -577,6 +582,9 @@ class Hooman(PhysEntity):
 			self.render()
 		if self.a==None:
 			batch.add(4,pyglet.gl.GL_QUADS,group,self.quad,self.cquad)
+		else:
+			if (self.flipped and not self.a.flipped) or (not self.flipped and self.a.flipped):
+				self.a.flip()
 		if self.preva!=self.a:
 			if self.preva:
 				self.preva.hide()
