@@ -23,8 +23,8 @@ class GameWin(pyglet.window.Window):
 		self.set_fps(60)
 		self.batch=pyglet.graphics.Batch()
 		if CONF.showfps:
-			LABELS.fps=entities.Label(0,HEIGHT,0,0,"FPS:60.0",6,batch=self.batch,group=GRofg)
-			LABELS.ups=entities.Label(0,HEIGHT-13,0,0,"UPS:60.0",6,batch=self.batch,group=GRofg)
+			LABELS.fps=entities.Label(0,HEIGHT,WIDTH/15,19,"FPS:60.0",6,bgcolor=(0,0,0,255),batch=self.batch,group=GRofg)
+			LABELS.ups=entities.Label(0,HEIGHT-19,WIDTH/15,19,"UPS:60.0",6,bgcolor=(0,0,0,255),batch=self.batch,group=GRofg)
 		super().__init__(*args,**kwargs)
 	def set_fps(self,fps):
 		if fps!=self.fps and fps>0:
