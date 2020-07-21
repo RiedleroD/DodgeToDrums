@@ -17,8 +17,8 @@ class Sprite():
 			self.nn=lambda:pyglet.gl.glTexParameteri(pyglet.gl.GL_TEXTURE_2D,pyglet.gl.GL_TEXTURE_MAG_FILTER,pyglet.gl.GL_NEAREST)
 		else:
 			self.nn=lambda:pyglet.gl.glTexParameteri(pyglet.gl.GL_TEXTURE_2D,pyglet.gl.GL_TEXTURE_MAG_FILTER,pyglet.gl.GL_LINEAR)
-		self.nn()
 		self.sprite=pyglet.sprite.Sprite(img,x,y,batch=batch,group=group)
+		self.nn()
 		self.flipped=False
 		self.ow=self.sprite.width
 		self.oh=self.sprite.height
@@ -77,8 +77,8 @@ class AnimSprite(Sprite):
 			self.nn=lambda:pyglet.gl.glTexParameteri(pyglet.gl.GL_TEXTURE_2D,pyglet.gl.GL_TEXTURE_MAG_FILTER,pyglet.gl.GL_LINEAR)
 		self.sprites=[]
 		for img in imgs:
-			self.nn()
 			sprite=pyglet.sprite.Sprite(img,x,y,batch=batch,group=group)
+			self.nn()
 			sprite.visible=False
 			self.sprites.append(sprite)
 		self.set_size(w,h)
