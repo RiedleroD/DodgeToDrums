@@ -136,6 +136,7 @@ class MEDIA:
 	cidle=None
 	btn=None
 	btnp=None
+	menu=None
 	@classmethod
 	def load_all(cls,fp):
 		if os.path.exists(fp):
@@ -146,7 +147,7 @@ class MEDIA:
 			print(f"No resources loaded as sprites.json wasn't found in {fp}")
 	@classmethod
 	def loads_all(cls,data):
-		for n in ("floor","walk","idle","crawl","cidle","btn","btnp"):
+		for n in ("floor","walk","idle","crawl","cidle","btn","btnp","menu"):
 			if n in data:
 				if isinstance(data[n][0],str):
 					fn,nn=data[n]
@@ -224,8 +225,10 @@ class PHYS(ENTCONTAINER):#physical objects
 
 class MISCE(ENTCONTAINER):#miscellanious entities
 	overlay=None#for pause screen
+	menubg=None#menu background
 	@classmethod
 	def all(cls):
 		yield cls.overlay
+		yield cls.menubg
 
 print("initialized entity containers")

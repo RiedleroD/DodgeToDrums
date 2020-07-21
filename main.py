@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 from CONSTANTS import *
 import entities
-from containers import LABELS,BTNS,PHYS,MISCE
+from containers import LABELS,BTNS,PHYS,MISCE,MEDIA
 
 class GameWin(pyglet.window.Window):
 	prvscr=None#which scene was shown last frame
@@ -21,10 +21,9 @@ class GameWin(pyglet.window.Window):
 	def __init__(self,*args,**kwargs):
 		self.set_fps(60)
 		self.batch=pyglet.graphics.Batch()
-		self.gbatch=pyglet.graphics.Batch()
 		if CONF.showfps:
-			LABELS.fps=entities.Label(0,HEIGHT,0,0,"FPS:60.0",6,batch=self.gbatch)
-			LABELS.ups=entities.Label(0,HEIGHT-13,0,0,"UPS:60.0",6,batch=self.gbatch)
+			LABELS.fps=entities.Label(0,HEIGHT,0,0,"FPS:60.0",6,batch=self.batch,group=GRofg)
+			LABELS.ups=entities.Label(0,HEIGHT-13,0,0,"UPS:60.0",6,batch=self.batch,group=GRofg)
 		super().__init__(*args,**kwargs)
 	def set_fps(self,fps):
 		if fps!=self.fps and fps>0:
@@ -96,7 +95,7 @@ class GameWin(pyglet.window.Window):
 			BTNS.back=None
 			BTNS.sett=None
 			BTNS.start=None
-			self.batch=pyglet.graphics.Batch()
+			MISCE.menubg=None
 		elif scr==1:
 			BTNS.back=None
 			BTNS.cancle=None
@@ -104,12 +103,12 @@ class GameWin(pyglet.window.Window):
 			BTNS.fullscr=None
 			BTNS.showfps=None
 			BTNS.vsync=None
-			self.batch=pyglet.graphics.Batch()
+			MISCE.menubg=None
 		elif scr==2:
 			BTNS.back=None
 			BTNS.mode=None
 			BTNS.start=None
-			self.batch=pyglet.graphics.Batch()
+			MISCE.menubg=None
 		elif scr==3:
 			PHYS.walls.clear()
 			PHYS.char=None
@@ -125,6 +124,7 @@ class GameWin(pyglet.window.Window):
 			BTNS.back=entities.Button(WIDTH2,BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Exit",anch=4,key=key.ESCAPE,batch=self.batch,group=GRmp)
 			BTNS.start=entities.Button(WIDTH2,HEIGHT2,BTNWIDTH,BTNHEIGHT,"Start",anch=4,key=key.ENTER,batch=self.batch,group=GRmp)
 			BTNS.sett=entities.Button(WIDTH2,HEIGHT2-BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Settings",anch=7,batch=self.batch,group=GRmp)
+			MISCE.menubg=entities.Background(0,0,WIDTH,HEIGHT,(0,0,0,255),tex=MEDIA.menu,batch=self.batch,group=GRbg)
 		elif scr==1:
 			BTNS.back=entities.Button(WIDTH-BTNWIDTH*2.5,BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Save",anch=4,key=key.ENTER,batch=self.batch,group=GRmp)
 			BTNS.cancle=entities.Button(WIDTH-BTNWIDTH,BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Cancle",anch=4,key=key.ESCAPE,batch=self.batch,group=GRmp)
@@ -138,15 +138,17 @@ class GameWin(pyglet.window.Window):
 			BTNS.vsync=entities.ButtonSwitch(0,HEIGHT-BTNHEIGHT*4,BTNWIDTH,BTNHEIGHT,"Vsync OFF",pressedText="Vsync ON",anch=6,batch=self.batch,group=GRmp)
 			if CONF.vsync:
 				BTNS.vsync.press()
+			MISCE.menubg=entities.Background(0,0,WIDTH,HEIGHT,(0,0,0,255),tex=MEDIA.menu,batch=self.batch,group=GRbg)
 		elif scr==2:
 			BTNS.back=entities.Button(WIDTH2,BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Back",anch=4,key=key.ESCAPE,batch=self.batch,group=GRmp)
 			BTNS.start=entities.Button(WIDTH2,HEIGHT-BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Start",anch=4,key=key.ENTER,batch=self.batch,group=GRmp)
 			BTNS.mode=entities.RadioList(WIDTH2,HEIGHT2,BTNWIDTH,BTNHEIGHT*3,["Normal","Normal","also Normal lol"],selected=self.diffmode,anch=1,batch=self.batch,group=GRmp)
+			MISCE.menubg=entities.Background(0,0,WIDTH,HEIGHT,(0,0,0,255),tex=MEDIA.menu,batch=self.batch,group=GRbg)
 		elif scr==3:
 			BTNS.pause=entities.Button(0,0,0,0,"",0,key=key.ESCAPE,batch=self.batch,group=GRmp)
 			PHYS.char=entities.Hooman(WIDTH2,HEIGHT2,SIZE/24,SIZE/16,(64,64,255,255),self.batch,group=GRmp)
 			PHYS.char.set_boundaries(WIDTH,HEIGHT)
-			MISCE.overlay=entities.Overlay(0,0,WIDTH,HEIGHT,(0,0,0,64))
+			MISCE.overlay=entities.Overlay(0,0,WIDTH,HEIGHT,(0,0,0,64),batch=self.batch,group=GRobg)
 		else:
 			raise ValueError(f"Scene {scr} does not exist to construct")
 	def on_draw(self):#gets called on draw (duh)
@@ -162,14 +164,15 @@ class GameWin(pyglet.window.Window):
 		TIME=t
 		del t
 		self.clear()
+		if MISCE.overlay:
+			if self.paused:
+				MISCE.overlay.show()
+			else:
+				MISCE.overlay.hide()
 		LABELS.draw()
 		BTNS.draw()
-		phbatch=pyglet.graphics.Batch()
-		PHYS.draw(phbatch)
-		phbatch.draw()
-		if self.paused:
-			MISCE.overlay.draw()
-		self.gbatch.draw()
+		PHYS.draw()
+		MISCE.draw()
 		self.batch.draw()
 		pyglet.clock.tick()
 	def on_mouse_press(self,x,y,button,modifiers):

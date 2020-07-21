@@ -10,6 +10,8 @@ class Entity:
 		self.rendered=False
 		self.batch=batch
 		self.group=group
+		self.vl=None
+		self.hidden=False
 	def set_pos(self,x,y,anch=0):
 		#anchor:
 		#______
@@ -69,14 +71,24 @@ class Entity:
 					return (self.x-x,self.y-y)
 		else:
 			return (0,0)
+	def hide(self):
+		self.hidden=True
+	def show(self):
+		self.hidden=False
 	def draw(self):
 		if not self.rendered:
 			self.render()
-		pyglet.graphics.draw(4,pyglet.gl.GL_QUADS,self.quad)
+		if self.vl:
+			self.vl.delete()
+		if not self.hidden:
+			self.batch.add(4,pyglet.gl.GL_QUADS,self.group,self.quad)
+	def __del__(self):
+		if self.vl:
+			self.vl.delete()
 
 class Overlay(Entity):
-	def __init__(self,x,y,w,h,c):
-		super().__init__(x,y,w,h,group=GRobg)
+	def __init__(self,x,y,w,h,c,batch,group):
+		super().__init__(x,y,w,h,batch=batch,group=group)
 		self.set_color(c)
 	def set_color(self,c):
 		if len(c)!=4:
@@ -87,7 +99,31 @@ class Overlay(Entity):
 	def draw(self):
 		if not self.rendered:
 			self.render()
-		pyglet.graphics.draw(4,pyglet.gl.GL_QUADS,self.quad,self.cquad)
+		if self.vl:
+			self.vl.delete()
+		self.vl=pyglet.graphics.draw(4,pyglet.gl.GL_QUADS,self.quad,self.cquad)
+
+class Background(Entity):
+	def __init__(self,x,y,w,h,c,batch,group,tex=None):
+		super().__init__(x,y,w,h,batch=batch,group=group)
+		self.sprite=tex.get(x,y,w,h,batch,group) if tex else None
+		self.set_color(c)
+	def set_color(self,c):
+		if len(c)!=4:
+			raise ValueError(f"Invalid color tuple {c}: must be exactly 3 integers long")
+		elif max(c)>255 or min(c)<0:
+			raise ValueError(f"Invalid color tuple {c}: numbers must range between 0 and 255")
+		self.cquad=('c4B',c*4)
+	def draw(self):
+		if not self.rendered:
+			self.render()
+		if self.vl:
+			self.vl.delete()
+		if self.sprite:
+			self.sprite.nn()
+			self.sprite.cycle()
+		else:
+			self.vl=self.batch.add(4,pyglet.gl.GL_QUADS,self.group,self.quad,self.cquad)
 
 class Label(Entity):
 	def __init__(self,x,y,w,h,text,anch=0,color=(255,255,255,255),bgcolor=(0,0,0,0),size=12,batch=None,group=None):
@@ -122,60 +158,14 @@ class Label(Entity):
 	def draw(self):
 		if not self.rendered:
 			self.render()
+		if self.vl:
+			self.vl.delete()
 		if self.w>0 and self.h>0:
-			pyglet.graphics.draw(4,pyglet.gl.GL_QUADS,self.quad,self.cquad)
-		if self.batch==None:
-			self.label.draw()
+			self.vl=self.batch.add(4,pyglet.gl.GL_QUADS,self.group,self.quad,self.cquad)
 	def __del__(self):
 		self.label.delete()
-
-class LabelMultiline(Label):
-	def __init__(self,x,y,w,h,text,anch=0,color=(255,255,255,255),bgcolor=(0,0,0,0),size=12,batch=None,group=None):
-		self.labels=[pyglet.text.Label(text,x=0,y=-size*1.5,color=color,font_size=size,batch=batch) for line in text.split("\n")]
-		super().__init__(x,y,w,h,text,anch,color,bgcolor,size,batch,group)
-		self.label.delete()
-		del self.label
-	def setColor(self,color):
-		self.color=color
-		for label in self.labels:
-			label.color=self.color
-	def setText(self,text):
-		self.text=text
-		text=text.split("\n")
-		while len(self.labels)<len(text):
-			self.labels.append(pyglet.text.Label("",x=0,y=-self.size*1.5,color=self.color,font_size=self.size,batch=self.batch,group=self.group))
-		self.rendered=False
-		for label in reversed(self.labels):
-			try:
-				label.text=text.pop()
-			except IndexError:
-				label.text=""
-	def render(self):
-		if self.w>0 and self.h>0:
-			self.quad=('v2f',(self.x,self.y,self._x,self.y,self._x,self._y,self.x,self._y))
-			for i,label in enumerate(self.labels):
-				label.x=self.cx
-				label.y=self.cy+self.size*(len(self.labels)-i-1)*1.5
-				label.anchor_x=ANCHORSx[1]
-				label.anchor_y=ANCHORSy[1]
-		else:
-			for i,label in enumerate(self.labels):
-				label.x=self.x
-				label.y=self.y+self.size*(len(self.labels)-i-1)*1.5
-				label.anchor_x=ANCHORSx[self.anch%3]
-				label.anchor_y=ANCHORSy[self.anch//3]
-		self.rendered=True
-	def draw(self):
-		if not self.rendered:
-			self.render()
-		if self.w>0 and self.h>0:
-			pyglet.graphics.draw(4,pyglet.gl.GL_QUADS,self.quad,self.cquad)
-		if self.batch==None:
-			for label in self.labels:
-				label.draw()
-	def __del__(self):
-		for label in self.labels:
-			label.delete()
+		if self.vl:
+			self.vl.delete()
 
 class Button(Label):
 	def __init__(self,x,y,w,h,text,anch=0,key=None,size=16,pressedText=None,batch=None,group=None):
@@ -187,11 +177,11 @@ class Button(Label):
 		else:
 			self.pressedText=self.unpressedText=text
 		super().__init__(x,y,w,h,text,anch,(0,0,0,255),(255,255,255,255),size,batch=batch,group=GRs[GRs.index(group)+1])
-		if MEDIA.btn and batch:
+		if MEDIA.btn:
 			self.sprite=MEDIA.btn.get(self.x,self.y,w,h,batch,group)
 		else:
 			self.sprite=None
-		if MEDIA.btnp and batch:
+		if MEDIA.btnp:
 			self.psprit=MEDIA.btnp.get(self.x,self.y,w,h,batch,group)
 		else:
 			self.psprit=None
@@ -221,6 +211,9 @@ class Button(Label):
 	def draw(self):
 		if not self.rendered:
 			self.render()
+		if self.vl:
+			self.vl.delete()
+			self.vl=None
 		if self.sprite and self.pressed:
 			self.sprite.hide()
 		elif self.psprit and not self.pressed:
@@ -233,9 +226,7 @@ class Button(Label):
 			self.sprite.show()
 		else:
 			if self.w>0 and self.h>0:
-				pyglet.graphics.draw(4,pyglet.gl.GL_QUADS,self.quad,self.cquad)
-		if self.batch==None:
-			self.label.draw()
+				self.vl=self.batch.add(4,pyglet.gl.GL_QUADS,self.group,self.quad,self.cquad)
 
 class ButtonSwitch(Button):
 	def checkpress(self,x,y):
@@ -261,65 +252,6 @@ class ButtonFlipthrough(Button):
 		self.setText(self.text%self.getCurval())
 		return pyglet.event.EVENT_HANDLED
 
-class TextEdit(Button):#also unused
-	def __init__(self,x,y,w,h,desc,value="",anch=0,key=None,size=12,batch=None,group=None):
-		self.desc=desc
-		self.value=value
-		super().__init__(x,y,w,h,desc,anch,key,size,batch=batch,group=group)
-	def checkKey(self,key):
-		if self.pressed:
-			if key==pgw.key.BACKSPACE:
-				self.value=self.value[:-1]
-				self.setText("[%s]"%self.value)
-			elif key in (pgw.key.RETURN,pgw.key.ESCAPE):
-				self.release()
-			else:
-				self.value+=chr(key)
-				self.setText("[%s]"%(self.value))
-			return pyglet.event.EVENT_HANDLED
-		elif self.key!=None and key==self.key:
-			return self.press()
-	def press(self):
-		if not self.pressed:
-			self.pressed=True
-			self.setText("[%s]"%self.value)
-			self.setBgColor((255,255,255,255))
-			return pyglet.event.EVENT_HANDLED
-	def release(self):
-		if self.pressed:
-			self.pressed=False
-			self.setText(self.desc)
-			self.setBgColor((255,255,255,255))
-			return pyglet.event.EVENT_HANDLED
-
-class IntEdit(TextEdit):
-	nums=("0","1","2","3","4","5","6","7","8","9")
-	preval=None
-	def checkKey(self,key):
-		if self.pressed:
-			if key==pgw.key.BACKSPACE:
-				self.value=self.value[:-1]
-				self.setText("[%s]"%self.value)
-			elif key in (pgw.key.RETURN,pgw.key.ESCAPE):
-				if len(self.value)==0:
-					self.value="0"
-				self.release()
-			else:
-				try:
-					char=chr(key)
-				except OverflowError:#if a weird utf-8 symbol comes rolling in. Most apparent on non-english keyboards that have ß ö ä ü ect.
-					return None
-				if char in self.nums:
-					self.value+=chr(key)
-					self.setText("[%s]"%(self.value))
-			return pyglet.event.EVENT_HANDLED
-		elif self.key!=None and key==self.key:
-			return self.press()
-	def getNum(self):
-		if not self.pressed:
-			self.preval=int(self.value)
-		return self.preval
-
 class RadioList(Entity):
 	def __init__(self,x,y,w,h,texts,anch=0,keys=None,pressedTexts=None,selected=None,size=16,batch=None,group=None):
 		btnc=len(texts)
@@ -331,6 +263,7 @@ class RadioList(Entity):
 		if selected!=None:
 			self.btns[selected].press()
 		super().__init__(x,y,w,h,anch,batch=batch,group=group)
+		del self.vl
 	def checkpress(self,x,y):
 		prsd=None
 		for i,btn in enumerate(self.btns):
@@ -355,100 +288,21 @@ class RadioList(Entity):
 					btn.release()
 			return pyglet.event.EVENT_HANDLED
 	def render(self):
-		self.quad=('v2f',(self.x,self.y,self._x,self.y,self._x,self._y,self.x,self._y))
 		self.rendered=True
-	def setBgColor(self,color):
-		self.cquad=("c3B",color*4)
 	def draw(self):
-		if not self.rendered:
-			self.render()
 		for btn in self.btns:
 			btn.draw()
 	def getSelected(self):
 		for i,btn in enumerate(self.btns):
 			if btn.pressed:
 				return i
-
-class RadioListPaged(RadioList):
-	def __init__(self,x,y,w,h,texts,pageic,anch=0,keys=None,pressedTexts=None,selected=None,size=12,batch=None,group=None):
-		self.pageic=pageic
-		self.page=0
-		btnc=len(texts)
-		btnh=h/(pageic+1)
-		super().__init__(x,y,w,h,texts,anch,keys,pressedTexts,selected,size,batch,group)
-		onscr=self.btns[self.page*self.pageic:(self.page+1)*self.pageic]#get buttons which should be on screen
-		for i,btn in enumerate(self.btns):#correct btn position and height based on pages and set label text to none
-			btn.set_size(w,btnh)
-			btn.set_pos(x,y-btnh*(i%self.pageic),anch)
-			if btn not in onscr:
-				btn.label.text=""
-		self.next=Button(x,y-btnh*pageic,w/2,btnh,"→",anch,None,size,batch=batch)
-		self.prev=Button(x-w/2,y-btnh*pageic,w/2,btnh,"←",anch,None,size,batch=batch)
-	def checkpress(self,x,y):
-		if self.prev.checkpress(x,y):
-			prsd=-1
-		elif self.next.checkpress(x,y):
-			prsd=1
-		else:
-			prsd=None
-		if prsd:
-			self.page+=prsd
-			#make sure that self.page wraps around if too big
-			self.page%=-(-len(self.btns)//self.pageic)#ceiling division
-		onscr=self.btns[self.page*self.pageic:(self.page+1)*self.pageic]#get buttons which should be on screen
-		if prsd:
-			#remove text from all buttons that shouldn't be on screen (because the labels get rendered in batch)
-			#re-add text from all buttons that should be on screen
-			for btn in self.btns:
-				if btn in onscr:
-					btn.label.text=btn.text
-				else:
-					btn.label.text=""
-			prsd=None
-		for btn in onscr:
-			prsd=btn.checkpress(x,y)
-			if prsd:
-				prsd=btn
-				break
-		if prsd!=None:
-			for btn in self.btns:
-				if btn is not prsd and btn.pressed:
-					btn.release()
-					if btn not in onscr:
-						btn.label.text=""
-			return pyglet.event.EVENT_HANDLED
-	def checkKey(self,key):
-		for i,btn in enumerate(self.btns):
-			prsd=btn.checkKey(key)
-			if prsd:
-				prsd=i
-				break
-		if prsd!=None:
-			for i,btn in enumerate(self.btns):
-				if i!=prsd:
-					btn.release()
-			return pyglet.event.EVENT_HANDLED
-	def draw(self):
-		if not self.rendered:
-			self.render()
-		onscr=self.btns[self.page*self.pageic:(self.page+1)*self.pageic]#get buttons which should be on screen
-		#draw the background plane
-		pyglet.graphics.draw(4,pyglet.gl.GL_QUADS,self.quad,self.cquad)
-		#draw the buttons in the current page plus prev and next
-		for btn in onscr:
-			btn.draw()
-		self.prev.draw()
-		self.next.draw()
-		#releasing next & previous buttons only after drawing to show single-frame click
-		if self.prev.pressed:
-			self.prev.release()
-		if self.next.pressed:
-			self.next.release()
+	def __del__(self):
+		pass
 
 class PhysEntity(Entity):
-	def __init__(self,x,y,w,h,c,spdx=0,spdy=0):
-		super().__init__(x,y,w,h,0,None)
-		self.set_speed(spdx,spdy)
+	def __init__(self,x,y,w,h,c,batch,group):
+		super().__init__(x,y,w,h,0,batch,group)
+		self.set_speed(0,0)
 		self.set_color(c)
 	def set_speed(self,x,y):
 		self.spdx=x
@@ -465,14 +319,16 @@ class PhysEntity(Entity):
 	def render(self):
 		self.quad=('v2f',(self.x,self.y,self._x,self.y,self._x,self._y,self.x,self._y))
 		self.rendered=True
-	def draw(self,batch,group=None):
+	def draw(self):
 		if not self.rendered:
 			self.render()
-		batch.add(4,pyglet.gl.GL_QUADS,group,self.quad,self.cquad)
+		if self.vl:
+			self.vl.delete()
+		self.vl=batch.add(4,pyglet.gl.GL_QUADS,group,self.quad,self.cquad)
 
 class Wall(PhysEntity):
-	def __init__(self,x,y,w,h,c):
-		super().__init__(x,y,w,h,c,0,0)
+	def __init__(self,x,y,w,h,c,batch,group):
+		super().__init__(x,y,w,h,c,batch,group)
 
 class Hooman(PhysEntity):
 	l=False
@@ -502,7 +358,7 @@ class Hooman(PhysEntity):
 		if MEDIA.cidle:
 			self.s_cidle=MEDIA.cidle.get(x,y,w,h/2,batch,group)
 			self.s_cidle.hide()
-		super().__init__(x,y,w,h,c)
+		super().__init__(x,y,w,h,c,batch,group)
 	def set_boundaries(self,w,h):
 		self.wb=w
 		self.hb=h
@@ -579,13 +435,15 @@ class Hooman(PhysEntity):
 		if not (x==None and y==None):
 			self.set_pos(x if x else self.x,y if y else self.y)
 		self.a.set_pos(self.x,self.y)
-	def draw(self,batch,group=None):
+	def draw(self):
 		if self.a:
 			self.a.nn()
 		if not self.rendered:
 			self.render()
+		if self.vl:
+			self.vl.delete()
 		if self.a==None:
-			batch.add(4,pyglet.gl.GL_QUADS,group,self.quad,self.cquad)
+			self.vl=batch.add(4,pyglet.gl.GL_QUADS,group,self.quad,self.cquad)
 		else:
 			if (self.flipped and not self.a.flipped) or (not self.flipped and self.a.flipped):
 				self.a.flip()
