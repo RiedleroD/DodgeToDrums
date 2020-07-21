@@ -11,6 +11,7 @@ class GameWin(pyglet.window.Window):
 	#1 → settings
 	#2 → game mode select
 	#3 → the game itself
+	#4 → credits
 	fps=0#maximum fps and ups
 	tc=0#how many cycles have passed since ups label has last been updated
 	dt=0#how much time has passed since ups label has last been updated
@@ -61,6 +62,9 @@ class GameWin(pyglet.window.Window):
 			elif BTNS.start.pressed:
 				self.curscr=2
 				BTNS.start.release()
+			elif BTNS.creds.pressed:
+				BTNS.creds.release()
+				self.curscr=4
 		elif scr==1:
 			if BTNS.back.pressed:
 				CONF.fullscreen=BTNS.fullscr.pressed
@@ -88,6 +92,9 @@ class GameWin(pyglet.window.Window):
 			elif BTNS.back and BTNS.back.pressed:
 				self.curscr=0
 				self.paused=False
+		elif scr==4:
+			if BTNS.back.pressed:
+				self.curscr=0
 	def clear_scene(self,scr):
 		if scr==None:
 			pass
@@ -95,6 +102,7 @@ class GameWin(pyglet.window.Window):
 			BTNS.back=None
 			BTNS.sett=None
 			BTNS.start=None
+			BTNS.creds=None
 			MISCE.menubg=None
 		elif scr==1:
 			BTNS.back=None
@@ -115,6 +123,9 @@ class GameWin(pyglet.window.Window):
 			MISCE.overlay=None
 			BTNS.pause=None
 			BTNS.back=None
+		elif scr==4:
+			BTNS.back=None
+			LABELS.creds.clear()
 		else:
 			raise ValueError(f"Scene {scr} does not exist to clear")
 	def construct_scene(self,scr):
@@ -124,6 +135,7 @@ class GameWin(pyglet.window.Window):
 			BTNS.back=entities.Button(WIDTH2,BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Exit",anch=4,key=key.ESCAPE,batch=self.batch,group=GRmp)
 			BTNS.start=entities.Button(WIDTH2,HEIGHT2,BTNWIDTH,BTNHEIGHT,"Start",anch=4,key=key.ENTER,batch=self.batch,group=GRmp)
 			BTNS.sett=entities.Button(WIDTH2,HEIGHT2-BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Settings",anch=7,batch=self.batch,group=GRmp)
+			BTNS.creds=entities.Button(WIDTH2,HEIGHT2-BTNHEIGHT*2.5,BTNWIDTH,BTNHEIGHT,"Credits",anch=7,batch=self.batch,group=GRmp)
 			MISCE.menubg=entities.Background(0,0,WIDTH,HEIGHT,(0,0,0,255),tex=MEDIA.menu,batch=self.batch,group=GRbg)
 		elif scr==1:
 			BTNS.back=entities.Button(WIDTH-BTNWIDTH*2.5,BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Save",anch=4,key=key.ENTER,batch=self.batch,group=GRmp)
@@ -149,6 +161,16 @@ class GameWin(pyglet.window.Window):
 			PHYS.char=entities.Hooman(WIDTH2,HEIGHT2,SIZE/24,SIZE/16,(64,64,255,255),self.batch,group=GRmp)
 			PHYS.char.set_boundaries(WIDTH,HEIGHT)
 			MISCE.overlay=entities.Overlay(0,0,WIDTH,HEIGHT,(0,0,0,64),batch=self.batch,group=GRobg)
+		elif scr==4:
+			BTNS.back=entities.Button(WIDTH-BTNWIDTH,BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Back",anch=4,key=key.ESCAPE,batch=self.batch,group=GRmp)
+			LABELS.creds+=[
+				entities.Label(BTNWIDTH2,HEIGHT-BTNHEIGHT,0,0,"Programming:",anch=6,batch=self.batch,group=GRfg),
+				entities.Label(BTNWIDTH,HEIGHT-BTNHEIGHT*1.5,0,0,"Riedler",anch=6,batch=self.batch,group=GRfg),
+				entities.Label(BTNWIDTH2,HEIGHT-BTNHEIGHT*2,0,0,"Graphics:",anch=6,batch=self.batch,group=GRfg),
+				entities.Label(BTNWIDTH,HEIGHT-BTNHEIGHT*2.5,0,0,"Dark Rosemary",anch=6,batch=self.batch,group=GRfg),
+				entities.Label(BTNWIDTH2,HEIGHT-BTNHEIGHT*3,0,0,"Testing:",anch=6,batch=self.batch,group=GRfg),
+				entities.Label(BTNWIDTH,HEIGHT-BTNHEIGHT*3.5,0,0,"Andreas S.",anch=6,batch=self.batch,group=GRfg),
+				entities.Label(BTNWIDTH,HEIGHT-BTNHEIGHT*4,0,0,"Philip D.",anch=6,batch=self.batch,group=GRfg)]
 		else:
 			raise ValueError(f"Scene {scr} does not exist to construct")
 	def on_draw(self):#gets called on draw (duh)
