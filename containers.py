@@ -81,6 +81,7 @@ class AnimSprite(Sprite):
 			self.nn()
 			sprite.visible=False
 			self.sprites.append(sprite)
+		self.sprites[0].visible=True
 		self.set_size(w,h)
 	def flip(self):
 		self.flipped=not self.flipped
