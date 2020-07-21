@@ -20,6 +20,7 @@ class Sprite():
 		else:
 			pyglet.gl.glTexParameteri(pyglet.gl.GL_TEXTURE_2D,pyglet.gl.GL_TEXTURE_MAG_FILTER,pyglet.gl.GL_LINEAR)
 			pyglet.gl.glTexParameteri(pyglet.gl.GL_TEXTURE_2D,pyglet.gl.GL_TEXTURE_MIN_FILTER,pyglet.gl.GL_LINEAR)
+		self.flipped=False
 		self.ow=self.sprite.width
 		self.oh=self.sprite.height
 		self.set_size(w,h)
