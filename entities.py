@@ -463,7 +463,10 @@ class Hooman(PhysEntity):
 			y=None
 		if not (x==None and y==None):
 			self.set_pos(x if x!=None else self.x,y if y!=None else self.y)
-		self.a.set_pos(self.x,self.y)
+		if self.a:
+			self.a.set_pos(self.x,self.y)
+		else:
+			self.rendered=False
 	def draw(self):
 		if self.a:
 			self.a.nn()
@@ -471,8 +474,9 @@ class Hooman(PhysEntity):
 			self.render()
 		if self.vl:
 			self.vl.delete()
+			self.vl=None
 		if self.a==None:
-			self.vl=batch.add(4,pyglet.gl.GL_QUADS,group,self.quad,self.cquad)
+			self.vl=self.batch.add(4,pyglet.gl.GL_QUADS,self.group,self.quad,self.cquad)
 		else:
 			if (self.flipped and not self.a.flipped) or (not self.flipped and self.a.flipped):
 				self.a.flip()
