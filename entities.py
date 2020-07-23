@@ -252,6 +252,33 @@ class ButtonFlipthrough(Button):
 		self.setText(self.text%self.getCurval())
 		return pyglet.event.EVENT_HANDLED
 
+class StrgButton(Button):
+	def __init__(self,x,y,w,h,desc,value,anch=0,size=12,batch=None,group=None):
+		self.keyname=pyglet.window.key.symbol_string
+		self.btxt=desc
+		self.val=value
+		super().__init__(x,y,w,h,f"{desc}:{self.keyname(value)}",anch,None,size,None,batch=batch,group=group)
+	def press(self):
+		if not self.pressed:
+			self.pressed=True
+			self.setText(f"[{self.keyname(self.val)}]")
+			self.setBgColor((255,255,255,255))
+			return pyglet.event.EVENT_HANDLED
+	def release(self):
+		if self.pressed:
+			self.pressed=False
+			self.setText(f"{self.btxt}:{self.keyname(self.val)}")
+			self.setBgColor((255,255,255,255))
+			return pyglet.event.EVENT_HANDLED
+	def set_desc(self,desc):
+		self.btxt=desc
+		if not self.pressed:
+			self.setText(f"{desc}:{self.keyname(self.val)}")
+	def checkKey(self,key):
+		if self.pressed:
+			self.val=key
+			return self.release()
+
 class RadioList(Entity):
 	def __init__(self,x,y,w,h,texts,anch=0,keys=None,pressedTexts=None,selected=None,size=16,batch=None,group=None):
 		btnc=len(texts)
@@ -363,15 +390,15 @@ class Hooman(PhysEntity):
 		self.wb=w
 		self.hb=h
 	def checkKey(self,k,prsd):
-		if k in (key.LEFT,key.A):
+		if k==k_LEFT:
 			self.l=prsd
-		elif k in (key.RIGHT,key.D):
+		elif k==k_RIGHT:
 			self.r=prsd
-		elif k in (key.DOWN,key.S):
+		elif k==k_DOWN:
 			self.d=prsd
-		elif k in (key.UP,key.W):
+		elif k==k_UP:
 			self.u=prsd
-		elif k in (key.LSHIFT,key.RSHIFT):
+		elif k==k_CROUCH:
 			self.sh=prsd
 	def cycle(self):
 		#reset speed

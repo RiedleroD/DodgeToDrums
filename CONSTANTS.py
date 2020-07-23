@@ -3,7 +3,6 @@ print("started")
 import os,sys,math
 import json
 import pyglet
-from pyglet.window import key
 import pyglet.window as pgw
 from time import time
 print("imported libraries")
@@ -20,12 +19,21 @@ datafp=os.path.join(curdir,"data")
 
 class CONF:
 	defaults={"fullscreen":True,"showfps":True,"vsync":True}
+	defstrg={
+		"LEFT":pgw.key.A,
+		"RIGHT":pgw.key.D,
+		"UP":pgw.key.W,
+		"DOWN":pgw.key.S,
+		"CROUCH":pgw.key.LSHIFT,
+		"BACK":pgw.key.ESCAPE,
+		"OK":pgw.key.ENTER,
+		"SHOOT":pgw.key.SPACE}
 	@classmethod
 	def load(cls,fp):
 		with open(fp,"r") as f:
 			data=json.load(f)
 		cls.loads(data)
-		print(f"loaded config from {fp}:\n {data}")
+		print(f"loaded config from {fp}")
 	@classmethod
 	def loads(cls,data):
 		for sett, default in cls.defaults.items():
@@ -34,6 +42,16 @@ class CONF:
 			else:
 				val=default
 			setattr(cls,sett,val)
+		if "strg" not in data:
+			data["strg"]={}
+		dats=data["strg"]
+		for strg,default in cls.defstrg.items():
+			if strg in dats:
+				val=dats[strg]
+			else:
+				val=default
+			setattr(cls,f"k_{strg}",val)
+			globals()[f"k_{strg}"]=val
 	@classmethod
 	def dump(cls,fp):
 		with open(fp,"w+") as f:
@@ -41,7 +59,9 @@ class CONF:
 		print(f"dumped config to {fp}")
 	@classmethod
 	def dumps(cls):
-		return {name:getattr(cls,name) for name in cls.defaults.keys()}
+		result={name:getattr(cls,name) for name in cls.defaults.keys()}
+		result["strg"]={name:getattr(cls,f"k_{name}") for name in cls.defstrg.keys()}
+		return result
 
 if os.path.exists(conffp):
 	CONF.load(conffp)

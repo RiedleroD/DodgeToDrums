@@ -69,6 +69,8 @@ class GameWin(pyglet.window.Window):
 			if BTNS.back.pressed:
 				CONF.fullscreen=BTNS.fullscr.pressed
 				CONF.showfps=BTNS.showfps.pressed
+				for btn in BTNS.strg:
+					setattr(CONF,f"k_{btn.btxt}",btn.val)
 				CONF.dump(conffp)
 				self.curscr=0
 			elif BTNS.cancle.pressed:
@@ -85,7 +87,6 @@ class GameWin(pyglet.window.Window):
 				self.paused=not self.paused
 				BTNS.pause.release()
 				if self.paused:
-					#to ensure that the button only shows up when paused and vanishes afterwards, it has to have no batch attached
 					BTNS.back=entities.Button(WIDTH2,HEIGHT-HEIGHT4,BTNWIDTH,BTNHEIGHT,"Exit",anch=4,batch=self.batch,group=GRomp)
 				else:
 					BTNS.back=None
@@ -111,6 +112,7 @@ class GameWin(pyglet.window.Window):
 			BTNS.fullscr=None
 			BTNS.showfps=None
 			BTNS.vsync=None
+			BTNS.strg.clear()
 			MISCE.menubg=None
 		elif scr==2:
 			BTNS.back=None
@@ -132,37 +134,45 @@ class GameWin(pyglet.window.Window):
 		if scr==None:
 			pass
 		elif scr==0:
-			BTNS.back=entities.Button(WIDTH2,BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Exit",anch=4,key=key.ESCAPE,batch=self.batch,group=GRmp)
-			BTNS.start=entities.Button(WIDTH2,HEIGHT2,BTNWIDTH,BTNHEIGHT,"Start",anch=4,key=key.ENTER,batch=self.batch,group=GRmp)
+			BTNS.back=entities.Button(WIDTH2,BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Exit",anch=4,key=k_BACK,batch=self.batch,group=GRmp)
+			BTNS.start=entities.Button(WIDTH2,HEIGHT2,BTNWIDTH,BTNHEIGHT,"Start",anch=4,key=k_OK,batch=self.batch,group=GRmp)
 			BTNS.sett=entities.Button(WIDTH2,HEIGHT2-BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Settings",anch=7,batch=self.batch,group=GRmp)
 			BTNS.creds=entities.Button(WIDTH2,HEIGHT2-BTNHEIGHT*2.5,BTNWIDTH,BTNHEIGHT,"Credits",anch=7,batch=self.batch,group=GRmp)
 			MISCE.menubg=entities.Background(0,0,WIDTH,HEIGHT,(0,0,0,255),tex=MEDIA.menu,batch=self.batch,group=GRbg)
 		elif scr==1:
-			BTNS.back=entities.Button(WIDTH-BTNWIDTH*2.5,BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Save",anch=4,key=key.ENTER,batch=self.batch,group=GRmp)
-			BTNS.cancle=entities.Button(WIDTH-BTNWIDTH,BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Cancle",anch=4,key=key.ESCAPE,batch=self.batch,group=GRmp)
+			BTNS.back=entities.Button(WIDTH-BTNWIDTH*2.5,BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Save",anch=4,key=k_OK,batch=self.batch,group=GRmp)
+			BTNS.cancle=entities.Button(WIDTH-BTNWIDTH,BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Cancle",anch=4,key=k_BACK,batch=self.batch,group=GRmp)
 			LABELS.notice=entities.Label(5,BTNHEIGHT2,0,0,"Restart the game to fully apply the settings",anch=0,batch=self.batch,group=GRfg)
 			BTNS.fullscr=entities.ButtonSwitch(0,HEIGHT-BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Borderless",pressedText="Fullscreen",anch=6,batch=self.batch,group=GRmp)
 			if CONF.fullscreen:
 				BTNS.fullscr.press()
-			BTNS.showfps=entities.ButtonSwitch(0,HEIGHT-BTNHEIGHT*2.5,BTNWIDTH,BTNHEIGHT,"Show FPS/UPS",pressedText="Hide FPS/UPS",anch=6,batch=self.batch,group=GRmp)
+			BTNS.showfps=entities.ButtonSwitch(0,HEIGHT-BTNHEIGHT*2.5,BTNWIDTH,BTNHEIGHT,"Show FPS/UPS",pressedText="Hide FPS/UPS",size=12,anch=6,batch=self.batch,group=GRmp)
 			if CONF.showfps:
 				BTNS.showfps.press()
 			BTNS.vsync=entities.ButtonSwitch(0,HEIGHT-BTNHEIGHT*4,BTNWIDTH,BTNHEIGHT,"Vsync OFF",pressedText="Vsync ON",anch=6,batch=self.batch,group=GRmp)
 			if CONF.vsync:
 				BTNS.vsync.press()
+			BTNS.strg+=[
+				entities.StrgButton(BTNWIDTH*1.5,HEIGHT-BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"UP",CONF.k_UP,anch=6,batch=self.batch,group=GRmp),
+				entities.StrgButton(BTNWIDTH*1.5,HEIGHT-BTNHEIGHT*2.5,BTNWIDTH,BTNHEIGHT,"DOWN",CONF.k_DOWN,anch=6,batch=self.batch,group=GRmp),
+				entities.StrgButton(BTNWIDTH*1.5,HEIGHT-BTNHEIGHT*4,BTNWIDTH,BTNHEIGHT,"LEFT",CONF.k_LEFT,anch=6,batch=self.batch,group=GRmp),
+				entities.StrgButton(BTNWIDTH*1.5,HEIGHT-BTNHEIGHT*5.5,BTNWIDTH,BTNHEIGHT,"RIGHT",CONF.k_RIGHT,anch=6,batch=self.batch,group=GRmp),
+				entities.StrgButton(BTNWIDTH*1.5,HEIGHT-BTNHEIGHT*7,BTNWIDTH,BTNHEIGHT,"OK",CONF.k_OK,anch=6,batch=self.batch,group=GRmp),
+				entities.StrgButton(BTNWIDTH*1.5,HEIGHT-BTNHEIGHT*8.5,BTNWIDTH,BTNHEIGHT,"BACK",CONF.k_BACK,anch=6,batch=self.batch,group=GRmp)
+				]
 			MISCE.menubg=entities.Background(0,0,WIDTH,HEIGHT,(0,0,0,255),tex=MEDIA.menu,batch=self.batch,group=GRbg)
 		elif scr==2:
-			BTNS.back=entities.Button(WIDTH2,BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Back",anch=4,key=key.ESCAPE,batch=self.batch,group=GRmp)
-			BTNS.start=entities.Button(WIDTH2,HEIGHT-BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Start",anch=4,key=key.ENTER,batch=self.batch,group=GRmp)
+			BTNS.back=entities.Button(WIDTH2,BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Back",anch=4,key=k_BACK,batch=self.batch,group=GRmp)
+			BTNS.start=entities.Button(WIDTH2,HEIGHT-BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Start",anch=4,key=k_OK,batch=self.batch,group=GRmp)
 			BTNS.mode=entities.RadioList(WIDTH2,HEIGHT2,BTNWIDTH,BTNHEIGHT*3,["Normal","Normal","also Normal lol"],selected=self.diffmode,anch=1,batch=self.batch,group=GRmp)
 			MISCE.menubg=entities.Background(0,0,WIDTH,HEIGHT,(0,0,0,255),tex=MEDIA.menu,batch=self.batch,group=GRbg)
 		elif scr==3:
-			BTNS.pause=entities.Button(0,0,0,0,"",0,key=key.ESCAPE,batch=self.batch,group=GRmp)
+			BTNS.pause=entities.Button(0,0,0,0,"",0,key=k_BACK,batch=self.batch,group=GRmp)
 			PHYS.char=entities.Hooman(WIDTH2,HEIGHT2,SIZE/24,SIZE/16,(64,64,255,255),self.batch,group=GRmp)
 			PHYS.char.set_boundaries(WIDTH,HEIGHT)
 			MISCE.overlay=entities.Overlay(0,0,WIDTH,HEIGHT,(0,0,0,64),batch=self.batch,group=GRobg)
 		elif scr==4:
-			BTNS.back=entities.Button(WIDTH-BTNWIDTH,BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Back",anch=4,key=key.ESCAPE,batch=self.batch,group=GRmp)
+			BTNS.back=entities.Button(WIDTH-BTNWIDTH,BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Back",anch=4,key=k_BACK,batch=self.batch,group=GRmp)
 			LABELS.creds+=[
 				entities.Label(BTNWIDTH2,HEIGHT-BTNHEIGHT,0,0,"Programming:",anch=6,batch=self.batch,group=GRfg),
 				entities.Label(BTNWIDTH,HEIGHT-BTNHEIGHT*1.5,0,0,"Riedler",anch=6,batch=self.batch,group=GRfg),

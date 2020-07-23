@@ -203,13 +203,14 @@ class BTNS(ENTCONTAINER):
 	fullscr=None
 	showfps=None
 	vsync=None
+	strg=[]
 	#game mode select
 	mode=None
 	#while in game
 	pause=None
 	@classmethod
 	def all(cls):
-		return (cls.start,cls.sett,cls.cancle,cls.back,cls.fullscr,cls.showfps,cls.vsync,cls.mode,cls.pause,cls.creds)
+		return (*cls.strg,cls.start,cls.sett,cls.cancle,cls.back,cls.fullscr,cls.showfps,cls.vsync,cls.mode,cls.pause,cls.creds)
 
 class PHYS(ENTCONTAINER):#physical objects
 	walls=[]
