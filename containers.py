@@ -203,6 +203,7 @@ class BTNS(ENTCONTAINER):
 	fullscr=None
 	showfps=None
 	vsync=None
+	showcoll=None
 	strg=[]
 	#game mode select
 	mode=None
@@ -210,7 +211,7 @@ class BTNS(ENTCONTAINER):
 	pause=None
 	@classmethod
 	def all(cls):
-		return (*cls.strg,cls.start,cls.sett,cls.cancle,cls.back,cls.fullscr,cls.showfps,cls.vsync,cls.mode,cls.pause,cls.creds)
+		return (*cls.strg,cls.start,cls.sett,cls.cancle,cls.back,cls.fullscr,cls.showfps,cls.vsync,cls.showcoll,cls.mode,cls.pause,cls.creds)
 
 class PHYS(ENTCONTAINER):#physical objects
 	walls=[]

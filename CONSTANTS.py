@@ -18,7 +18,7 @@ conffp=os.path.join(curdir,"conf.json")
 datafp=os.path.join(curdir,"data")
 
 class CONF:
-	defaults={"fullscreen":True,"showfps":True,"vsync":True}
+	defaults={"fullscreen":True,"showfps":True,"vsync":True,"showcoll":False}
 	defstrg={
 		"LEFT":pgw.key.A,
 		"RIGHT":pgw.key.D,

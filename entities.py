@@ -478,6 +478,8 @@ class Hooman(PhysEntity):
 		if self.a==None:
 			self.vl=self.batch.add(4,pyglet.gl.GL_QUADS,self.group,self.quad,self.cquad)
 		else:
+			if CONF.showcoll:
+				self.vl=self.batch.add(4,pyglet.gl.GL_LINE_LOOP,self.group,self.quad,("c3B",(255,0,0)*4))
 			if (self.flipped and not self.a.flipped) or (not self.flipped and self.a.flipped):
 				self.a.flip()
 		if self.preva!=self.a:
