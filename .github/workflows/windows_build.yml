@@ -6,8 +6,12 @@ name: Pyinstaller windows executable build pipeline
 on:
   push:
     branches: [ master ]
+    tags: 
+      - 'v*'
   pull_request:
     branches: [ master ]
+    tags: 
+      - 'v*'
 
 jobs:
   build:
@@ -27,3 +31,23 @@ jobs:
     - name: Build executable
       run: |
         python setup.py
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false
+    - name: Upload Release Asset
+      id: upload-release-asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: dist\DodgeToDrums.exe
+        asset_name: DodgeToDrums_win_x86_64.exe
+        asset_content_type: application/vnd.microsoft.portable-executable
