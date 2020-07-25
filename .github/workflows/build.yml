@@ -9,7 +9,7 @@ on:
       - created
 
 jobs:
-  build:
+  build-win:
 
     runs-on: windows-latest
 
@@ -40,4 +40,37 @@ jobs:
         upload_url: ${{ steps.upload_url.outputs.uploadUrl }}
         asset_path: dist/DodgeToDrums.exe
         asset_name: DodgeToDrums_win_x64.exe
+        asset_content_type: application/vnd.microsoft.portable-executable
+
+  build-lin:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        if ( Test-Path requirements.txt -PathType leaf ) { pip install -r requirements.txt }
+    - name: Build executable
+      run: |
+        python setup.py
+    - name: Get the upload url from the release tag
+      id: upload_url
+      uses: pdamianik/release-tag-to-upload-url-action@v1.0.1
+      with:
+        tag: ${{ github.ref }}
+        token: ${{ github.token }}
+    - name: Upload to release
+      uses: actions/upload-release-asset@v1.0.2
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+      with:
+        upload_url: ${{ steps.upload_url.outputs.uploadUrl }}
+        asset_path: dist/DodgeToDrums.exe
+        asset_name: DodgeToDrums_linux_x64
         asset_content_type: application/vnd.microsoft.portable-executable
