@@ -1,5 +1,6 @@
 # Dodge to Drums
-Discord server: https://discord.gg/6teKaP2
+[![Discord server: https://discord.gg/6teKaP2](https://img.shields.io/discord/734732041001762856?label=Discord&logo=discord)](https://discord.gg/6teKaP2)
+[![Pyinstaller build](https://github.com/RiedleroD/DodgeToDrums/workflows/Pyinstaller%20build/badge.svg)](https://github.com/RiedleroD/DodgeToDrums/actions)
 
 ## What is this?
 
