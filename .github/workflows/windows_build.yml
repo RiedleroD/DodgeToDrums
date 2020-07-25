@@ -26,9 +26,18 @@ jobs:
     - name: Build executable
       run: |
         python setup.py
-    - name: Upload to existing release
-      uses: JasonEtco/upload-to-release@v0.1.1
+    - name: Get the upload url from the release tag
+      id: upload_url
+      uses: pdamianik/release-tag-to-upload-url-action@v1.0.1
       with:
-        args: dist/DodgeToDrums.exe application/octet-stream
+        tag: ${{ github.ref }}
+        token: ${{ github.token }}
+    - name: Upload to release
+      uses: actions/upload-release-asset@v1.0.2
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ github.token }}
+      with:
+        upload_url: ${{ steps.upload_url.outputs.uploadUrl }}
+        asset_path: dist/DodgeToDrums.exe
+        asset_name: DodgeToDrums_win_x86-64.exe
+        asset_content_type: application/vnd.microsoft.portable-executable
