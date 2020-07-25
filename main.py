@@ -219,7 +219,7 @@ class GameWin(pyglet.window.Window):
 					if ret:
 						return ret
 		elif button==pgw.mouse.RIGHT:
-			pass
+			if self.scr
 		elif button==pgw.mouse.MIDDLE:
 			pass
 	def on_key_press(self,symbol,modifiers):

@@ -216,9 +216,10 @@ class BTNS(ENTCONTAINER):
 class PHYS(ENTCONTAINER):#physical objects
 	walls=[]
 	char=None
+	bullets=[]
 	@classmethod
 	def all(cls):
-		return (*cls.walls,cls.char)
+		return (*cls.walls,*cls.bullets,cls.char)
 
 class MISCE(ENTCONTAINER):#miscellanious entities
 	overlay=None#for pause screen

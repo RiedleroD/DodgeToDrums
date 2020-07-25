@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-from containers import MEDIA
+from containers import MEDIA,Sprite
 from CONSTANTS import *
 
 class Entity:
@@ -351,7 +351,8 @@ class PhysEntity(Entity):
 			self.render()
 		if self.vl:
 			self.vl.delete()
-		self.vl=batch.add(4,pyglet.gl.GL_QUADS,group,self.quad,self.cquad)
+			self.vl=None
+		self.vl=self.batch.add(4,pyglet.gl.GL_QUADS,group,self.quad,self.cquad)
 
 class Wall(PhysEntity):
 	def __init__(self,x,y,w,h,c,batch,group):
@@ -488,5 +489,44 @@ class Hooman(PhysEntity):
 			if self.a:
 				self.a.show()
 			self.preva=self.a
+
+class Bullet(PhysEntity):
+	def __init__(self,x,y,w,h,spdx,spdy,scrw,scrh,c,img,dmg,batch,group):
+		self.sprt=img.get(x,y,w,h,batch,group) if img else None
+		super().__init__(x,y,w,h,c,batch,group)
+		self.scrw=scrw
+		self.scrw=scrw
+		self.dmg=dmg
+		self.set_speed(spdx,spdy)
+	def set_speed(self):
+		self.spdx=x
+		self.spdy=y
+		if self.sprt:
+			if x==0:
+				if y==0:
+					rot=0
+				elif y>0:
+					rot=90
+				else:
+					rot=-90
+			elif x>0:
+				rot=-degrees(math.atan(y/x))
+			else:
+				rot=degrees(math.atan(y/x))-180
+			self.sprt.set_rotation(rot)
+	def cycle(self):
+		if self.sprt:
+			self.sprt.cycle()
+	def draw(self):
+		if not self.rendered:
+			self.render()
+		if self.vl:
+			self.vl.delete()
+			self.vl=None
+		if self.sprt:
+			if CONF.showcoll:
+				self.vl=self.batch.add(4,pyglet.gl.GL_LINE_LOOP,group,self.quad,self.cquad)
+		else:
+			self.vl=self.batch.add(4,pyglet.gl.GL_QUADS,group,self.quad,self.cquad)
 
 print("defined entities")
