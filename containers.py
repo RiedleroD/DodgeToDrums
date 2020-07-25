@@ -138,6 +138,7 @@ class MEDIA:
 	btn=None
 	btnp=None
 	menu=None
+	bullet1=None
 	@classmethod
 	def load_all(cls,fp):
 		if os.path.exists(fp):
@@ -148,7 +149,7 @@ class MEDIA:
 			print(f"No resources loaded as sprites.json wasn't found in {fp}")
 	@classmethod
 	def loads_all(cls,data):
-		for n in ("walk","idle","crawl","cidle","btn","btnp","menu"):
+		for n in ("walk","idle","crawl","cidle","btn","btnp","menu","bullet1"):
 			if n in data:
 				if isinstance(data[n][0],str):
 					fn,nn=data[n]

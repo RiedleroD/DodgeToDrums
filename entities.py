@@ -71,6 +71,8 @@ class Entity:
 					return (self.x-x,self.y-y)
 		else:
 			return (0,0)
+	def distance_from(self,x,y):
+		return (self.x-x,self.y-y)
 	def hide(self):
 		self.hidden=True
 	def show(self):
@@ -490,15 +492,14 @@ class Hooman(PhysEntity):
 				self.a.show()
 			self.preva=self.a
 
-class Bullet(PhysEntity):
-	def __init__(self,x,y,w,h,spdx,spdy,scrw,scrh,c,img,dmg,batch,group):
+class Bullet1(PhysEntity):
+	def __init__(self,x,y,w,h,target,wait,c,img,dmg,batch,group):
 		self.sprt=img.get(x,y,w,h,batch,group) if img else None
 		super().__init__(x,y,w,h,c,batch,group)
-		self.scrw=scrw
-		self.scrw=scrw
 		self.dmg=dmg
-		self.set_speed(spdx,spdy)
-	def set_speed(self):
+		self.target=target
+		self.wait=wait
+	def set_speed(self,x,y):
 		self.spdx=x
 		self.spdy=y
 		if self.sprt:
@@ -517,6 +518,18 @@ class Bullet(PhysEntity):
 	def cycle(self):
 		if self.sprt:
 			self.sprt.cycle()
+		if self.wait>0:
+			self.wait-=1
+			#calculate direction only before shooting to stay fair
+			spdx=self.x-self.target.x
+			spdy=self.y-self.target.y
+			d=-10/math.sqrt(spdx**2+spdy**2)
+			spdx*=d
+			spdy*=d
+			if spdx!=self.spdx or spdy!=self.spdy:
+				self.set_speed(spdx,spdy)
+		else:
+			self.move(self.spdx,self.spdy)
 	def draw(self):
 		if not self.rendered:
 			self.render()
@@ -525,8 +538,8 @@ class Bullet(PhysEntity):
 			self.vl=None
 		if self.sprt:
 			if CONF.showcoll:
-				self.vl=self.batch.add(4,pyglet.gl.GL_LINE_LOOP,group,self.quad,self.cquad)
+				self.vl=self.batch.add(4,pyglet.gl.GL_LINE_LOOP,self.group,self.quad,self.cquad)
 		else:
-			self.vl=self.batch.add(4,pyglet.gl.GL_QUADS,group,self.quad,self.cquad)
+			self.vl=self.batch.add(4,pyglet.gl.GL_QUADS,self.group,self.quad,self.cquad)
 
 print("defined entities")

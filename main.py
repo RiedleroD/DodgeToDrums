@@ -48,9 +48,17 @@ class GameWin(pyglet.window.Window):
 			self.prvscr=self.curscr
 		#process pressed buttons
 		self.pressproc(self.curscr)
-		#cycle all physical objects that need cycling
-		if PHYS.char and not self.paused:
-			PHYS.char.cycle()
+		if not self.paused:
+			#cycle all physical objects that need cycling
+			if PHYS.char:
+				PHYS.char.cycle()
+			for bullet in PHYS.bullets:
+				bullet.cycle()
+			#remove all dead or out-of range physical objects
+			for i in range(len(PHYS.bullets)-1,-1,-1):
+				bullet=PHYS.bullets[i]
+				if bullet.x>WIDTH or bullet.x+bullet.w<0 or bullet.y>HEIGHT or bullet.y+bullet.h<0:
+					del PHYS.bullets[i]
 	def pressproc(self,scr):
 		if scr==0:
 			if BTNS.back.pressed:
@@ -123,6 +131,7 @@ class GameWin(pyglet.window.Window):
 			MISCE.menubg=None
 		elif scr==3:
 			PHYS.walls.clear()
+			PHYS.bullets.clear()
 			PHYS.char=None
 			MISCE.overlay=None
 			BTNS.pause=None
@@ -219,7 +228,8 @@ class GameWin(pyglet.window.Window):
 					if ret:
 						return ret
 		elif button==pgw.mouse.RIGHT:
-			if self.scr
+			if self.curscr==3:
+				PHYS.bullets.append(entities.Bullet(x,y,SIZE/15,SIZE/25,PHYS.char,60,(255,0,0,255),MEDIA.bullet1,1,batch=self.batch,group=GRmp))
 		elif button==pgw.mouse.MIDDLE:
 			pass
 	def on_key_press(self,symbol,modifiers):
