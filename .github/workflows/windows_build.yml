@@ -39,5 +39,5 @@ jobs:
       with:
         upload_url: ${{ steps.upload_url.outputs.uploadUrl }}
         asset_path: dist/DodgeToDrums.exe
-        asset_name: DodgeToDrums_win_x86-64.exe
+        asset_name: DodgeToDrums_win_64.exe
         asset_content_type: application/vnd.microsoft.portable-executable
