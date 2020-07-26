@@ -522,6 +522,7 @@ class Bullet1(PhysEntity):
 			else:
 				rot=math.degrees(math.atan(x/y))-(180 if y<0 else 0)
 			self.sprt.set_rotation(rot)
+			self.rendered=False
 	def cycle(self):
 		if self.sprt:
 			self.sprt.cycle()
@@ -536,7 +537,10 @@ class Bullet1(PhysEntity):
 	def render(self):
 		if self.sprt:
 			self.sprt.set_pos(self.x,self.y)
-		self.quad=('v2f',(self.x,self.y,self._x,self.y,self._x,self._y,self.x,self._y))
+			x,y,_x,_y=self.sprt.get_poss()
+			self.quad=('v2f',(x,y,_x,y,_x,y,_x,_y,_x,_y,x,_y,x,_y,x,y))
+		else:
+			self.quad=('v2f',(self.x,self.y,self._x,self.y,self._x,self._y,self.x,self._y))
 		self.rendered=True
 	def draw(self):
 		if not self.rendered:
@@ -546,7 +550,7 @@ class Bullet1(PhysEntity):
 			self.vl=None
 		if self.sprt:
 			if CONF.showcoll:
-				self.vl=self.batch.add(4,pyglet.gl.GL_LINE_LOOP,self.group,self.quad,self.cquad)
+				self.vl=self.batch.add(8,pyglet.gl.GL_LINES,self.group,self.quad,('c3B',(255,0,0)*8))
 		else:
 			self.vl=self.batch.add(4,pyglet.gl.GL_QUADS,self.group,self.quad,self.cquad)
 

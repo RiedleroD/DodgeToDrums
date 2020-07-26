@@ -44,20 +44,56 @@ class Sprite():
 	def set_pos(self,x,y):
 		self.x=x
 		self.y=y
+		if self.rot:
+			x,y,_x,_y,__x,__y,_x_,_y_=self.get_posss()
 		if self.flipped:
 			x+=self.w
-		if self.rot:
-			j=self.rot/90
-			n=self.rot/180
-			y+=self.h*(1.125-abs(n-1)+(abs(1-abs(j-1))-abs(j-1))/8)
-			x+=self.w*(3+abs(1-j)-abs(n-1)-j-abs(j-3))
 		self.sprite.update(x=x,y=y)
 	def set_rotation(self,rot):
 		rot%=360
 		self.rot=rot
-		n=rot/180
-		j=rot/90
-		self.sprite.update(rotation=rot,y=self.y+self.h*(1.125-abs(n-1)+(abs(1-abs(j-1))-abs(j-1))/8),x=self.x+self.w*(3+abs(1-j)-abs(n-1)-j-abs(j-3)))
+		x,y,_x,_y,__x,__y,_x_,_y_=self.get_posss()
+		self.sprite.update(rotation=rot,y=y,x=x)
+	def get_posss(self):
+		x=self.x
+		y=self.y
+		w=self.w
+		h=self.h
+		if self.rot:
+			rot=math.radians(180-self.rot)
+			cx=x+w/2
+			cy=y+h/2
+			ox=w/2
+			oy=h/2
+			_ox=-w/2
+			_oy=-h/2
+			#bottom left
+			x=cx+ox*math.cos(rot)-oy*math.sin(rot)
+			y=cy+ox*math.sin(rot)+oy*math.cos(rot)
+			#top right
+			_x=cx+_ox*math.cos(rot)-_oy*math.sin(rot)
+			_y=cy+_ox*math.sin(rot)+_oy*math.cos(rot)
+			#top left
+			__x=cx+ox*math.cos(rot)-_oy*math.sin(rot)
+			__y=cy+ox*math.sin(rot)+_oy*math.cos(rot)
+			#bottom right
+			_x_=cx+_ox*math.cos(rot)-oy*math.sin(rot)
+			_y_=cy+_ox*math.sin(rot)+oy*math.cos(rot)
+		else:
+			_x=_x_=x+w
+			__x=x
+			_y=_y_=y+h
+			__y=y
+		return (x,y,_x,_y,__x,__y,_x_,_y_)
+	def get_poss(self):
+		if self.rot:
+			x,y,_x,_y,__x,__y,_x_,_y_=self.get_posss()
+			return (min(x,_x,__x,_x_),min(y,_y,__y,_y_),max(x,_x,__x,_x_),max(y,_y,__y,_y_))
+		else:
+			return (self.x,self.y,self.x+self.w,self.y+self.h)
+	def get_bb(self):
+		x,y,_x,_y=self.get_poss()
+		return (x,y,_x-x,_y-y)
 	def cycle(self):
 		pass
 	def show(self):
