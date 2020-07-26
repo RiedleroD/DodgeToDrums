@@ -6,11 +6,11 @@ class Entity:
 	def __init__(self,x,y,w,h,anch=0,batch=None,group=None):
 		self.w=w
 		self.h=h
+		self.vl=None
 		self.set_pos(x,y,anch)
 		self.rendered=False
 		self.batch=batch
 		self.group=group
-		self.vl=None
 		self.hidden=False
 	def set_pos(self,x,y,anch=0):
 		#anchor:
@@ -503,17 +503,15 @@ class Bullet1(PhysEntity):
 		self.spdx=x
 		self.spdy=y
 		if self.sprt:
-			if x==0:
-				if y==0:
+			if y==0:
+				if x==0:
 					rot=0
-				elif y>0:
+				elif x>0:
 					rot=90
 				else:
 					rot=-90
-			elif x>0:
-				rot=-degrees(math.atan(y/x))
 			else:
-				rot=degrees(math.atan(y/x))-180
+				rot=math.degrees(math.atan(x/y))-(180 if y<0 else 0)
 			self.sprt.set_rotation(rot)
 	def cycle(self):
 		if self.sprt:
@@ -530,6 +528,11 @@ class Bullet1(PhysEntity):
 				self.set_speed(spdx,spdy)
 		else:
 			self.move(self.spdx,self.spdy)
+	def render(self):
+		if self.sprt:
+			self.sprt.set_pos(self.x,self.y)
+		self.quad=('v2f',(self.x,self.y,self._x,self.y,self._x,self._y,self.x,self._y))
+		self.rendered=True
 	def draw(self):
 		if not self.rendered:
 			self.render()

@@ -12,6 +12,7 @@ class Sprite():
 	def __init__(self,x,y,w,h,img,nn,batch,group):
 		self.x=x
 		self.y=y
+		self.rot=0
 		if nn:
 			#nearest-neighbour texture upscaling
 			self.nn=lambda:pyglet.gl.glTexParameteri(pyglet.gl.GL_TEXTURE_2D,pyglet.gl.GL_TEXTURE_MAG_FILTER,pyglet.gl.GL_NEAREST)
@@ -38,9 +39,18 @@ class Sprite():
 		self.y=y
 		if self.flipped:
 			x+=self.w
+		if self.rot:
+			j=self.rot/90
+			n=self.rot/180
+			y+=self.h*(1.125-abs(n-1)+(abs(1-abs(j-1))-abs(j-1))/8)
+			x+=self.w*(3+abs(1-j)-abs(n-1)-j-abs(j-3))
 		self.sprite.update(x=x,y=y)
 	def set_rotation(self,rot):
-		self.sprite.update(rotation=rot)
+		rot%=360
+		self.rot=rot
+		n=rot/180
+		j=rot/90
+		self.sprite.update(rotation=rot,y=self.y+self.h*(1.125-abs(n-1)+(abs(1-abs(j-1))-abs(j-1))/8),x=self.x+self.w*(3+abs(1-j)-abs(n-1)-j-abs(j-3)))
 	def cycle(self):
 		pass
 	def show(self):
