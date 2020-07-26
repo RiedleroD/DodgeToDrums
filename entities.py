@@ -329,9 +329,9 @@ class RadioList(Entity):
 		pass
 
 class PhysEntity(Entity):
-	def __init__(self,x,y,w,h,c,batch,group):
+	def __init__(self,x,y,w,h,c,batch,group,spdx=0,spdy=0):
 		super().__init__(x,y,w,h,0,batch,group)
-		self.set_speed(0,0)
+		self.set_speed(spdx,spdy)
 		self.set_color(c)
 	def set_speed(self,x,y):
 		self.spdx=x
@@ -495,10 +495,19 @@ class Hooman(PhysEntity):
 class Bullet1(PhysEntity):
 	def __init__(self,x,y,w,h,target,wait,c,img,dmg,batch,group):
 		self.sprt=img.get(x,y,w,h,batch,group) if img else None
-		super().__init__(x,y,w,h,c,batch,group)
+		self.x=x
+		self.y=y#calc_speed needs own coordinates set
+		super().__init__(x,y,w,h,c,batch,group,*self.calc_speed(target))
 		self.dmg=dmg
 		self.target=target
 		self.wait=wait
+	def calc_speed(self,target):
+		spdx=self.x-target.x
+		spdy=self.y-target.y
+		d=-10/math.sqrt(spdx**2+spdy**2)
+		spdx*=d
+		spdy*=d
+		return spdx,spdy
 	def set_speed(self,x,y):
 		self.spdx=x
 		self.spdy=y
@@ -519,11 +528,7 @@ class Bullet1(PhysEntity):
 		if self.wait>0:
 			self.wait-=1
 			#calculate direction only before shooting to stay fair
-			spdx=self.x-self.target.x
-			spdy=self.y-self.target.y
-			d=-10/math.sqrt(spdx**2+spdy**2)
-			spdx*=d
-			spdy*=d
+			spdx,spdy=self.calc_speed(self.target)
 			if spdx!=self.spdx or spdy!=self.spdy:
 				self.set_speed(spdx,spdy)
 		else:

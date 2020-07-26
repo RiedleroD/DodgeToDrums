@@ -229,7 +229,7 @@ class GameWin(pyglet.window.Window):
 						return ret
 		elif button==pgw.mouse.RIGHT:
 			if self.curscr==3:
-				PHYS.bullets.append(entities.Bullet1(x,y,SIZE/32,SIZE/13,PHYS.char,60,(255,0,0,255),MEDIA.bullet1,1,batch=self.batch,group=GRmp))
+				PHYS.bullets.append(entities.Bullet1(x-SIZE/64,y-SIZE/26,SIZE/32,SIZE/13,PHYS.char,60,(255,0,0,255),MEDIA.bullet1,1,batch=self.batch,group=GRmp))
 		elif button==pgw.mouse.MIDDLE:
 			pass
 	def on_key_press(self,symbol,modifiers):

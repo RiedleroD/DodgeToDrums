@@ -27,9 +27,16 @@ class Sprite():
 	def flip(self):
 		self.flipped=not self.flipped
 		if self.flipped:
-			self.sprite.update(x=self.x+self.w,scale_x=-self.w/self.ow)
+			x=self.x+self.w
+			scale_x=-self.w/self.ow
 		else:
-			self.sprite.update(x=self.x,scale_x=self.w/self.ow)
+			x=self.x
+			scale_x=self.w/self.ow
+		if self.rot:
+			j=self.rot/90
+			n=self.rot/180
+			x+=self.w*(3+abs(1-j)-abs(n-1)-j-abs(j-3))
+		self.sprite.update(x=x,scale_x=scale_x)
 	def set_size(self,w,h):
 		self.w=w
 		self.h=h
