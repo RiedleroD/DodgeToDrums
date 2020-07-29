@@ -24,6 +24,7 @@ Playtesting:
 Compiling:
 - Riedler (Linux)
 - Andreas S. (Windows)
+- Philip Damianik (build pipeline)
 
 Music:
 - Riedler
