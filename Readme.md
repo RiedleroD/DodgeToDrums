@@ -20,6 +20,7 @@ Sketches & Art:
 
 Playtesting:
 - Andreas S. (Windows)
+- Philip Damianik (dual-screen Windows)
 
 Compiling:
 - Riedler (Linux)
