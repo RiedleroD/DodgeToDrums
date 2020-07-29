@@ -281,6 +281,16 @@ class StrgButton(Button):
 			self.val=key
 			return self.release()
 
+class LevelSelect(Label):
+	def __init__(self,x,y,w,h,lvs,keynxt,keyprv,selected=0,size=16,batch=None,group=None):
+		self.lvs=lvs
+		super().__init__(x,y,w,h,lvs[selected].name,size=size,batch=batch,group=group)
+	def render(self):	
+		self.label.x=self.cx
+		self.label.anch_x=ANCHORSx[1]
+		self.label.y=self.y
+		self.label.anch_y=ANCHORSy[0]
+
 class RadioList(Entity):
 	def __init__(self,x,y,w,h,texts,anch=0,keys=None,pressedTexts=None,selected=None,size=16,batch=None,group=None):
 		btnc=len(texts)

@@ -61,7 +61,7 @@ class GameWin(pyglet.window.Window):
 				if bullet.x>WIDTH or bullet.x+bullet.w<0 or bullet.y>HEIGHT or bullet.y+bullet.h<0:
 					del PHYS.bullets[i]
 	def pressproc(self,scr):
-		if scr==0:
+		if scr==0:#main menu
 			if BTNS.back.pressed:
 				print("got exit button")
 				pyglet.app.exit()
@@ -74,7 +74,7 @@ class GameWin(pyglet.window.Window):
 			elif BTNS.creds.pressed:
 				BTNS.creds.release()
 				self.curscr=4
-		elif scr==1:
+		elif scr==1:#settings
 			if BTNS.back.pressed:
 				CONF.fullscreen=BTNS.fullscr.pressed
 				CONF.showfps=BTNS.showfps.pressed
@@ -85,14 +85,14 @@ class GameWin(pyglet.window.Window):
 				self.curscr=0
 			elif BTNS.cancle.pressed:
 				self.curscr=0
-		elif scr==2:
+		elif scr==2:#difficulty selection
 			if BTNS.back.pressed:
 				self.curscr=0
 				self.diffmode=BTNS.mode.getSelected()
 			elif BTNS.start.pressed:
-				self.curscr=3
+				self.curscr=5
 				self.diffmode=BTNS.mode.getSelected()
-		elif scr==3:
+		elif scr==3:#game
 			if BTNS.pause.pressed:
 				self.paused=not self.paused
 				BTNS.pause.release()
@@ -101,11 +101,16 @@ class GameWin(pyglet.window.Window):
 				else:
 					BTNS.back=None
 			elif BTNS.back and BTNS.back.pressed:
-				self.curscr=0
+				self.curscr=5
 				self.paused=False
-		elif scr==4:
+		elif scr==4:#credits
 			if BTNS.back.pressed:
 				self.curscr=0
+		elif scr==5:#level selection
+			if BTNS.back.pressed:
+				self.curscr=2
+			elif BTNS.start.pressed:
+				self.curscr=3
 	def clear_scene(self,scr):
 		if scr==None:
 			pass
@@ -140,6 +145,10 @@ class GameWin(pyglet.window.Window):
 		elif scr==4:
 			BTNS.back=None
 			LABELS.creds.clear()
+		elif scr==5:
+			BTNS.lvls=None
+			BTNS.back=None
+			BTNS.start=None
 		else:
 			raise ValueError(f"Scene {scr} does not exist to clear")
 	def construct_scene(self,scr):
@@ -195,6 +204,9 @@ class GameWin(pyglet.window.Window):
 				entities.Label(BTNWIDTH2,HEIGHT-BTNHEIGHT*3,0,0,"Testing:",anch=6,batch=self.batch,group=GRfg),
 				entities.Label(BTNWIDTH,HEIGHT-BTNHEIGHT*3.5,0,0,"Andreas S.",anch=6,batch=self.batch,group=GRfg),
 				entities.Label(BTNWIDTH,HEIGHT-BTNHEIGHT*4,0,0,"Philip D.",anch=6,batch=self.batch,group=GRfg)]
+		elif scr==5:
+			BTNS.back=entities.Button(WIDTH-BTNWIDTH,BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Back",anch=4,key=k_BACK,batch=self.batch,group=GRmp)
+			BTNS.start=entities.Button(0,0,0,0,"",anch=4,key=k_OK,batch=self.batch,group=GRmp)
 		else:
 			raise ValueError(f"Scene {scr} does not exist to construct")
 	def on_draw(self):#gets called on draw (duh)

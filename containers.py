@@ -229,6 +229,13 @@ class MEDIA:
 MEDIA.load_all(datafp)
 print("Loaded media")
 
+class Level():
+	def __init__(self,name):
+		self.name=name
+
+class LVLS:
+	lvls=[Level("test1"),Level("test2")]
+
 class ENTCONTAINER:#base class for all entity containers
 	@classmethod
 	def draw(cls,*args,**kwargs):
@@ -247,10 +254,10 @@ class LABELS(ENTCONTAINER):
 
 class BTNS(ENTCONTAINER):
 	#menu
-	start=None#also in gmselect
 	sett=None
 	creds=None
-	#generic back & cancle buttons
+	#generic back, start & cancle buttons
+	start=None
 	back=None
 	cancle=None
 	#settings
@@ -263,9 +270,11 @@ class BTNS(ENTCONTAINER):
 	mode=None
 	#while in game
 	pause=None
+	#level select
+	lvls=None
 	@classmethod
 	def all(cls):
-		return (*cls.strg,cls.start,cls.sett,cls.cancle,cls.back,cls.fullscr,cls.showfps,cls.vsync,cls.showcoll,cls.mode,cls.pause,cls.creds)
+		return (*cls.strg,cls.lvls,cls.start,cls.sett,cls.cancle,cls.back,cls.fullscr,cls.showfps,cls.vsync,cls.showcoll,cls.mode,cls.pause,cls.creds)
 
 class PHYS(ENTCONTAINER):#physical objects
 	walls=[]
