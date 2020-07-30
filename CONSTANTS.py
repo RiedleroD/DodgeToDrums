@@ -16,6 +16,7 @@ print(f"started in dir {curdir} with arguments {sys.argv}")
 
 conffp=os.path.join(curdir,"conf.json")
 datafp=os.path.join(curdir,"data")
+lvlfp=os.path.join(curdir,"levels")
 
 class CONF:
 	defaults={"fullscreen":True,"showfps":True,"vsync":True,"showcoll":False}

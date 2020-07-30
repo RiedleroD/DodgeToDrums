@@ -6,3 +6,4 @@ build/
 conf.json
 *spec
 data/
+levels/

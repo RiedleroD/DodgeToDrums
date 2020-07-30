@@ -230,13 +230,49 @@ MEDIA.load_all(datafp)
 print("Loaded media")
 
 class Level():
-	def __init__(self,name,img):
+	def __init__(self,name,img,acts):
 		self.name=name
 		self.img=img
+		self.acts=acts
+	@classmethod
+	def load(cls,fp):
+		with open(fp,"r") as f:
+			data=json.load(f)
+		return cls.loads(data,os.path.dirname(fp))
+	@classmethod
+	def loads(cls,data,fp):
+		imgfn,imgdat=data["img"]
+		if isinstance(imgfn,str):
+			nn,=imgdat
+			img=IMGC(os.path.join(fp,imgfn+".png"),nn)
+		else:
+			wait,nn=imgdat
+			img=ANIMC([os.path.join(fp,fn+".png") for fn in imgfn],nn,wait)
+		return cls(data["name"],img,data["act"])
 
 class LVLS:
 	curlv=0
-	lvls=[Level("test1",MEDIA.idle),Level("test2",MEDIA.cidle)]
+	lvls=None
+	@classmethod
+	def load_all(cls,fp):
+		if os.path.exists(fp):
+			cls.lvls=[]
+			for d in os.listdir(fp):
+				d=os.path.join(fp,d)
+				if os.path.isdir(d):
+					lv=os.path.join(d,"level.json")
+					if os.path.exists(lv):
+						try:
+							cls.lvls.append(Level.load(lv))
+						except Exception as e:
+							print(e.__class__.__name__,e,sep=": ")
+			if len(cls.lvls)==0:
+				raise ValueError(f"No levels found in level directory {fp}")
+		else:
+			raise ValueError(f"Couldn't find level directory {fp}")
+
+LVLS.load_all(lvlfp)
+print("loaded levels")
 
 class ENTCONTAINER:#base class for all entity containers
 	@classmethod
