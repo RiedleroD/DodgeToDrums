@@ -282,14 +282,56 @@ class StrgButton(Button):
 			return self.release()
 
 class LevelSelect(Label):
-	def __init__(self,x,y,w,h,lvs,keynxt,keyprv,selected=0,size=16,batch=None,group=None):
-		self.lvs=lvs
-		super().__init__(x,y,w,h,lvs[selected].name,size=size,batch=batch,group=group)
-	def render(self):	
+	def __init__(self,x,y,w,h,lvls,keynxt,keyprv,selected=0,size=16,batch=None,group=None):
+		self.lvls=lvls
+		self.lvli=len(lvls)
+		self.curlv=selected
+		self.keynxt=keynxt
+		self.keyprv=keyprv
+		super().__init__(x,y,w,h,lvls[selected].name,bgcolor=(255,255,255,255),size=size,batch=batch,group=group)
+		self.label.anchor_x=ANCHORSx[1]
+		self.label.anchor_y=ANCHORSy[2]
+	def setBgColor(self,colr):
+		self.cquad=("c4B",colr*16)
+	def checkKey(self,key):
+		if key==self.keynxt and self.curlv+1<self.lvli:
+			self.curlv+=1
+			self.setText(self.lvls[self.curlv].name)
+			return pyglet.event.EVENT_HANDLED
+		elif key==self.keyprv and self.curlv>0:
+			self.curlv-=1
+			self.setText(self.lvls[self.curlv].name)
+			return pyglet.event.EVENT_HANDLED
+	def checkpress(self,x,y):
+		pass
+	def render(self):
 		self.label.x=self.cx
-		self.label.anch_x=ANCHORSx[1]
-		self.label.y=self.y
-		self.label.anch_y=ANCHORSy[0]
+		self.label.y=self.y-5
+		b=(self.w+self.h)/50
+		x=self.x
+		y=self.y
+		_x=self._x
+		_y=self._y
+		xb=x+b
+		_xb=_x-b
+		yb=y+b
+		_yb=_y-b
+		self.quad=("v2f",(#non-filled rectangle from x,y to _x,_y with a border of width b, made out of 4 overlapping bars
+			x,y,		x,yb,		_x,yb,		_x,y,#bottom bar
+			_xb,y,		_xb,_y,		_x,_y,		_x,y,#right bar
+			x,_y,		_x,_y,		_x,_yb,		x,_yb,#upper bar
+			x,y,		xb,y,		xb,_y,		x,_y))#left bar
+		self.rendered=True
+	def draw(self):
+		if not self.rendered:
+			self.render()
+		if self.vl:
+			self.vl.delete()
+		self.vl=self.batch.add(16,pyglet.gl.GL_QUADS,self.group,self.quad,self.cquad)
+	def __del__(self):
+		if self.vl:
+			self.vl.delete()
+		self.label.delete()
 
 class RadioList(Entity):
 	def __init__(self,x,y,w,h,texts,anch=0,keys=None,pressedTexts=None,selected=None,size=16,batch=None,group=None):

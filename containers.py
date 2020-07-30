@@ -238,10 +238,10 @@ class LVLS:
 
 class ENTCONTAINER:#base class for all entity containers
 	@classmethod
-	def draw(cls,*args,**kwargs):
+	def draw(cls):
 		for ent in cls.all():
 			if ent:
-				ent.draw(*args,**kwargs)
+				ent.draw()
 
 class LABELS(ENTCONTAINER):
 	fps=None

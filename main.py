@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 from CONSTANTS import *
 import entities
-from containers import LABELS,BTNS,PHYS,MISCE,MEDIA
+from containers import LABELS,BTNS,PHYS,MISCE,MEDIA,LVLS
 
 class GameWin(pyglet.window.Window):
 	prvscr=None#which scene was shown last frame
@@ -207,6 +207,7 @@ class GameWin(pyglet.window.Window):
 		elif scr==5:
 			BTNS.back=entities.Button(WIDTH-BTNWIDTH,BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Back",anch=4,key=k_BACK,batch=self.batch,group=GRmp)
 			BTNS.start=entities.Button(0,0,0,0,"",anch=4,key=k_OK,batch=self.batch,group=GRmp)
+			BTNS.lvls=entities.LevelSelect(WIDTH3,HEIGHT4,WIDTH3,HEIGHT2,LVLS.lvls,k_RIGHT,k_LEFT,batch=self.batch,group=GRmp)
 		else:
 			raise ValueError(f"Scene {scr} does not exist to construct")
 	def on_draw(self):#gets called on draw (duh)
