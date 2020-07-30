@@ -20,6 +20,7 @@ class GameWin(pyglet.window.Window):
 	gbatch=None#this one doesn't
 	diffmode=1#difficulty mode
 	paused=False
+	lv=None
 	def __init__(self,*args,**kwargs):
 		self.set_fps(60)
 		self.batch=pyglet.graphics.Batch()
@@ -60,6 +61,13 @@ class GameWin(pyglet.window.Window):
 				bullet=PHYS.bullets[i]
 				if bullet.x>WIDTH or bullet.x+bullet.w<0 or bullet.y>HEIGHT or bullet.y+bullet.h<0:
 					del PHYS.bullets[i]
+			#execute all acts
+			if self.lv:
+				for name,x,y,args in self.lv.cycle():
+					if name=="knife":
+						PHYS.bullets.append(entities.Bullet1(WIDTH20*x-SIZE/64,HEIGHT10*y-SIZE/26,SIZE/32,SIZE/13,PHYS.char,60,(255,0,0,255),MEDIA.bullet1,args[0],batch=self.batch,group=GRmp))
+					else:
+						print(f"\033[33mWarning:\033[39m tried to spawn unknown enemy {name} at pos {x}x{y} with arguments {args}")
 	def pressproc(self,scr):
 		if scr==0:#main menu
 			if BTNS.back.pressed:
@@ -192,6 +200,8 @@ class GameWin(pyglet.window.Window):
 			BTNS.mode=entities.RadioList(WIDTH2,HEIGHT2,BTNWIDTH,BTNHEIGHT*3,["Normal","Normal","also Normal lol"],selected=self.diffmode,anch=1,batch=self.batch,group=GRmp)
 			MISCE.menubg=entities.Background(0,0,WIDTH,HEIGHT,(0,0,0,255),tex=MEDIA.menu,batch=self.batch,group=GRbg)
 		elif scr==3:
+			self.lv=LVLS.lvls[LVLS.curlv]
+			self.lv.start()
 			BTNS.pause=entities.Button(0,0,0,0,"",0,key=k_BACK,batch=self.batch,group=GRmp)
 			PHYS.char=entities.Hooman(WIDTH2,HEIGHT2,SIZE/15,SIZE/12.5,(64,64,255,255),self.batch,group=GRmp)
 			PHYS.char.set_boundaries(WIDTH,HEIGHT)

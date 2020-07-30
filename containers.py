@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 from CONSTANTS import *
+from time import time
 
 class IMGC():
 	def __init__(self,fp,nn):
@@ -234,6 +235,16 @@ class Level():
 		self.name=name
 		self.img=img
 		self.acts=acts
+	def start(self):
+		self.t=time()
+		self.unf=self.acts.copy()#unf→ unfinished acts
+	def cycle(self)->"list with all actions to do":
+		td=time()-self.t
+		acts=[]
+		while self.unf and self.unf[0][1]<td:
+			act=self.unf.pop(0)
+			acts.append([act[0],*act[2:]])
+		return acts
 	@classmethod
 	def load(cls,fp):
 		with open(fp,"r") as f:
