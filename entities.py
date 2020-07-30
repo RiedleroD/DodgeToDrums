@@ -288,6 +288,8 @@ class LevelSelect(Label):
 		self.curlv=selected
 		self.keynxt=keynxt
 		self.keyprv=keyprv
+		self.b=b=(w+h)/50
+		self.sprts=[lv.img.get(x+b*2,y+b*2,w-b*4,h-b*4,batch,group) for i,lv in enumerate(self.lvls)]
 		super().__init__(x,y,w,h,lvls[selected].name,bgcolor=(255,255,255,255),size=size,batch=batch,group=group)
 		self.label.anchor_x=ANCHORSx[1]
 		self.label.anchor_y=ANCHORSy[2]
@@ -296,10 +298,12 @@ class LevelSelect(Label):
 	def checkKey(self,key):
 		if key==self.keynxt and self.curlv+1<self.lvli:
 			self.curlv+=1
+			self.rendered=False
 			self.setText(self.lvls[self.curlv].name)
 			return pyglet.event.EVENT_HANDLED
 		elif key==self.keyprv and self.curlv>0:
 			self.curlv-=1
+			self.rendered=False
 			self.setText(self.lvls[self.curlv].name)
 			return pyglet.event.EVENT_HANDLED
 	def checkpress(self,x,y):
@@ -307,7 +311,7 @@ class LevelSelect(Label):
 	def render(self):
 		self.label.x=self.cx
 		self.label.y=self.y-5
-		b=(self.w+self.h)/50
+		b=self.b
 		x=self.x
 		y=self.y
 		_x=self._x
@@ -321,6 +325,8 @@ class LevelSelect(Label):
 			_xb,y,		_xb,_y,		_x,_y,		_x,y,#right bar
 			x,_y,		_x,_y,		_x,_yb,		x,_yb,#upper bar
 			x,y,		xb,y,		xb,_y,		x,_y))#left bar
+		for i,sprt in enumerate(self.sprts):
+			sprt.set_pos(x+b*2+(self.w+b)*(i-self.curlv),self.y+b*2)
 		self.rendered=True
 	def draw(self):
 		if not self.rendered:

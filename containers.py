@@ -230,11 +230,13 @@ MEDIA.load_all(datafp)
 print("Loaded media")
 
 class Level():
-	def __init__(self,name):
+	def __init__(self,name,img):
 		self.name=name
+		self.img=img
 
 class LVLS:
-	lvls=[Level("test1"),Level("test2")]
+	curlv=0
+	lvls=[Level("test1",MEDIA.idle),Level("test2",MEDIA.cidle)]
 
 class ENTCONTAINER:#base class for all entity containers
 	@classmethod
