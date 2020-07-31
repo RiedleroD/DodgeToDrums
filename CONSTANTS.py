@@ -72,8 +72,10 @@ else:
 
 DISPLAY=pyglet.canvas.get_display()#It took ages to find these functions, so don't question them.
 SCREEN=DISPLAY.get_default_screen()
-WIDTH=SCREEN.width
-HEIGHT=SCREEN.height
+SCREEN_MODES=SCREEN.get_modes()
+SCREEN_MODE=SCREEN_MODES[-1]
+WIDTH=SCREEN_MODE.width
+HEIGHT=SCREEN_MODE.height
 WIDTH2=WIDTH/2
 WIDTH3=WIDTH/3
 WIDTH20=WIDTH/20
