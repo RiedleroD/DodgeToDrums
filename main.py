@@ -50,7 +50,7 @@ class GameWin(pyglet.window.Window):
 			self.prvscr=self.curscr
 		#process pressed buttons
 		self.pressproc(self.curscr)
-		if not self.paused:
+		if self.curscr==3 and not self.paused:
 			#cycle all physical objects that need cycling
 			if PHYS.char:
 				PHYS.char.cycle()
@@ -108,7 +108,9 @@ class GameWin(pyglet.window.Window):
 					BTNS.back=entities.Button(WIDTH2,HEIGHT-HEIGHT4,BTNWIDTH,BTNHEIGHT,"Exit",anch=4,batch=self.batch,group=GRomp)
 				else:
 					BTNS.back=None
+				self.lv.pause()
 			elif BTNS.back and BTNS.back.pressed:
+				self.lv.stop()
 				self.curscr=5
 				self.paused=False
 		elif scr==4:#credits

@@ -231,13 +231,17 @@ MEDIA.load_all(datafp)
 print("Loaded media")
 
 class Level():
-	def __init__(self,name,img,acts):
+	def __init__(self,name,img,mus,acts):
 		self.name=name
 		self.img=img
+		self.mus=mus
+		self.player=None
 		self.acts=acts
 	def start(self):
 		self.t=time()
 		self.unf=self.acts.copy()#unf→ unfinished acts
+		self.player=self.mus.play()
+		return self.mus.duration
 	def cycle(self)->"list with all actions to do":
 		td=time()-self.t
 		acts=[]
@@ -245,6 +249,20 @@ class Level():
 			act=self.unf.pop(0)
 			acts.append([act[0],*act[2:]])
 		return acts
+	def stop(self):
+		if self.player:
+			self.player.delete()
+			self.player=None
+	def pause(self):
+		if not self.player:
+			pass
+		elif self.player.playing:
+			self.player.pause()
+		else:
+			self.player.play()
+	def __del__(self):
+		self.stop()
+		self.mus.delete()
 	@classmethod
 	def load(cls,fp):
 		with open(fp,"r") as f:
@@ -252,6 +270,7 @@ class Level():
 		return cls.loads(data,os.path.dirname(fp))
 	@classmethod
 	def loads(cls,data,fp):
+		mus=pyglet.media.load(os.path.join(fp,data["mus"]+".opus"),streaming=True)
 		imgfn,imgdat=data["img"]
 		if isinstance(imgfn,str):
 			nn,=imgdat
@@ -259,7 +278,7 @@ class Level():
 		else:
 			wait,nn=imgdat
 			img=ANIMC([os.path.join(fp,fn+".png") for fn in imgfn],nn,wait)
-		return cls(data["name"],img,data["act"])
+		return cls(data["name"],img,mus,data["act"])
 
 class LVLS:
 	curlv=0
