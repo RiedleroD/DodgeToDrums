@@ -1,5 +1,5 @@
 # Dodge to Drums
-[![Discord server: https://discord.gg/6teKaP2](https://img.shields.io/discord/734732041001762856?label=Discord&logo=discord)](https://discord.gg/6teKaP2)
+[![Discord server: https://discord.gg/jKUd9Ny](https://img.shields.io/discord/734732041001762856?label=Discord&logo=discord)](https://discord.gg/jKUd9Ny)
 [![Pyinstaller build](https://github.com/RiedleroD/DodgeToDrums/workflows/Pyinstaller%20build/badge.svg)](https://github.com/RiedleroD/DodgeToDrums/actions)
 [![latest-release](https://img.shields.io/github/v/release/RiedleroD/DodgeToDrums?include_prereleases&label=latest-release)](https://github.com/RiedleroD/DodgeToDrums/releases/latest)
 
