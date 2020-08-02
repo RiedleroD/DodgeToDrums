@@ -1,2 +1,3 @@
 pyglet
 pyinstaller
+pyglet-ffmpeg

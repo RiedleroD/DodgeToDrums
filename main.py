@@ -56,7 +56,7 @@ class GameWin(pyglet.window.Window):
 				PHYS.char.cycle()
 			for bullet in PHYS.bullets:
 				bullet.cycle()
-			#remove all dead or out-of range physical objects
+			#remove all expired physical objects
 			for i in range(len(PHYS.bullets)-1,-1,-1):
 				bullet=PHYS.bullets[i]
 				if bullet.x>WIDTH or bullet.x+bullet.w<0 or bullet.y>HEIGHT or bullet.y+bullet.h<0:
@@ -69,9 +69,12 @@ class GameWin(pyglet.window.Window):
 					else:
 						print(f"\033[33mWarning:\033[39m tried to spawn unknown enemy {name} at pos {x}x{y} with arguments {args}")
 	def pressproc(self,scr):
-		if scr==0:#main menu
+		if scr==None:#exit the game
+			print("WARNING: extra cycle after closing the game")
+		elif scr==0:#main menu
 			if BTNS.back.pressed:
 				print("got exit button")
+				self.curscr=None
 				pyglet.app.exit()
 			elif BTNS.sett.pressed:
 				self.curscr=1
@@ -272,15 +275,22 @@ class GameWin(pyglet.window.Window):
 		if PHYS.char:
 			PHYS.char.checkKey(symbol,False)
 
+if CONF.fullscreen:
+	h=w=None
+else:
+	h=HEIGHT
+	w=WIDTH
 #I don't like window borders & I have a tiling window manager so I couldn't test it anyway.
 window=GameWin(
-		WIDTH,HEIGHT,
+		width=w,height=h,
 		fullscreen=CONF.fullscreen,
 		style=GameWin.WINDOW_STYLE_BORDERLESS,
 		screen=SCREEN,
 		caption="Dodge to Drums",
 		vsync=CONF.vsync,
 		visible=True)
+del w,h
+
 window.set_location(0,0)
 
 #enable transparency

@@ -270,7 +270,11 @@ class Level():
 		return cls.loads(data,os.path.dirname(fp))
 	@classmethod
 	def loads(cls,data,fp):
-		mus=pyglet.media.load(os.path.join(fp,data["mus"]+".opus"),streaming=True)
+		musfp=os.path.join(fp,data["mus"]+".opus")
+		if os.path.exists(musfp):
+			mus=pyglet.media.load(musfp,streaming=True)
+		else:
+			raise ValueError(f"Level music not found at {musfp}")
 		imgfn,imgdat=data["img"]
 		if isinstance(imgfn,str):
 			nn,=imgdat
