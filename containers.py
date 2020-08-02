@@ -251,6 +251,7 @@ class Level():
 		return acts
 	def stop(self):
 		if self.player:
+			self.player.next_source()#else the StreamingSource doesn't get unqueued
 			self.player.delete()
 			self.player=None
 	def pause(self):

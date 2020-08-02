@@ -48,12 +48,10 @@ class GameWin(pyglet.window.Window):
 			self.clear_scene(self.prvscr)
 			self.construct_scene(self.curscr)
 			self.prvscr=self.curscr
-		#process pressed buttons
-		self.pressproc(self.curscr)
+		#in-game stuff
 		if self.curscr==3 and not self.paused:
 			#cycle all physical objects that need cycling
-			if PHYS.char:
-				PHYS.char.cycle()
+			PHYS.char.cycle()
 			for bullet in PHYS.bullets:
 				bullet.cycle()
 			#remove all expired physical objects
@@ -68,6 +66,8 @@ class GameWin(pyglet.window.Window):
 						PHYS.bullets.append(entities.Bullet1(WIDTH20*x-SIZE/64,HEIGHT10*y-SIZE/26,SIZE/32,SIZE/13,PHYS.char,60,(255,0,0,255),MEDIA.bullet1,args[0],batch=self.batch,group=GRmp))
 					else:
 						print(f"\033[33mWarning:\033[39m tried to spawn unknown enemy {name} at pos {x}x{y} with arguments {args}")
+		#process pressed buttons
+		self.pressproc(self.curscr)
 	def pressproc(self,scr):
 		if scr==None:#exit the game
 			print("WARNING: extra cycle after closing the game")
