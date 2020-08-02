@@ -238,14 +238,12 @@ class Level():
 		self.player=None
 		self.acts=acts
 	def start(self):
-		self.t=time()
 		self.unf=self.acts.copy()#unf→ unfinished acts
 		self.player=self.mus.play()
 		return self.mus.duration
 	def cycle(self)->"list with all actions to do":
-		td=time()-self.t
 		acts=[]
-		while self.unf and self.unf[0][1]<td:
+		while self.unf and self.unf[0][1]<self.player.time:
 			act=self.unf.pop(0)
 			acts.append([act[0],*act[2:]])
 		return acts
