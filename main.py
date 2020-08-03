@@ -61,13 +61,17 @@ class GameWin(pyglet.window.Window):
 					del PHYS.bullets[i]
 			#execute all acts
 			if self.lv:
-				for name,x,y,args in self.lv.cycle():
-					if name=="knife":
-						PHYS.bullets.append(entities.Bullet1(WIDTH20*x-SIZE/64,HEIGHT10*y-SIZE/26,SIZE/32,SIZE/13,PHYS.char,60,(255,0,0,255),MEDIA.bullet1,args[0],batch=self.batch,group=GRmp))
-					else:
-						print(f"\033[33mWarning:\033[39m tried to spawn unknown enemy {name} at pos {x}x{y} with arguments {args}")
+				self.exec_acts()
 		#process pressed buttons
 		self.pressproc(self.curscr)
+	def exec_acts(self):
+		for act in self.lv.cycle():
+			name=act.pop(0)
+			if name=="knife":
+				x,y,wait=act
+				PHYS.bullets.append(entities.Bullet1(WIDTH20*x-SIZE/64,HEIGHT10*y-SIZE/26,SIZE/32,SIZE/13,PHYS.char,wait*60,(255,0,0,255),MEDIA.bullet1,1,batch=self.batch,group=GRmp))
+			else:
+				print(f"\033[33mWarning:\033[39m tried to spawn unknown enemy {name} at pos {x}x{y} with arguments {args}")
 	def pressproc(self,scr):
 		if scr==None:#exit the game
 			print("WARNING: extra cycle after closing the game")
