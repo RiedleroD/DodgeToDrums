@@ -149,6 +149,7 @@ class GameWin(pyglet.window.Window):
 			BTNS.showcoll=None
 			BTNS.strg.clear()
 			MISCE.menubg=None
+			LABELS.version=None
 		elif scr==2:
 			BTNS.back=None
 			BTNS.mode=None
@@ -182,7 +183,8 @@ class GameWin(pyglet.window.Window):
 		elif scr==1:
 			BTNS.back=entities.Button(WIDTH-BTNWIDTH*2.5,BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Save",anch=4,key=k_OK,batch=self.batch,group=GRmp)
 			BTNS.cancle=entities.Button(WIDTH-BTNWIDTH,BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Cancle",anch=4,key=k_BACK,batch=self.batch,group=GRmp)
-			LABELS.notice=entities.Label(5,BTNHEIGHT2,0,0,"Restart the game to fully apply the settings",anch=0,batch=self.batch,group=GRfg)
+			LABELS.notice=entities.Label(5,BTNHEIGHT2,WIDTH/4,19,"Restart the game to fully apply the settings",bgcolor=(0,0,0,255),anch=0,batch=self.batch,group=GRfg)
+			LABELS.version=entities.Label(5,BTNHEIGHT2-19,WIDTH/4,19,f"version: {VERSION}",bgcolor=(0,0,0,255),anch=0,batch=self.batch,group=GRfg)
 			BTNS.fullscr=entities.ButtonSwitch(0,HEIGHT-BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Borderless",pressedText="Fullscreen",anch=6,batch=self.batch,group=GRmp)
 			if CONF.fullscreen:
 				BTNS.fullscr.press()
