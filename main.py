@@ -100,6 +100,15 @@ class GameWin(pyglet.window.Window):
 				self.curscr=0
 			elif BTNS.cancle.pressed:
 				self.curscr=0
+			elif BTNS.volmaster.pressed:
+				CONF.volmaster=BTNS.volmaster.perc
+				BTNS.volmaster.release()
+			elif BTNS.volmusic.pressed:
+				CONF.volmusic=BTNS.volmusic.perc
+				BTNS.volmusic.release()
+			elif BTNS.volsfx.pressed:
+				CONF.volsfx=BTNS.volsfx.perc
+				BTNS.volsfx.release()
 		elif scr==2:#difficulty selection
 			if BTNS.back.pressed:
 				self.curscr=0
@@ -148,6 +157,9 @@ class GameWin(pyglet.window.Window):
 			BTNS.vsync=None
 			BTNS.showcoll=None
 			BTNS.strg.clear()
+			BTNS.volmaster=None
+			BTNS.volmusic=None
+			BTNS.volsfx=None
 			MISCE.menubg=None
 			LABELS.version=None
 		elif scr==2:
@@ -204,6 +216,9 @@ class GameWin(pyglet.window.Window):
 				entities.StrgButton(BTNWIDTH*1.5,HEIGHT-BTNHEIGHT*5.5,BTNWIDTH,BTNHEIGHT,"RIGHT",CONF.k_RIGHT,anch=6,batch=self.batch,group=GRmp),
 				entities.StrgButton(BTNWIDTH*1.5,HEIGHT-BTNHEIGHT*7,BTNWIDTH,BTNHEIGHT,"OK",CONF.k_OK,anch=6,batch=self.batch,group=GRmp),
 				entities.StrgButton(BTNWIDTH*1.5,HEIGHT-BTNHEIGHT*8.5,BTNWIDTH,BTNHEIGHT,"BACK",CONF.k_BACK,anch=6,batch=self.batch,group=GRmp)]
+			BTNS.volmaster=entities.Slider(WIDTH-BTNWIDTH*3.5,HEIGHT-BTNHEIGHT*2,BTNWIDTH*2,BTNHEIGHT2,"master volume",CONF.volmaster,batch=self.batch,group=GRmp)
+			BTNS.volmusic=entities.Slider(WIDTH-BTNWIDTH*3.5,HEIGHT-BTNHEIGHT*3.5,BTNWIDTH*2,BTNHEIGHT2,"music volume",CONF.volmusic,batch=self.batch,group=GRmp)
+			BTNS.volsfx=entities.Slider(WIDTH-BTNWIDTH*3.5,HEIGHT-BTNHEIGHT*5,BTNWIDTH*2,BTNHEIGHT2,"sfx volume",CONF.volsfx,batch=self.batch,group=GRmp)
 			MISCE.menubg=entities.Background(0,0,WIDTH,HEIGHT,(0,0,0,255),tex=MEDIA.menu,batch=self.batch,group=GRbg)
 		elif scr==2:
 			BTNS.back=entities.Button(WIDTH2,BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Back",anch=4,key=k_BACK,batch=self.batch,group=GRmp)
@@ -212,7 +227,7 @@ class GameWin(pyglet.window.Window):
 			MISCE.menubg=entities.Background(0,0,WIDTH,HEIGHT,(0,0,0,255),tex=MEDIA.menu,batch=self.batch,group=GRbg)
 		elif scr==3:
 			self.lv=LVLS.lvls[LVLS.curlv]
-			self.lv.start()
+			self.lv.play()
 			BTNS.pause=entities.Button(0,0,0,0,"",0,key=k_BACK,batch=self.batch,group=GRmp)
 			PHYS.char=entities.Hooman(WIDTH2,HEIGHT2,SIZE/15,SIZE/12.5,(64,64,255,255),self.batch,group=GRmp)
 			PHYS.char.set_boundaries(WIDTH,HEIGHT)

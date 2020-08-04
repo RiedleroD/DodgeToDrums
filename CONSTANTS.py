@@ -20,7 +20,7 @@ datafp=os.path.join(curdir,"data")
 lvlfp=os.path.join(curdir,"levels")
 
 class CONF:
-	defaults={"fullscreen":True,"showfps":True,"vsync":True,"showcoll":False}
+	defaults={"fullscreen":True,"showfps":True,"vsync":True,"showcoll":False,"volmaster":1,"volmusic":0.8,"volsfx":0.5}
 	defstrg={
 		"LEFT":pgw.key.A,
 		"RIGHT":pgw.key.D,

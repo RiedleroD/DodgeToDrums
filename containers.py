@@ -237,10 +237,12 @@ class Level():
 		self.mus=mus
 		self.player=None
 		self.acts=acts
-	def start(self):
+	def play(self):
 		self.unf=self.acts.copy()#unf→ unfinished acts
 		self.player=self.mus.play()
-		return self.mus.duration
+		self.set_volume(CONF.volmaster*CONF.volmusic)
+	def set_volume(self,vol):#not in percent but as float from 0 to 1
+		self.player.volume=vol
 	def cycle(self)->"list with all actions to do":
 		acts=[]
 		while self.unf and self.unf[0][1]<self.player.time:
@@ -338,6 +340,9 @@ class BTNS(ENTCONTAINER):
 	vsync=None
 	showcoll=None
 	strg=[]
+	volmaster=None
+	volmusic=None
+	volsfx=None
 	#game mode select
 	mode=None
 	#while in game
@@ -346,7 +351,23 @@ class BTNS(ENTCONTAINER):
 	lvls=None
 	@classmethod
 	def all(cls):
-		return (*cls.strg,cls.lvls,cls.start,cls.sett,cls.cancle,cls.back,cls.fullscr,cls.showfps,cls.vsync,cls.showcoll,cls.mode,cls.pause,cls.creds)
+		return (
+			*cls.strg,
+			cls.lvls,
+			cls.start,
+			cls.sett,
+			cls.volmaster,
+			cls.volmusic,
+			cls.volsfx,
+			cls.cancle,
+			cls.back,
+			cls.fullscr,
+			cls.showfps,
+			cls.vsync,
+			cls.showcoll,
+			cls.mode,
+			cls.pause,
+			cls.creds)
 
 class PHYS(ENTCONTAINER):#physical objects
 	walls=[]

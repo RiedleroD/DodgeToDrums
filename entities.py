@@ -170,7 +170,7 @@ class Label(Entity):
 			self.vl.delete()
 
 class Button(Label):
-	def __init__(self,x,y,w,h,text,anch=0,key=None,size=16,pressedText=None,batch=None,group=None):
+	def __init__(self,x,y,w,h,text,anch=0,key=None,size=16,pressedText=None,img=None,pimg=None,batch=None,group=None):
 		self.pressed=False
 		self.key=key
 		if pressedText:
@@ -179,14 +179,18 @@ class Button(Label):
 		else:
 			self.pressedText=self.unpressedText=text
 		super().__init__(x,y,w,h,text,anch,(0,0,0,255),(255,255,255,255),size,batch=batch,group=GRs[GRs.index(group)+1])
-		if MEDIA.btn:
-			self.sprite=MEDIA.btn.get(self.x,self.y,w,h,batch,group)
-		else:
+		if img:
+			self.sprite=img.get(self.x,self.y,w,h,batch,group)
+		elif img==0 or not MEDIA.btn:
 			self.sprite=None
-		if MEDIA.btnp:
-			self.psprit=MEDIA.btnp.get(self.x,self.y,w,h,batch,group)
 		else:
+			self.sprite=MEDIA.btn.get(self.x,self.y,w,h,batch,group)
+		if pimg:
+			self.psrit=pimg.get(self.x,self.y,w,h,batch,group)
+		elif pimg==0 or not MEDIA.btnp:
 			self.psprit=None
+		else:
+			self.psprit=MEDIA.btnp.get(self.x,self.y,w,h,batch,group)
 	def setBgColor(self,color):
 		if self.pressed:
 			self.cquad=("c4B",(*color,*color,128,128,128,255,128,128,128,255))
@@ -202,13 +206,11 @@ class Button(Label):
 		if not self.pressed:
 			self.pressed=True
 			self.setText(self.pressedText)
-			self.setBgColor((255,255,255,255))
 			return pyglet.event.EVENT_HANDLED
 	def release(self):
 		if self.pressed:
 			self.pressed=False
 			self.setText(self.unpressedText)
-			self.setBgColor((255,255,255,255))
 			return pyglet.event.EVENT_HANDLED
 	def draw(self):
 		if not self.rendered:
@@ -280,6 +282,60 @@ class StrgButton(Button):
 		if self.pressed:
 			self.val=key
 			return self.release()
+
+class Slider(Button):
+	def __init__(self,x,y,w,h,desc,perc=1,anch=0,size=16,batch=None,group=None):
+		self.perc=perc
+		self.desc=desc
+		self.vl1=None
+		self.vl2=None
+		super().__init__(x,y,w,h,f"{desc}:{int(perc*100)}%",anch=anch,key=None,size=size,img=0,pimg=0,batch=batch,group=group)
+		self.setBgColor((96,96,128,255))
+	def setBgColor(self,color):
+		self.cquad=("c4B",color*4)
+		self.cquad2=("c4B",color*8)
+	def press(self,x,y):
+		self.pressed=True
+		perc=(x-self.x)/(self.w-1)
+		if perc>1:
+			perc=1
+		self.perc=perc
+		self.setText(f"{self.desc}:{int(perc*100)}%")
+		self.rendered=False
+		return pyglet.event.EVENT_HANDLED
+	def release(self):
+		self.pressed=False
+	def checkKey(self,key):
+		return None
+	def checkpress(self,x,y):
+		if self.doesPointCollide(x,y):
+			return self.press(x,y)
+	def render(self):
+		_x=self.x+self.w*self.perc
+		self.quad=('v2f',(self.x,self.y,_x,self.y,_x,self._y,self.x,self._y))
+		self.quad2=('v2f',(self.x,self.y,self._x,self.y,self._x,self.y,self._x,self._y,self._x,self._y,self.x,self._y,self.x,self._y,self.x,self.y))
+		self.label.x=self.cx
+		self.label.y=self.cy
+		self.label.anchor_x=ANCHORSx[1]
+		self.label.anchor_y=ANCHORSy[1]
+		self.rendered=True
+	def draw(self):
+		if not self.rendered:
+			self.render()
+		if self.vl:
+			self.vl.delete()
+			self.vl=None
+		if self.vl2:
+			self.vl2.delete()
+			self.vl2=None
+		self.vl2=self.batch.add(8,pyglet.gl.GL_LINES,self.group,self.quad2,self.cquad2)
+		self.vl=self.batch.add(4,pyglet.gl.GL_QUADS,self.group,self.quad,self.cquad)
+	def __del__(self):
+		self.label.delete()
+		if self.vl:
+			self.vl.delete()
+		if self.vl2:
+			self.vl2.delete()
 
 class LevelSelect(Label):
 	def __init__(self,x,y,w,h,lvls,keynxt,keyprv,selected=0,size=16,batch=None,group=None):
