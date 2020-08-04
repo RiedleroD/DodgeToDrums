@@ -483,22 +483,26 @@ class Hooman(PhysEntity):
 	wb=None#width boundary
 	hb=None#height boundary
 	bh=None#holds the base height when crouching
-	s_walk=None
+	s_side=None
+	s_up=None
+	s_down=None
 	s_idle=None
-	s_crawl=None
+	s_cside=None
+	s_cup=None
+	s_cdown=None
 	s_cidle=None
 	a=None
 	preva=None
 	flipped=False
 	def __init__(self,x,y,w,h,c,batch,group):
-		if MEDIA.walk:
-			self.s_walk=MEDIA.walk.get(x,y,w,h,batch,group)
-			self.s_walk.hide()
-		if MEDIA.idle:
-			self.s_idle=MEDIA.idle.get(x,y,w,h,batch,group)
-		if MEDIA.crawl:
-			self.s_crawl=MEDIA.crawl.get(x,y,w,h/2,batch,group)
-			self.s_crawl.hide()
+		for anim in ("side","up","down","idle","cside","cup","cdown","cidle"):
+			img=getattr(MEDIA,anim,None)
+			if anim.startswith('c'):
+				_h=h/2
+			else:
+				_h=h
+			if img:
+				setattr(self,f"s_{anim}",img.get(x,y,w,_h,batch,group,visible=False))
 		if MEDIA.cidle:
 			self.s_cidle=MEDIA.cidle.get(x,y,w,h/2,batch,group)
 			self.s_cidle.hide()
@@ -543,15 +547,29 @@ class Hooman(PhysEntity):
 		if self.d:
 			self.spdy-=acc
 		if self.spdx!=0 or self.spdy!=0:
-			if self.s_crawl and self.sh:
-				self.s_crawl.cycle()
-				self.a=self.s_crawl
-			elif self.s_walk and not self.sh:
-				self.s_walk.cycle()
-				self.a=self.s_walk
+			self.move(self.spdx,self.spdy)
+		#choosing animation/sprite for current action
+		if self.spdx!=0:
+			if self.s_cside and self.sh:
+				self.a=self.s_cside
+			elif self.s_side and not self.sh:
+				self.a=self.s_side
 			else:
 				self.a=None
-			self.move(self.spdx,self.spdy)
+		elif self.spdy>0:
+			if self.s_cup and self.sh:
+				self.a=self.s_cup
+			elif self.s_up and not self.sh:
+				self.a=self.s_up
+			else:
+				self.a=None
+		elif self.spdy<0:
+			if self.s_cdown and self.sh:
+				self.a=self.s_cdown
+			elif self.s_down and not self.sh:
+				self.a=self.s_down
+			else:
+				self.a=None
 		else:
 			if self.s_cidle and self.sh:
 				self.s_cidle.cycle()
@@ -561,6 +579,7 @@ class Hooman(PhysEntity):
 				self.a=self.s_idle
 			else:
 				self.a=None
+		#determine if we should flip the current sprite/animation
 		if self.spdx<0:
 			self.flipped=True
 		elif self.spdx>0:
@@ -580,8 +599,11 @@ class Hooman(PhysEntity):
 			y=None
 		if not (x==None and y==None):
 			self.set_pos(x if x!=None else self.x,y if y!=None else self.y)
+		#setting the current sprite/animation position & cycle it,
+		#or set rendered status to false if no sprite/animation is selected
 		if self.a:
 			self.a.set_pos(self.x,self.y)
+			self.a.cycle()
 		else:
 			self.rendered=False
 	def draw(self):

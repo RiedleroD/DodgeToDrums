@@ -6,8 +6,11 @@ class IMGC():
 	def __init__(self,fp,nn):
 		self.img=pyglet.image.load(fp)
 		self.nn=nn
-	def get(self,x,y,w,h,batch,group):
-		return Sprite(x,y,w,h,self.img,self.nn,batch,group)
+	def get(self,x,y,w,h,batch,group,visible=True):
+		s=Sprite(x,y,w,h,self.img,self.nn,batch,group)
+		if not visible:
+			s.hide()
+		return s
 
 class Sprite():
 	def __init__(self,x,y,w,h,img,nn,batch,group):
@@ -109,8 +112,11 @@ class ANIMC(IMGC):
 		self.imgs=[pyglet.image.load(fp) for fp in fps]
 		self.wait=wait
 		self.nn=nn
-	def get(self,x,y,w,h,batch,group):
-		return AnimSprite(x,y,w,h,self.imgs,self.nn,self.wait,batch,group)
+	def get(self,x,y,w,h,batch,group,visible=True):
+		s=AnimSprite(x,y,w,h,self.imgs,self.nn,self.wait,batch,group)
+		if not visible:
+			s.hide()
+		return s
 
 class AnimSprite(Sprite):
 	def __init__(self,x,y,w,h,imgs,nn,wait,batch,group):
@@ -185,9 +191,14 @@ class AnimSprite(Sprite):
 			sprite.delete()
 
 class MEDIA:
-	walk=None
 	idle=None
-	crawl=None
+	up=None
+	down=None
+	side=None
+	idle=None
+	cup=None
+	cdown=None
+	cside=None
 	cidle=None
 	btn=None
 	btnp=None
@@ -203,7 +214,7 @@ class MEDIA:
 			print(f"No resources loaded as sprites.json wasn't found in {fp}")
 	@classmethod
 	def loads_all(cls,data):
-		for n in ("walk","idle","crawl","cidle","btn","btnp","menu","bullet1"):
+		for n in ("idle","up","down","side","cup","cdown","cside","cidle","btn","btnp","menu","bullet1"):
 			if n in data:
 				if isinstance(data[n][0],str):
 					fn,nn=data[n]
