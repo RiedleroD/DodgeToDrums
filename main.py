@@ -54,22 +54,36 @@ class GameWin(pyglet.window.Window):
 			PHYS.char.cycle()
 			for bullet in PHYS.bullets:
 				bullet.cycle()
+			self.check_projectiles()
 			#remove all expired physical objects
 			for i in range(len(PHYS.bullets)-1,-1,-1):
 				bullet=PHYS.bullets[i]
-				if bullet.x>WIDTH or bullet.x+bullet.w<0 or bullet.y>HEIGHT or bullet.y+bullet.h<0:
+				if bullet.x>WIDTH or bullet._x<0 or bullet.y>HEIGHT or bullet._y<0:
 					del PHYS.bullets[i]
 			#execute all acts
 			if self.lv:
 				self.exec_acts()
-		#process pressed buttons
-		self.pressproc(self.curscr)
+		#only if no scene change is due
+		if self.curscr==self.prvscr:
+			#process pressed buttons
+			self.pressproc(self.curscr)
+	def check_projectiles(self):
+		x=PHYS.char.x
+		y=PHYS.char.y
+		_x=PHYS.char._x
+		_y=PHYS.char._y
+		for blt in PHYS.bullets:
+			if blt.doesCollide(x,y,_x,_y):
+				PHYS.char.lose_life()
+				break
+		if PHYS.char.lives<=0:
+			self.curscr=5
 	def exec_acts(self):
 		for act in self.lv.cycle():
 			name=act.pop(0)
 			if name=="knife":
 				x,y,wait=act
-				PHYS.bullets.append(entities.Bullet1(WIDTH20*x-SIZE/64,HEIGHT10*y-SIZE/26,SIZE/32,SIZE/13,PHYS.char,wait*60,(255,0,0,255),MEDIA.bullet1,1,batch=self.batch,group=GRmp))
+				PHYS.bullets.append(entities.Bullet1(WIDTH20*x-SIZE/64,HEIGHT10*y-SIZE/26,SIZE/32,SIZE/13,PHYS.char,wait*60,(255,0,0,255),MEDIA.bullet1,batch=self.batch,group=GRmp))
 			else:
 				print(f"\033[33mWarning:\033[39m tried to spawn unknown enemy {name} at pos {x}x{y} with arguments {args}")
 	def pressproc(self,scr):
@@ -126,9 +140,7 @@ class GameWin(pyglet.window.Window):
 					BTNS.back=None
 				self.lv.pause()
 			elif BTNS.back and BTNS.back.pressed:
-				self.lv.stop()
 				self.curscr=5
-				self.paused=False
 		elif scr==4:#credits
 			if BTNS.back.pressed:
 				self.curscr=0
@@ -168,6 +180,8 @@ class GameWin(pyglet.window.Window):
 			BTNS.start=None
 			MISCE.menubg=None
 		elif scr==3:
+			self.lv.stop()
+			self.paused=False
 			PHYS.walls.clear()
 			PHYS.bullets.clear()
 			PHYS.char=None
@@ -280,8 +294,7 @@ class GameWin(pyglet.window.Window):
 					if ret:
 						return ret
 		elif button==pgw.mouse.RIGHT:
-			if self.curscr==3:
-				PHYS.bullets.append(entities.Bullet1(x-SIZE/64,y-SIZE/26,SIZE/32,SIZE/13,PHYS.char,60,(255,0,0,255),MEDIA.bullet1,1,batch=self.batch,group=GRmp))
+			pass
 		elif button==pgw.mouse.MIDDLE:
 			pass
 	def on_key_press(self,symbol,modifiers):

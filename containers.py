@@ -13,6 +13,11 @@ class IMGC():
 		return s
 
 class Sprite():
+	px=None
+	py=None
+	pw=None
+	ph=None
+	prot=None
 	def __init__(self,x,y,w,h,img,nn,batch,group):
 		self.x=x
 		self.y=y
@@ -63,32 +68,39 @@ class Sprite():
 		y=self.y
 		w=self.w
 		h=self.h
-		if self.rot:
-			rot=math.radians(180-self.rot)
-			cx=x+w/2
-			cy=y+h/2
-			ox=w/2
-			oy=h/2
-			_ox=-w/2
-			_oy=-h/2
-			#bottom left
-			x=cx+ox*math.cos(rot)-oy*math.sin(rot)
-			y=cy+ox*math.sin(rot)+oy*math.cos(rot)
-			#top right
-			_x=cx+_ox*math.cos(rot)-_oy*math.sin(rot)
-			_y=cy+_ox*math.sin(rot)+_oy*math.cos(rot)
-			#top left
-			__x=cx+ox*math.cos(rot)-_oy*math.sin(rot)
-			__y=cy+ox*math.sin(rot)+_oy*math.cos(rot)
-			#bottom right
-			_x_=cx+_ox*math.cos(rot)-oy*math.sin(rot)
-			_y_=cy+_ox*math.sin(rot)+oy*math.cos(rot)
-		else:
-			_x=_x_=x+w
-			__x=x
-			_y=_y_=y+h
-			__y=y
-		return (x,y,_x,_y,__x,__y,_x_,_y_)
+		if not (x==self.px and y==self.py and w==self.pw and h==self.ph and self.rot==self.prot):
+			if self.rot:
+				rot=math.radians(180-self.rot)
+				cx=x+w/2
+				cy=y+h/2
+				ox=w/2
+				oy=h/2
+				_ox=-w/2
+				_oy=-h/2
+				#bottom left
+				x=cx+ox*math.cos(rot)-oy*math.sin(rot)
+				y=cy+ox*math.sin(rot)+oy*math.cos(rot)
+				#top left
+				_x=cx+ox*math.cos(rot)-_oy*math.sin(rot)
+				_y=cy+ox*math.sin(rot)+_oy*math.cos(rot)
+				#top right
+				__x=cx+_ox*math.cos(rot)-_oy*math.sin(rot)
+				__y=cy+_ox*math.sin(rot)+_oy*math.cos(rot)
+				#bottom right
+				_x_=cx+_ox*math.cos(rot)-oy*math.sin(rot)
+				_y_=cy+_ox*math.sin(rot)+oy*math.cos(rot)
+			else:
+				_x=_x_=x+w
+				__x=x
+				_y=_y_=y+h
+				__y=y
+			self.pposs=(x,y,_x,_y,__x,__y,_x_,_y_)
+			self.pw=w
+			self.ph=h
+			self.px=x
+			self.py=y
+			self.prot=self.rot
+		return self.pposs
 	def get_poss(self):
 		if self.rot:
 			x,y,_x,_y,__x,__y,_x_,_y_=self.get_posss()

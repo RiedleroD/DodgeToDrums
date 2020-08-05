@@ -57,22 +57,16 @@ class Entity:
 		self.rendered=False
 	def doesPointCollide(self,x,y):
 		return x>=self.x and y>=self.y and x<=self._x and y<=self._y
-	def checkPointCollision(self,x,y):
-		if self.doesPointCollide(x,y):
-			if x>=self.cx:
-				if y>=self.cy:
-					return (self._x-x,self._y-y)
-				else:
-					return (self._x-x,self.y-y)
-			else:
-				if y>=self.cy:
-					return (self.x-x,self._y-y)
-				else:
-					return (self.x-x,self.y-y)
-		else:
-			return (0,0)
-	def distance_from(self,x,y):
-		return (self.x-x,self.y-y)
+	def get_posss(self):
+		x=self.x
+		_x=self._x
+		y=self.y
+		_y=self._y
+		return (x,y,x,_y,_x,_y,_x,y)
+	def get_poss(self):
+		return (self.x,self.y,self._x,self._y)
+	def get_bb(self):
+		return (self.x,self.y,self.w,self.h)
 	def hide(self):
 		self.hidden=True
 	def show(self):
@@ -494,6 +488,8 @@ class Hooman(PhysEntity):
 	a=None
 	preva=None
 	flipped=False
+	lives=4
+	lasthit=0
 	def __init__(self,x,y,w,h,c,batch,group):
 		for anim in ("side","up","down","idle","cside","cup","cdown","cidle"):
 			img=getattr(MEDIA,anim,None)
@@ -507,6 +503,11 @@ class Hooman(PhysEntity):
 			self.s_cidle=MEDIA.cidle.get(x,y,w,h/2,batch,group)
 			self.s_cidle.hide()
 		super().__init__(x,y,w,h,c,batch,group)
+	def lose_life(self):
+		t=time()
+		if t>self.lasthit+1.5:#immunity for 1.5 seconds
+			self.lives-=1
+			self.lasthit=t
 	def set_boundaries(self,w,h):
 		self.wb=w
 		self.hb=h
@@ -629,14 +630,24 @@ class Hooman(PhysEntity):
 			self.preva=self.a
 
 class Bullet1(PhysEntity):
-	def __init__(self,x,y,w,h,target,wait,c,img,dmg,batch,group):
+	def __init__(self,x,y,w,h,target,wait,c,img,batch,group):
 		self.sprt=img.get(x,y,w,h,batch,group) if img else None
+		self.get_posss=self.sprt.get_posss
+		self.get_poss=self.sprt.get_poss
+		self.get_bb=self.sprt.get_bb
 		self.x=x
 		self.y=y#calc_speed needs own coordinates set
 		super().__init__(x,y,w,h,c,batch,group,*self.calc_speed(target))
-		self.dmg=dmg
 		self.target=target
 		self.wait=wait
+	def doesCollide(self,ox,oy,_ox,_oy):
+		posss=self.get_posss()
+		#check for every own point if it lies within the other rect
+		#this doesn't check if a line cuts off a corner of the rect while staying out of it, but due to the nature of the projectiles, this is good enough.
+		for x,y in zip(posss[::2],posss[1::2]):
+			if ox<=x<=_ox and oy<=y<=_oy:
+				return True
+		return False
 	def calc_speed(self,target):
 		spdx=self.x-target.x
 		spdy=self.y-target.y
@@ -673,8 +684,8 @@ class Bullet1(PhysEntity):
 	def render(self):
 		if self.sprt:
 			self.sprt.set_pos(self.x,self.y)
-			x,y,_x,_y=self.sprt.get_poss()
-			self.quad=('v2f',(x,y,_x,y,_x,y,_x,_y,_x,_y,x,_y,x,_y,x,y))
+			x,y,_x,_y,x_,y_,_x_,_y_=self.get_posss()
+			self.quad=('v2f',(x,y,_x,_y,_x,_y,x_,y_,x_,y_,_x_,_y_,_x_,_y_,x,y))
 		else:
 			self.quad=('v2f',(self.x,self.y,self._x,self.y,self._x,self._y,self.x,self._y))
 		self.rendered=True
