@@ -203,6 +203,7 @@ class AnimSprite(Sprite):
 			sprite.delete()
 
 class MEDIA:
+	#sprites/animations
 	idle=None
 	up=None
 	down=None
@@ -216,39 +217,62 @@ class MEDIA:
 	btnp=None
 	menu=None
 	bullet1=None
+	#sounds
+	click=None
+	hurt=None
 	@classmethod
 	def load_all(cls,fp):
-		if os.path.exists(fp):
-			with open(os.path.join(fp,"sprites.json"),"r") as f:
-				data=json.load(f)
-			cls.loads_all(data)
+		if os.path.isdir(fp):
+			imgfp=os.path.join(fp,"sprites.json")
+			sfxfp=os.path.join(fp,"sfx.json")
+			if os.path.isfile(imgfp):
+				with open(imgfp,"r") as f:
+					imgs=json.load(f)
+			else:
+				imgs={}
+			if os.path.isfile(sfxfp):
+				with open(sfxfp,"r") as f:
+					sfx=json.load(f)
+			else:
+				sfx={}
+			cls.loads_all(imgs,sfx)
 		else:
-			print(f"No resources loaded as sprites.json wasn't found in {fp}")
+			print(f"no resources loaded as {fp} wasn't found")
 	@classmethod
-	def loads_all(cls,data):
+	def loads_all(cls,imgs,sfx):
 		for n in ("idle","up","down","side","cup","cdown","cside","cidle","btn","btnp","menu","bullet1"):
-			if n in data:
-				if isinstance(data[n][0],str):
-					fn,nn=data[n]
+			if n in imgs:
+				if isinstance(imgs[n][0],str):
+					fn,nn=imgs[n]
 					fp=os.path.join(datafp,f"{fn}.png")
 					if os.path.exists(fp):
 						setattr(cls,n,IMGC(fp,nn))
 					else:
-						print(f"Not loading {fn} as it wasn't found")
+						print(f"not loading sprite {fn} as it wasn't found")
 				else:
 					fps=[]
-					for fn in data[n][0]:
+					for fn in imgs[n][0]:
 						fp=os.path.join(datafp,f"{fn}.png")
 						if os.path.exists(fp):
 							fps.append(fp)
 						else:
-							print(f"Not loading {fn} as it wasn't found")
+							print(f"not loading frame {fn} from animation {n} as it wasn't found")
 					if len(fps)>0:
-						setattr(cls,n,ANIMC(fps,*data[n][1][:2]))
+						setattr(cls,n,ANIMC(fps,*imgs[n][1][:2]))
 					else:
-						print(f"Not loading animation {n} as no frames were found")
+						print(f"not loading animation {n} as no frames were found")
 			else:
-				print(f"consider adding resource {n} to your resource pack")
+				print(f"not loading image {n} as it's not in the resource pack")
+		for n in ("hurt","click"):
+			if n in sfx:
+				fn,strem=sfx[n]
+				fp=os.path.join(datafp,f"{fn}.opus")
+				if os.path.exists(fp):
+					setattr(cls,n,pyglet.media.load(fp,streaming=strem))
+				else:
+					print(f"not loading sound {fn} as it wasn't found")
+			else:
+				print(f"not loading sound {n} as it's not in the resource pack")
 
 MEDIA.load_all(datafp)
 print("Loaded media")
