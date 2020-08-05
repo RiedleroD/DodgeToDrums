@@ -344,10 +344,11 @@ class LABELS(ENTCONTAINER):
 	ups=None
 	notice=None
 	version=None
+	lives=None
 	creds=[]
 	@classmethod
 	def all(cls):
-		return (cls.fps,cls.ups,cls.notice,cls.version,*cls.creds)
+		return (cls.fps,cls.ups,cls.notice,cls.version,cls.lives,*cls.creds)
 
 class BTNS(ENTCONTAINER):
 	#menu

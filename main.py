@@ -75,6 +75,7 @@ class GameWin(pyglet.window.Window):
 		for blt in PHYS.bullets:
 			if blt.doesCollide(x,y,_x,_y):
 				PHYS.char.lose_life()
+				LABELS.lives.setText(f"Lives: {PHYS.char.lives}")
 				break
 		if PHYS.char.lives<=0:
 			self.curscr=5
@@ -182,6 +183,7 @@ class GameWin(pyglet.window.Window):
 		elif scr==3:
 			self.lv.stop()
 			self.paused=False
+			LABELS.lives=None
 			PHYS.walls.clear()
 			PHYS.bullets.clear()
 			PHYS.char=None
@@ -242,6 +244,7 @@ class GameWin(pyglet.window.Window):
 		elif scr==3:
 			self.lv=LVLS.lvls[LVLS.curlv]
 			self.lv.play()
+			LABELS.lives=entities.Label(WIDTH2,2,WIDTH20,19,"Lives: 4",anch=1,batch=self.batch,group=GRfg)
 			BTNS.pause=entities.Button(0,0,0,0,"",0,key=k_BACK,batch=self.batch,group=GRmp)
 			PHYS.char=entities.Hooman(WIDTH2,HEIGHT2,SIZE/15,SIZE/12.5,(64,64,255,255),self.batch,group=GRmp)
 			PHYS.char.set_boundaries(WIDTH,HEIGHT)
