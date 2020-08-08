@@ -485,11 +485,13 @@ class Hooman(PhysEntity):
 	s_cup=None
 	s_cdown=None
 	s_cidle=None
+	s_hurt=None
 	a=None
 	preva=None
 	flipped=False
 	lives=4
 	lasthit=0
+	apl=None#audio player
 	def __init__(self,x,y,w,h,c,batch,group):
 		for anim in ("side","up","down","idle","cside","cup","cdown","cidle"):
 			img=getattr(MEDIA,anim,None)
@@ -499,15 +501,22 @@ class Hooman(PhysEntity):
 				_h=h
 			if img:
 				setattr(self,f"s_{anim}",img.get(x,y,w,_h,batch,group,visible=False))
-		if MEDIA.cidle:
-			self.s_cidle=MEDIA.cidle.get(x,y,w,h/2,batch,group)
-			self.s_cidle.hide()
+		self.s_hurt=MEDIA.hurt
 		super().__init__(x,y,w,h,c,batch,group)
 	def lose_life(self):
 		t=time()
 		if t>self.lasthit+1.5:#immunity for 1.5 seconds
 			self.lives-=1
 			self.lasthit=t
+			if self.apl:
+				self.apl.next_source()
+				self.apl.delete()
+				self.apl=None
+			if self.s_hurt:
+				self.apl=self.s_hurt.play()
+			return True
+		else:
+			return False
 	def set_boundaries(self,w,h):
 		self.wb=w
 		self.hb=h
@@ -628,6 +637,13 @@ class Hooman(PhysEntity):
 			if self.a:
 				self.a.show()
 			self.preva=self.a
+	def __del__(self):
+		if self.apl:
+			self.apl.next_source()
+			self.apl.delete()
+			self.apl=None
+		if self.vl:
+			self.vl.delete()
 
 class Bullet1(PhysEntity):
 	def __init__(self,x,y,w,h,target,wait,c,img,batch,group):

@@ -74,8 +74,9 @@ class GameWin(pyglet.window.Window):
 		_y=PHYS.char._y
 		for blt in PHYS.bullets:
 			if blt.doesCollide(x,y,_x,_y):
-				PHYS.char.lose_life()
-				LABELS.lives.setText(f"Lives: {PHYS.char.lives}")
+				if PHYS.char.lose_life():
+					LABELS.lives.setText(f"Lives: {PHYS.char.lives}")
+					self.lv.fade_in(1)
 				break
 		if PHYS.char.lives<=0:
 			self.curscr=5

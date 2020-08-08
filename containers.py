@@ -283,6 +283,9 @@ class Level():
 		self.img=img
 		self.mus=mus
 		self.player=None
+		self.vol=CONF.volmaster*CONF.volmusic
+		self.fit=None
+		self.fot=None
 		self.acts=acts
 	def play(self):
 		self.unf=self.acts.copy()#unf→ unfinished acts
@@ -290,12 +293,25 @@ class Level():
 		self.set_volume(CONF.volmaster*CONF.volmusic)
 	def set_volume(self,vol):#not in percent but as float from 0 to 1
 		self.player.volume=vol
+		self.vol=vol
 	def cycle(self)->"list with all actions to do":
+		t=self.player.time
+		if self.fit:
+			v=(t-self.fit)/self.fot
+			if v>=1:
+				v=1
+				self.fit=None
+			self.player.volume=self.vol*v
 		acts=[]
-		while self.unf and self.unf[0][1]<self.player.time:
+		while self.unf and self.unf[0][1]<t:
 			act=self.unf.pop(0)
 			acts.append([act[0],*act[2:]])
 		return acts
+	def fade_in(self,t):
+		if self.player:
+			self.player.volume=0
+			self.fit=self.player.time
+			self.fot=t
 	def stop(self):
 		if self.player:
 			self.player.next_source()#else the StreamingSource doesn't get unqueued
