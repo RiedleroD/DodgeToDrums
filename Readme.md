@@ -14,6 +14,7 @@ You will also be able to see this in the ingame credits once they're implemented
 
 Programming
 - Riedler
+- Philip Damianik
 
 Sketches & Art:
 - Dark Rosemary
@@ -45,30 +46,35 @@ No screenshots are yet available, because it's so early in development right now
 
 ## Usage
 
-Download the matching executable for your OS and save it somewhere where you'll easily find it again, e.g. your Desktop.
-When you first start the program, all settings are assumed to be the defaults. A config file `conf.json` will only be created after changing the settings and saving them.
+Download the matching executable for your OS and save it somewhere where you'll easily find it again, e.g. in a separate folder on your Desktop.
+Then download the level archive (base\_levels.zip or base\_levels.tar.xz) and the data archive (base\_data.zip or base\_data.tar.xz) and extract them into the executable folder as levels/ and data/
+When you first start the program, all settings are assumed to be the defaults. A config file `conf.json` will be created after changing the settings and saving them.
 The menu is controllable with the mouse and a few keys. ESC is usually for going back and Enter for confirming stuff.
-In the main game, the character is controllable with WASD, Space and/or the Arrow keys. You can pause with ESC.
+In the main game, the character is controllable with WASD or the Arrow keys. You can pause with ESC.
+All of those controls can be changed in the settings, as well as various other stuff.
 
-## Adding textures
+## Adding resources
 
-This is not implemented yet, but planned would be a data/ directory with a `sprites.json` configuration file and the sprites itself in it.
-Most likely, only png will be supported & animations and sprites will be stretched to their proper size.
+All resources are in the `data/` subfolder.
+All textures are specified in `data/sprites.json`, in the format `"sprite_name":["file_name",true]`, where `"file_name"` is the relative file path without file extension (only png is allowed) and `true` is a boolean that determines if the upscaling method is set as Nearest-Neighbour or Linear.
+Animations are also supported, and can be specified in the format `"animation_name":[["file1","file2",…],[18,true]]`, where as many files as necessary can be specified and `18` is the number of frames one picture should last. Animations aren't supported in all objects, but in most. If they're not supported, the animation will stay at frame 0.
+All sound effects are specified in `data/sfx.json`, in the format `"sfx_name":["file_name",false]`, where `"file_name"` is the relative file path without file extension in the opus format, and `false` is a boolean that determines if the file is streamed to playback or loaded on program startup. `false` is heavily recommended here, and `true` can lead to crashes in some circumstances.
 
 ## <a name="compiling"></a> Compiling
 
 ### on windows
 
+You'll need python for this. Make sure to download the newest version.
 In the cmd:
-First run `pip3 install pyglet PyInstaller`
-Then run `python3 setup.py`, if this doesn't produce any output, try `pyinstaller \args\` where `\args\` is all the options that aren't commented out in `setup.py`.
+First run `pip3 install -r requirements.txt`
+Then run `python3 setup.py`, if this doesn't produce any output, try `pyinstaller \args\`, where `\args\` is all the options that aren't commented out in `setup.py`.
 I haven't figured out why this happens in windows yet, if you know, please file an issue.
-After the command finished successfully, there should be a `build/` and a `dist/` directory. You can delete the `build/` directory, and move the executable from the `dist/` directory wherever you want. Just make sure it's not in a folder which doesn't let the program create new files in it since it's going to create a `conf.json` in the same directory.
-If you encounter any error that's not explained in this guide, please file an issue in the repo.
+After the command finished successfully, there should be a `build/` and a `dist/` directory. You can delete the `build/` directory, and move the executable from the `dist/` directory wherever you want.
+If you encounter any error that's not explained in this guide, please file an issue in the [repo](https://github.com/RiedleroD/DodgeToDrums/issues).
 
 ### on Linux
 
 In bash (or zsh probably too):
-First run `sudo -H pip3 install pyglet PyInstaller` or install pyglet from your package manager of choice. It often works better outside of pip.
-Then run `python3 setup.py`, which, after a short wait, produces a `build/` and a `dist/` directory. You can delete the `build/` directory, and move the executable from the `dist/` directory wherever you want. Just make sure it's not in a folder which doesn't let the program create new files in it since it's going to create a `conf.json` in the same directory.
+First run `pip3 install -r requirements.txt --user`.
+Then run `python3 setup.py`, which, after a short wait, produces a `build/` and a `dist/` directory. You can delete the `build/` directory, and move the executable from the `dist/` directory wherever you want.
 If you encounter any error that's not explained in this guide, please file an issue in the [repo](https://github.com/RiedleroD/DodgeToDrums/issues).
