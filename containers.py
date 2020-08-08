@@ -301,7 +301,7 @@ class Level():
 		while self.unf and self.unf[0][1]<t:
 			act=self.unf.pop(0)
 			acts.append([act[0],*act[2:]])
-		return acts
+		return acts,t
 	def fade_in(self,t):
 		if self.player:
 			self.player.volume=0

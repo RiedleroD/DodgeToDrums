@@ -21,6 +21,7 @@ class GameWin(pyglet.window.Window):
 	diffmode=1#difficulty mode
 	paused=False
 	lv=None
+	curt=0#current time, used for spawning and cycling in the main game
 	def __init__(self,*args,**kwargs):
 		self.set_fps(60)
 		self.batch=pyglet.graphics.Batch()
@@ -51,14 +52,14 @@ class GameWin(pyglet.window.Window):
 		#in-game stuff
 		if self.curscr==3 and not self.paused:
 			#cycle all physical objects that need cycling
-			PHYS.char.cycle()
+			PHYS.char.cycle(self.curt)
 			for bullet in PHYS.bullets:
-				bullet.cycle()
+				bullet.cycle(self.curt)
 			self.check_projectiles()
 			#remove all expired physical objects
 			for i in range(len(PHYS.bullets)-1,-1,-1):
 				bullet=PHYS.bullets[i]
-				if bullet.x>WIDTH or bullet._x<0 or bullet.y>HEIGHT or bullet._y<0:
+				if bullet.dead or bullet.x>WIDTH or bullet._x<0 or bullet.y>HEIGHT or bullet._y<0:
 					del PHYS.bullets[i]
 			#execute all acts
 			if self.lv:
@@ -81,11 +82,12 @@ class GameWin(pyglet.window.Window):
 		if PHYS.char.lives<=0:
 			self.curscr=5
 	def exec_acts(self):
-		for act in self.lv.cycle():
+		acts,self.curt=self.lv.cycle()
+		for act in acts:
 			name=act.pop(0)
 			if name=="knife":
 				x,y,wait=act
-				PHYS.bullets.append(entities.Bullet1(WIDTH20*x-SIZE/64,HEIGHT10*y-SIZE/26,SIZE/32,SIZE/13,PHYS.char,wait*60,(255,0,0,255),MEDIA.bullet1,batch=self.batch,group=GRmp))
+				PHYS.bullets.append(entities.Bullet1(WIDTH20*x-SIZE/64,HEIGHT10*y-SIZE/26,SIZE/32,SIZE/13,PHYS.char,self.curt+wait,(255,0,0,255),MEDIA.bullet1,batch=self.batch,group=GRmp))
 			else:
 				print(f"\033[33mWarning:\033[39m tried to spawn unknown enemy {name} at pos {x}x{y} with arguments {args}")
 	def pressproc(self,scr):

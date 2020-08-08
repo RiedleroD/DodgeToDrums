@@ -500,6 +500,7 @@ class Hooman(PhysEntity):
 	lives=4
 	lasthit=0
 	apl=None#audio player
+	prvt=0#previous cycle time
 	def __init__(self,x,y,w,h,c,batch,group):
 		for anim in ("side","up","down","idle","cside","cup","cdown","cidle"):
 			img=getattr(MEDIA,anim,None)
@@ -540,20 +541,22 @@ class Hooman(PhysEntity):
 			self.u=prsd
 		elif k==k_CROUCH:
 			self.sh=prsd
-	def cycle(self):
+	def cycle(self,t):
+		td=t-self.prvt
+		self.prvt=t
 		#reset speed
 		self.spdx=self.spdy=0
-		#slowdown on crouch
+		#slowdown & half size on crouch
 		if self.sh:
 			if self.bh==None:
 				self.bh=self.h
 				self.set_size(self.w,self.h/2)
-			acc=5
+			acc=td*SIZE/3
 		else:
 			if self.bh!=None:
 				self.set_size(self.w,self.bh)
 				self.bh=None
-			acc=10
+			acc=td*SIZE/1.5
 		if abs(self.l-self.r)+abs(self.u-self.d)>1:
 			acc=math.sqrt(2*acc**2)/2
 		#moving on button press
@@ -653,6 +656,8 @@ class Hooman(PhysEntity):
 			self.vl.delete()
 
 class Bullet1(PhysEntity):
+	dead=False
+	prvt=0
 	def __init__(self,x,y,w,h,target,wait,c,img,batch,group):
 		self.sprt=img.get(x,y,w,h,batch,group) if img else None
 		self.get_posss=self.sprt.get_posss
@@ -693,17 +698,18 @@ class Bullet1(PhysEntity):
 				rot=math.degrees(math.atan(x/y))-(180 if y<0 else 0)
 			self.sprt.set_rotation(rot)
 			self.rendered=False
-	def cycle(self):
+	def cycle(self,t):
+		td=t-self.prvt
+		self.prvt=t
 		if self.sprt:
 			self.sprt.cycle()
-		if self.wait>0:
-			self.wait-=1
+		if self.wait>=t:
 			#calculate direction only before shooting to stay fair
 			spdx,spdy=self.calc_speed(self.target)
 			if spdx!=self.spdx or spdy!=self.spdy:
 				self.set_speed(spdx,spdy)
 		else:
-			self.move(self.spdx,self.spdy)
+			self.move(td*60*self.spdx,td*60*self.spdy)
 	def render(self):
 		if self.sprt:
 			self.sprt.set_pos(self.x,self.y)
