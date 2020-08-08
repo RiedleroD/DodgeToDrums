@@ -196,8 +196,10 @@ class Button(Label):
 	def checkKey(self,key):
 		if self.key!=None and key==self.key:
 			return self.press()
-	def press(self):
+	def press(self,silent=False):
 		if not self.pressed:
+			if not silent:
+				MEDIA.click.play().volume=CONF.volsfx
 			self.pressed=True
 			self.setText(self.pressedText)
 			return pyglet.event.EVENT_HANDLED
@@ -230,6 +232,7 @@ class ButtonSwitch(Button):
 	def checkpress(self,x,y):
 		if self.doesPointCollide(x,y):
 			if self.pressed:
+				MEDIA.click.play().volume=CONF.volsfx
 				self.release()
 			else:
 				self.press()
@@ -244,7 +247,9 @@ class ButtonFlipthrough(Button):
 		self.label.text=text
 	def getCurval(self):
 		return self.vals[self.i]
-	def press(self):
+	def press(self,silent=False):
+		if not silent:
+			MEDIA.click.play().volume=CONF.volsfx
 		self.i+=1
 		self.i%=len(self.vals)
 		self.setText(self.text%self.getCurval())
@@ -256,14 +261,17 @@ class StrgButton(Button):
 		self.btxt=desc
 		self.val=value
 		super().__init__(x,y,w,h,f"{desc}:{self.keyname(value)}",anch,None,size,None,batch=batch,group=group)
-	def press(self):
+	def press(self,silent=False):
 		if not self.pressed:
+			if not silent:
+				MEDIA.click.play().volume=CONF.volsfx
 			self.pressed=True
 			self.setText(f"[{self.keyname(self.val)}]")
 			self.setBgColor((255,255,255,255))
 			return pyglet.event.EVENT_HANDLED
 	def release(self):
 		if self.pressed:
+			MEDIA.click.play().volume=CONF.volsfx
 			self.pressed=False
 			self.setText(f"{self.btxt}:{self.keyname(self.val)}")
 			self.setBgColor((255,255,255,255))
@@ -288,7 +296,8 @@ class Slider(Button):
 	def setBgColor(self,color):
 		self.cquad=("c4B",color*4)
 		self.cquad2=("c4B",color*8)
-	def press(self,x,y):
+	def press(self,x,y,silent=False):
+		MEDIA.click.play().volume=CONF.volsfx
 		self.pressed=True
 		perc=(x-self.x)/(self.w-1)
 		if perc>1:
@@ -347,11 +356,13 @@ class LevelSelect(Label):
 		self.cquad=("c4B",colr*16)
 	def checkKey(self,key):
 		if key==self.keynxt and self.curlv+1<self.lvli:
+			MEDIA.click.play().volume=CONF.volsfx
 			self.curlv+=1
 			self.rendered=False
 			self.setText(self.lvls[self.curlv].name)
 			return pyglet.event.EVENT_HANDLED
 		elif key==self.keyprv and self.curlv>0:
+			MEDIA.click.play().volume=CONF.volsfx
 			self.curlv-=1
 			self.rendered=False
 			self.setText(self.lvls[self.curlv].name)
@@ -398,7 +409,7 @@ class RadioList(Entity):
 			pressedTexts=[None for i in range(btnc)]
 		self.btns=[Button(x,y-i*h/btnc,w,h/btnc,text,anch,keys[i],size,pressedTexts[i],batch=batch,group=group) for i,text in enumerate(texts)]
 		if selected!=None:
-			self.btns[selected].press()
+			self.btns[selected].press(silent=True)
 		super().__init__(x,y,w,h,anch,batch=batch,group=group)
 		del self.vl
 	def checkpress(self,x,y):

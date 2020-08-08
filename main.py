@@ -216,16 +216,16 @@ class GameWin(pyglet.window.Window):
 			LABELS.version=entities.Label(5,BTNHEIGHT2-19,WIDTH/4,19,f"version: {VERSION}",bgcolor=(0,0,0,255),anch=0,batch=self.batch,group=GRfg)
 			BTNS.fullscr=entities.ButtonSwitch(0,HEIGHT-BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Borderless",pressedText="Fullscreen",anch=6,batch=self.batch,group=GRmp)
 			if CONF.fullscreen:
-				BTNS.fullscr.press()
+				BTNS.fullscr.press(silent=True)
 			BTNS.showfps=entities.ButtonSwitch(0,HEIGHT-BTNHEIGHT*2.5,BTNWIDTH,BTNHEIGHT,"Show FPS/UPS",pressedText="Hide FPS/UPS",size=12,anch=6,batch=self.batch,group=GRmp)
 			if CONF.showfps:
-				BTNS.showfps.press()
+				BTNS.showfps.press(silent=True)
 			BTNS.vsync=entities.ButtonSwitch(0,HEIGHT-BTNHEIGHT*4,BTNWIDTH,BTNHEIGHT,"Vsync OFF",pressedText="Vsync ON",anch=6,batch=self.batch,group=GRmp)
 			if CONF.vsync:
-				BTNS.vsync.press()
+				BTNS.vsync.press(silent=True)
 			BTNS.showcoll=entities.ButtonSwitch(0,HEIGHT-BTNHEIGHT*5.5,BTNWIDTH,BTNHEIGHT,"Hide Collision Boxes",pressedText="Show Collision Boxes",size=10,anch=6,batch=self.batch,group=GRmp)
 			if CONF.showcoll:
-				BTNS.showcoll.press()
+				BTNS.showcoll.press(silent=True)
 			BTNS.strg+=[
 				entities.StrgButton(BTNWIDTH*1.5,HEIGHT-BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"UP",CONF.k_UP,anch=6,batch=self.batch,group=GRmp),
 				entities.StrgButton(BTNWIDTH*1.5,HEIGHT-BTNHEIGHT*2.5,BTNWIDTH,BTNHEIGHT,"DOWN",CONF.k_DOWN,anch=6,batch=self.batch,group=GRmp),
