@@ -116,7 +116,6 @@ class Background(Entity):
 		if self.vl:
 			self.vl.delete()
 		if self.sprite:
-			self.sprite.nn()
 			self.sprite.cycle()
 		else:
 			self.vl=self.batch.add(4,pyglet.gl.GL_QUADS,self.group,self.quad,self.cquad)
@@ -219,10 +218,8 @@ class Button(Label):
 		elif self.psprit and not self.pressed:
 			self.psprit.hide()
 		if self.psprit and self.pressed:
-			self.psprit.nn()
 			self.psprit.show()
 		elif self.sprite and not self.pressed:
-			self.sprite.nn()
 			self.sprite.show()
 		else:
 			if self.w>0 and self.h>0:
@@ -628,8 +625,6 @@ class Hooman(PhysEntity):
 		else:
 			self.rendered=False
 	def draw(self):
-		if self.a:
-			self.a.nn()
 		if not self.rendered:
 			self.render()
 		if self.vl:

@@ -4,10 +4,12 @@ from time import time
 
 class IMGC():
 	def __init__(self,fp,nn):
+		pyglet.image.Texture.default_min_filter=pyglet.image.Texture.default_mag_filter=pyglet.gl.GL_NEAREST if nn else pyglet.gl.GL_LINEAR
 		self.img=pyglet.image.load(fp)
+		self.texture=self.img.get_texture()
 		self.nn=nn
 	def get(self,x,y,w,h,batch,group,visible=True):
-		s=Sprite(x,y,w,h,self.img,self.nn,batch,group)
+		s=Sprite(x,y,w,h,self.texture,self.nn,batch,group)
 		if not visible:
 			s.hide()
 		return s
@@ -22,13 +24,7 @@ class Sprite():
 		self.x=x
 		self.y=y
 		self.rot=0
-		if nn:
-			#nearest-neighbour texture upscaling
-			self.nn=lambda:pyglet.gl.glTexParameteri(pyglet.gl.GL_TEXTURE_2D,pyglet.gl.GL_TEXTURE_MAG_FILTER,pyglet.gl.GL_NEAREST)
-		else:
-			self.nn=lambda:pyglet.gl.glTexParameteri(pyglet.gl.GL_TEXTURE_2D,pyglet.gl.GL_TEXTURE_MAG_FILTER,pyglet.gl.GL_LINEAR)
 		self.sprite=pyglet.sprite.Sprite(img,x,y,batch=batch,group=group)
-		self.nn()
 		self.flipped=False
 		self.ow=self.sprite.width
 		self.oh=self.sprite.height
@@ -121,11 +117,16 @@ class Sprite():
 
 class ANIMC(IMGC):
 	def __init__(self,fps,nn,wait):
+		pyglet.image.Texture.default_min_filter=pyglet.image.Texture.default_mag_filter=pyglet.gl.GL_NEAREST if nn else pyglet.gl.GL_LINEAR
 		self.imgs=[pyglet.image.load(fp) for fp in fps]
+		self.textures=[]
+		for img in self.imgs:
+			txt=img.get_texture()
+			self.textures.append(txt)
 		self.wait=wait
 		self.nn=nn
 	def get(self,x,y,w,h,batch,group,visible=True):
-		s=AnimSprite(x,y,w,h,self.imgs,self.nn,self.wait,batch,group)
+		s=AnimSprite(x,y,w,h,self.textures,self.nn,self.wait,batch,group)
 		if not visible:
 			s.hide()
 		return s
@@ -142,15 +143,9 @@ class AnimSprite(Sprite):
 		self.curw=0
 		self.flipped=False
 		self.lens=len(imgs)
-		if nn:
-			#nearest-neighbour texture upscaling
-			self.nn=lambda:pyglet.gl.glTexParameteri(pyglet.gl.GL_TEXTURE_2D,pyglet.gl.GL_TEXTURE_MAG_FILTER,pyglet.gl.GL_NEAREST)
-		else:
-			self.nn=lambda:pyglet.gl.glTexParameteri(pyglet.gl.GL_TEXTURE_2D,pyglet.gl.GL_TEXTURE_MAG_FILTER,pyglet.gl.GL_LINEAR)
 		self.sprites=[]
 		for img in imgs:
 			sprite=pyglet.sprite.Sprite(img,x,y,batch=batch,group=group)
-			self.nn()
 			sprite.visible=False
 			self.sprites.append(sprite)
 		self.sprites[0].visible=True
