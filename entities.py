@@ -198,7 +198,7 @@ class Button(Label):
 	def press(self,silent=False):
 		if not self.pressed:
 			if not silent:
-				MEDIA.click.play().volume=CONF.volsfx
+				MEDIA.click.play().volume=CONF.volsfx*CONF.volmaster
 			self.pressed=True
 			self.setText(self.pressedText)
 			return pyglet.event.EVENT_HANDLED
@@ -229,7 +229,7 @@ class ButtonSwitch(Button):
 	def checkpress(self,x,y):
 		if self.doesPointCollide(x,y):
 			if self.pressed:
-				MEDIA.click.play().volume=CONF.volsfx
+				MEDIA.click.play().volume=CONF.volsfx*CONF.volmaster
 				self.release()
 			else:
 				self.press()
@@ -246,7 +246,7 @@ class ButtonFlipthrough(Button):
 		return self.vals[self.i]
 	def press(self,silent=False):
 		if not silent:
-			MEDIA.click.play().volume=CONF.volsfx
+			MEDIA.click.play().volume=CONF.volsfx*CONF.volmaster
 		self.i+=1
 		self.i%=len(self.vals)
 		self.setText(self.text%self.getCurval())
@@ -261,14 +261,14 @@ class StrgButton(Button):
 	def press(self,silent=False):
 		if not self.pressed:
 			if not silent:
-				MEDIA.click.play().volume=CONF.volsfx
+				MEDIA.click.play().volume=CONF.volsfx*CONF.volmaster
 			self.pressed=True
 			self.setText(f"[{self.keyname(self.val)}]")
 			self.setBgColor((255,255,255,255))
 			return pyglet.event.EVENT_HANDLED
 	def release(self):
 		if self.pressed:
-			MEDIA.click.play().volume=CONF.volsfx
+			MEDIA.click.play().volume=CONF.volsfx*CONF.volmaster
 			self.pressed=False
 			self.setText(f"{self.btxt}:{self.keyname(self.val)}")
 			self.setBgColor((255,255,255,255))
@@ -294,7 +294,6 @@ class Slider(Button):
 		self.cquad=("c4B",color*4)
 		self.cquad2=("c4B",color*8)
 	def press(self,x,y,silent=False):
-		MEDIA.click.play().volume=CONF.volsfx
 		self.pressed=True
 		perc=(x-self.x)/(self.w-1)
 		if perc>1:
@@ -304,6 +303,7 @@ class Slider(Button):
 		self.rendered=False
 		return pyglet.event.EVENT_HANDLED
 	def release(self):
+		MEDIA.click.play().volume=CONF.volsfx*CONF.volmaster
 		self.pressed=False
 	def checkKey(self,key):
 		return None
@@ -353,7 +353,7 @@ class LevelSelect(Label):
 		self.cquad=("c4B",colr*16)
 	def checkKey(self,key):
 		if key==self.keynxt and self.curlv+1<self.lvli:
-			MEDIA.click.play().volume=CONF.volsfx
+			MEDIA.click.play().volume=CONF.volsfx*CONF.volmaster
 			self.curlv+=1
 			self.rendered=False
 			self.setText(self.lvls[self.curlv].name)
@@ -522,6 +522,7 @@ class Hooman(PhysEntity):
 				self.apl=None
 			if self.s_hurt:
 				self.apl=self.s_hurt.play()
+				self.apl.volume=CONF.volsfx*CONF.volmaster
 			return True
 		else:
 			return False
