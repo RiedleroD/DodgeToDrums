@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 print("started")
-VERSION="0.2-dev"
+VERSION="0.3"
 import os,sys,math
 import json
 import pyglet
