@@ -1,43 +1,35 @@
 #!/usr/bin/python3
-import setuptools
-import sys
+import setuptools, argparse
 import PyInstaller.__main__ as pim
 
-DEFAULT_PROFILE = "dist"
-
-if len(sys.argv) > 0:
-	PROFILE = sys.argv[1]
-else:
-	PROFILE = DEFAULT_PROFILE
+DEFAULT_PROFILE = set([
+	"--name=DodgeToDrums",
+	"--onefile",
+	"--windowed",
+	"--clean",
+	"--exclude-module=tkinter",
+	"--exclude-module=PyQt4",
+	"--exclude-module=PyQt5",
+	"--exclude-module=numpy",
+	"--hidden-import=packaging.requirements",
+#	"--icon=icon.ico",
+#	"--add-data=./data/",
+	"main.py"
+])
 
 PROFILES = {
-	"dist": [
-		"--name=DodgeToDrums",
-		"--onefile",
-		"--windowed",
-		"--clean",
-		"--exclude-module=tkinter",
-		"--exclude-module=PyQt4",
-		"--exclude-module=PyQt5",
-		"--exclude-module=numpy",
-		"--hidden-import=packaging.requirements",
-	#	"--icon=icon.ico",
-	#	"--add-data=./data/",
-		"main.py"
-	],
 	"dev": [
-		"--name=DodgeToDrums",
-		"--onefile",
-		"--clean",
-		"--exclude-module=tkinter",
-		"--exclude-module=PyQt4",
-		"--exclude-module=PyQt5",
-		"--exclude-module=numpy",
-		"--hidden-import=packaging.requirements",
-	#	"--icon=icon.ico",
-	#	"--add-data=./data/",
-		"main.py"
+		"--windowed",
 	]
 }
 
-pim.run(PROFILES[PROFILE])
+if __name__ == "__main__":
+	parser = argparse.ArgumentParser(description="Builds DodgeToDrums")
+	parser.add_argument("profile", type=str, nargs='?', help="The build-profile")
+	args = parser.parse_args()
+
+	if args.__contains__("profile") and args.profile is not None:
+		PROFILE = args.profile
+		pim.run(DEFAULT_PROFILE.symmetric_difference(PROFILES[PROFILE]))
+	else:
+		pim.run(DEFAULT_PROFILE)
