@@ -3,10 +3,10 @@ from containers import MEDIA,Sprite
 from CONSTANTS import *
 
 class Entity:
+	vl=None
 	def __init__(self,x,y,w,h,anch=0,batch=None,group=None):
 		self.w=w
 		self.h=h
-		self.vl=None
 		self.set_pos(x,y,anch)
 		self.rendered=False
 		self.batch=batch
@@ -408,7 +408,6 @@ class RadioList(Entity):
 		if selected!=None:
 			self.btns[selected].press(silent=True)
 		super().__init__(x,y,w,h,anch,batch=batch,group=group)
-		del self.vl
 	def checkpress(self,x,y):
 		prsd=None
 		for i,btn in enumerate(self.btns):
@@ -655,19 +654,59 @@ class Hooman(PhysEntity):
 		if self.vl:
 			self.vl.delete()
 
-class Bullet1(PhysEntity):
+class Projectile(PhysEntity):
 	dead=False
 	prvt=0
-	def __init__(self,x,y,w,h,target,wait,c,img,batch,group):
+	def __init__(self,x,y,w,h,target,c,img,t,batch,group):
 		self.sprt=img.get(x,y,w,h,batch,group) if img else None
+		super().__init__(x,y,w,h,c,batch,group)
+		self.prvt=t
+		self.target=target
+	def doesCollide(self,ox,oy,_ox,_oy):
+		x,y,_x,_y=self.get_poss()
+		return not (x>_ox or _x<ox or y>_oy or _y<oy)
+	def calc_speed(self,target,spd):
+		spdx=self.x-target.x
+		spdy=self.y-target.y
+		d=-spd/math.sqrt(spdx**2+spdy**2)
+		spdx*=d
+		spdy*=d
+		return spdx,spdy
+	def cycle(self,t):
+		td=t-self.prvt
+		self.prvt=t
+		if self.sprt:
+			self.sprt.cycle()
+		self.move(td*60*self.spdx,td*60*self.spdy)
+	def render(self):
+		if self.sprt:
+			self.sprt.set_pos(self.x,self.y)
+			#for drawing the collision box when enabled
+			x,y,_x,_y,x_,y_,_x_,_y_=self.get_posss()
+			self.quad=('v2f',(x,y,_x,_y,_x,_y,x_,y_,x_,y_,_x_,_y_,_x_,_y_,x,y))
+		else:
+			#no collision box is visible since it's a square anyway when no sprite is available.
+			self.quad=('v2f',self.get_posss())
+		self.rendered=True
+	def draw(self):
+		if not self.rendered:
+			self.render()
+		if self.vl:
+			self.vl.delete()
+			self.vl=None
+		if self.sprt:
+			self.sprt.cycle()#for animation support
+			if CONF.showcoll:
+				self.vl=self.batch.add(8,pyglet.gl.GL_LINES,self.group,self.quad,('c3B',(255,0,0)*8))
+		else:
+			self.vl=self.batch.add(4,pyglet.gl.GL_QUADS,self.group,self.quad,self.cquad)
+
+class ProjectileRot(Projectile):
+	def __init__(self,x,y,w,h,target,c,img,t,batch,group):
+		super().__init__(x,y,w,h,target,c,img,t,batch,group)
 		self.get_posss=self.sprt.get_posss
 		self.get_poss=self.sprt.get_poss
 		self.get_bb=self.sprt.get_bb
-		self.x=x
-		self.y=y#calc_speed needs own coordinates set
-		super().__init__(x,y,w,h,c,batch,group,*self.calc_speed(target))
-		self.target=target
-		self.wait=wait
 	def doesCollide(self,ox,oy,_ox,_oy):
 		posss=self.get_posss()
 		#check for every own point if it lies within the other rect
@@ -676,13 +715,6 @@ class Bullet1(PhysEntity):
 			if ox<=x<=_ox and oy<=y<=_oy:
 				return True
 		return False
-	def calc_speed(self,target):
-		spdx=self.x-target.x
-		spdy=self.y-target.y
-		d=-10/math.sqrt(spdx**2+spdy**2)
-		spdx*=d
-		spdy*=d
-		return spdx,spdy
 	def set_speed(self,x,y):
 		self.spdx=x
 		self.spdy=y
@@ -698,6 +730,11 @@ class Bullet1(PhysEntity):
 				rot=math.degrees(math.atan(x/y))-(180 if y<0 else 0)
 			self.sprt.set_rotation(rot)
 			self.rendered=False
+
+class DirectedMissile(ProjectileRot):
+	def __init__(self,x,y,w,h,target,wait,c,img,t,batch,group):
+		self.wait=wait
+		super().__init__(x,y,w,h,target,c,img,t,batch,group)
 	def cycle(self,t):
 		td=t-self.prvt
 		self.prvt=t
@@ -705,29 +742,26 @@ class Bullet1(PhysEntity):
 			self.sprt.cycle()
 		if self.wait>=t:
 			#calculate direction only before shooting to stay fair
-			spdx,spdy=self.calc_speed(self.target)
+			spdx,spdy=self.calc_speed(self.target,10)
 			if spdx!=self.spdx or spdy!=self.spdy:
 				self.set_speed(spdx,spdy)
 		else:
 			self.move(td*60*self.spdx,td*60*self.spdy)
-	def render(self):
+
+class HomingMissile(ProjectileRot):
+	def __init__(self,x,y,w,h,target,expiration,c,img,t,batch,group):
+		self.ex=expiration
+		super().__init__(x,y,w,h,target,c,img,t,batch,group)
+	def cycle(self,t):
+		td=t-self.prvt
+		self.prvt=t
 		if self.sprt:
-			self.sprt.set_pos(self.x,self.y)
-			x,y,_x,_y,x_,y_,_x_,_y_=self.get_posss()
-			self.quad=('v2f',(x,y,_x,_y,_x,_y,x_,y_,x_,y_,_x_,_y_,_x_,_y_,x,y))
-		else:
-			self.quad=('v2f',(self.x,self.y,self._x,self.y,self._x,self._y,self.x,self._y))
-		self.rendered=True
-	def draw(self):
-		if not self.rendered:
-			self.render()
-		if self.vl:
-			self.vl.delete()
-			self.vl=None
-		if self.sprt:
-			if CONF.showcoll:
-				self.vl=self.batch.add(8,pyglet.gl.GL_LINES,self.group,self.quad,('c3B',(255,0,0)*8))
-		else:
-			self.vl=self.batch.add(4,pyglet.gl.GL_QUADS,self.group,self.quad,self.cquad)
+			self.sprt.cycle()
+		if t>self.ex:
+			self.dead=True
+		spdx,spdy=self.calc_speed(self.target,4)
+		if spdx!=self.spdx or spdy!=self.spdy:
+			self.set_speed(spdx,spdy)
+		self.move(td*60*self.spdx,td*60*self.spdy)
 
 print("defined entities")

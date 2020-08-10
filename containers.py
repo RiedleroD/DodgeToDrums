@@ -198,7 +198,7 @@ class AnimSprite(Sprite):
 			sprite.delete()
 
 class MEDIA:
-	#sprites/animations
+	#main character
 	idle=None
 	up=None
 	down=None
@@ -208,10 +208,13 @@ class MEDIA:
 	cdown=None
 	cside=None
 	cidle=None
+	#ui stuff
 	btn=None
 	btnp=None
+	#backgrounds
 	menu=None
-	bullet1=None
+	#projectiles
+	knife=None
 	#sounds
 	click=None
 	hurt=None
@@ -235,7 +238,7 @@ class MEDIA:
 			print(f"no resources loaded as {fp} wasn't found")
 	@classmethod
 	def loads_all(cls,imgs,sfx):
-		for n in ("idle","up","down","side","cup","cdown","cside","cidle","btn","btnp","menu","bullet1"):
+		for n in ("idle","up","down","side","cup","cdown","cside","cidle","btn","btnp","menu","knife"):
 			if n in imgs:
 				if isinstance(imgs[n][0],str):
 					fn,nn=imgs[n]

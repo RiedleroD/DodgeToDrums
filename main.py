@@ -82,12 +82,13 @@ class GameWin(pyglet.window.Window):
 		if PHYS.char.lives<=0:
 			self.curscr=5
 	def exec_acts(self):
-		acts,self.curt=self.lv.cycle()
+		acts,curt=self.lv.cycle()
+		self.curt=curt
 		for act in acts:
 			name=act.pop(0)
 			if name=="knife":
 				x,y,wait=act
-				PHYS.bullets.append(entities.Bullet1(WIDTH20*x-SIZE/64,HEIGHT10*y-SIZE/26,SIZE/32,SIZE/13,PHYS.char,self.curt+wait,(255,0,0,255),MEDIA.bullet1,batch=self.batch,group=GRmp))
+				PHYS.bullets.append(entities.DirectedMissile(WIDTH20*x-SIZE/64,HEIGHT10*y-SIZE/26,SIZE/32,SIZE/13,PHYS.char,self.curt+wait,(255,0,0,255),MEDIA.knife,curt,batch=self.batch,group=GRmp))
 			else:
 				print(f"\033[33mWarning:\033[39m tried to spawn unknown enemy {name} at pos {x}x{y} with arguments {args}")
 	def pressproc(self,scr):
