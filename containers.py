@@ -282,7 +282,7 @@ MEDIA.load_all(datafp)
 print("Loaded media")
 
 class Level():
-	def __init__(self,name,img,mus,acts):
+	def __init__(self,name,img,mus,acts,lp,progr=None):
 		self.name=name
 		self.img=img
 		self.mus=mus
@@ -291,6 +291,11 @@ class Level():
 		self.fit=None
 		self.fot=None
 		self.acts=acts
+		if progr:
+			self.progr=progr
+		else:
+			self.progr=[]
+		self.lp=lp#level path
 	def play(self):
 		self.unf=self.acts.copy()#unf→ unfinished acts
 		self.player=self.mus.play()
@@ -320,6 +325,10 @@ class Level():
 			self.fot=t
 	def stop(self):
 		if self.player:
+			#get & save new score
+			self.progr.append(round(self.player.time,2))
+			with open(os.path.join(self.lp,"progress.json"),"w+") as f:
+				json.dump(self.progr,f)
 			self.player.next_source()#else the StreamingSource doesn't get unqueued
 			self.player.delete()
 			self.player=None
@@ -336,12 +345,19 @@ class Level():
 		self.stop()
 		self.mus.delete()
 	@classmethod
-	def load(cls,fp):
-		with open(fp,"r") as f:
+	def load(cls,dp):
+		lfp=os.path.join(dp,"level.json")
+		pfp=os.path.join(dp,"progress.json")
+		with open(lfp,"r") as f:
 			data=json.load(f)
-		return cls.loads(data,os.path.dirname(fp))
+		if os.path.exists(pfp):
+			with open(pfp,"r") as f:
+				progress=json.load(f)
+		else:
+			progress=[]
+		return cls.loads(data,progress,dp)
 	@classmethod
-	def loads(cls,data,fp):
+	def loads(cls,data,progress,fp):
 		musfp=os.path.join(fp,data["mus"]+".opus")
 		if os.path.exists(musfp):
 			mus=pyglet.media.load(musfp,streaming=True)
@@ -354,7 +370,7 @@ class Level():
 		else:
 			wait,nn=imgdat
 			img=ANIMC([os.path.join(fp,fn+".png") for fn in imgfn],nn,wait)
-		return cls(data["name"],img,mus,data["act"])
+		return cls(data["name"],img,mus,data["act"],fp,progress)
 
 class LVLS:
 	curlv=0
@@ -366,10 +382,9 @@ class LVLS:
 			for d in os.listdir(fp):
 				d=os.path.join(fp,d)
 				if os.path.isdir(d):
-					lv=os.path.join(d,"level.json")
-					if os.path.exists(lv):
+					if os.path.exists(os.path.join(d,"level.json")):
 						try:
-							cls.lvls.append(Level.load(lv))
+							cls.lvls.append(Level.load(d))
 						except Exception as e:
 							print(e.__class__.__name__,e,sep=": ")
 			if len(cls.lvls)==0:
