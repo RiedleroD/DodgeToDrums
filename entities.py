@@ -702,7 +702,6 @@ class Projectile(PhysEntity):
 			self.vl.delete()
 			self.vl=None
 		if self.sprt:
-			self.sprt.cycle()#for animation support
 			if CONF.showcoll:
 				self.vl=self.batch.add(8,pyglet.gl.GL_LINES,self.group,self.quad,('c3B',(255,0,0)*8))
 		else:
