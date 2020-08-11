@@ -178,6 +178,7 @@ class AnimSprite(Sprite):
 	def set_rotation(self,rot):
 		if self.flipped:
 			rot=(360-rot)%360
+		self.rot=rot
 		for sprite in self.sprites:
 			sprite.update(rotation=rot)
 	def cycle(self):
@@ -218,6 +219,7 @@ class MEDIA:
 	menu=None
 	#projectiles
 	knife=None
+	flame_smol=None
 	flame_big=None
 	#sounds
 	click=None
@@ -242,7 +244,7 @@ class MEDIA:
 			print(f"no resources loaded as {fp} wasn't found")
 	@classmethod
 	def loads_all(cls,imgs,sfx):
-		for n in ("idle","up","down","side","cup","cdown","cside","cidle","btn","btnp","menu","knife","flame_big"):
+		for n in ("idle","up","down","side","cup","cdown","cside","cidle","btn","btnp","menu","knife","flame_big","flame_smol"):
 			if n in imgs:
 				if isinstance(imgs[n][0],str):
 					fn,nn=imgs[n]

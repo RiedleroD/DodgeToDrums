@@ -710,9 +710,10 @@ class Projectile(PhysEntity):
 class ProjectileRot(Projectile):
 	def __init__(self,x,y,w,h,target,c,img,t,batch,group):
 		super().__init__(x,y,w,h,target,c,img,t,batch,group)
-		self.get_posss=self.sprt.get_posss
-		self.get_poss=self.sprt.get_poss
-		self.get_bb=self.sprt.get_bb
+		if self.sprt:
+			self.get_posss=self.sprt.get_posss
+			self.get_poss=self.sprt.get_poss
+			self.get_bb=self.sprt.get_bb
 	def doesCollide(self,ox,oy,_ox,_oy):
 		posss=self.get_posss()
 		#check for every own point if it lies within the other rect
