@@ -2,7 +2,12 @@
 from containers import MEDIA,Sprite
 from CONSTANTS import *
 
-class Entity:
+class Point:
+	def __init__(self,x,y):
+		self.x=x
+		self.y=y
+
+class Entity(Point):
 	vl=None
 	def __init__(self,x,y,w,h,anch=0,batch=None,group=None):
 		self.w=w
@@ -659,15 +664,17 @@ class Projectile(PhysEntity):
 	prvt=0
 	def __init__(self,x,y,w,h,target,c,img,t,batch,group):
 		self.sprt=img.get(x,y,w,h,batch,group) if img else None
-		super().__init__(x,y,w,h,c,batch,group)
+		self.x=x
+		self.y=y
+		super().__init__(x,y,w,h,c,batch,group,*self.calc_speed(target.x,target.y,10))
 		self.prvt=t
 		self.target=target
 	def doesCollide(self,ox,oy,_ox,_oy):
 		x,y,_x,_y=self.get_poss()
 		return not (x>_ox or _x<ox or y>_oy or _y<oy)
-	def calc_speed(self,target,spd):
-		spdx=self.x-target.x
-		spdy=self.y-target.y
+	def calc_speed(self,x,y,spd):
+		spdx=self.x-x
+		spdy=self.y-y
 		d=-spd/math.sqrt(spdx**2+spdy**2)
 		spdx*=d
 		spdy*=d
@@ -742,7 +749,7 @@ class DirectedMissile(ProjectileRot):
 			self.sprt.cycle()
 		if self.wait>=t:
 			#calculate direction only before shooting to stay fair
-			spdx,spdy=self.calc_speed(self.target,10)
+			spdx,spdy=self.calc_speed(self.target.x,self.target.y,10)
 			if spdx!=self.spdx or spdy!=self.spdy:
 				self.set_speed(spdx,spdy)
 		else:
@@ -759,7 +766,7 @@ class HomingMissile(ProjectileRot):
 			self.sprt.cycle()
 		if t>self.ex:
 			self.dead=True
-		spdx,spdy=self.calc_speed(self.target,4)
+		spdx,spdy=self.calc_speed(self.target.x,self.target.y,4)
 		if spdx!=self.spdx or spdy!=self.spdy:
 			self.set_speed(spdx,spdy)
 		self.move(td*60*self.spdx,td*60*self.spdy)

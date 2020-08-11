@@ -135,6 +135,7 @@ class AnimSprite(Sprite):
 	def __init__(self,x,y,w,h,imgs,nn,wait,batch,group):
 		self.x=x
 		self.y=y
+		self.rot=0
 		self.ow=imgs[0].width
 		self.oh=imgs[0].height
 		self.visible=True
@@ -168,6 +169,8 @@ class AnimSprite(Sprite):
 	def set_pos(self,x,y):
 		self.x=x
 		self.y=y
+		if self.rot:
+			x,y,_x,_y,__x,__y,_x_,_y_=self.get_posss()
 		if self.flipped:
 			x+=self.w
 		for sprite in self.sprites:
@@ -215,6 +218,7 @@ class MEDIA:
 	menu=None
 	#projectiles
 	knife=None
+	flame_big=None
 	#sounds
 	click=None
 	hurt=None
@@ -238,7 +242,7 @@ class MEDIA:
 			print(f"no resources loaded as {fp} wasn't found")
 	@classmethod
 	def loads_all(cls,imgs,sfx):
-		for n in ("idle","up","down","side","cup","cdown","cside","cidle","btn","btnp","menu","knife"):
+		for n in ("idle","up","down","side","cup","cdown","cside","cidle","btn","btnp","menu","knife","flame_big"):
 			if n in imgs:
 				if isinstance(imgs[n][0],str):
 					fn,nn=imgs[n]
