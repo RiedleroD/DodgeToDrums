@@ -310,6 +310,8 @@ class Level():
 		while self.unf and self.unf[0][1]<t:
 			act=self.unf.pop(0)
 			acts.append([act[0],*act[2:]])
+		if not self.player.playing:
+			acts.append(["stop"])
 		return acts,t
 	def fade_in(self,t):
 		if self.player:
@@ -321,6 +323,8 @@ class Level():
 			self.player.next_source()#else the StreamingSource doesn't get unqueued
 			self.player.delete()
 			self.player=None
+		self.fit=None
+		self.fot=None
 	def pause(self):
 		if not self.player:
 			pass

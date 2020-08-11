@@ -95,6 +95,8 @@ class GameWin(pyglet.window.Window):
 			elif name=="flame2":
 				x,y,exp=act
 				PHYS.bullets.append(entities.HomingMissile(WIDTH20*x-SIZE/64,HEIGHT10*y-SIZE/26,SIZE/32,SIZE/13,PHYS.char,self.curt+exp,(255,255,0,255),MEDIA.flame_smol,curt,batch=self.batch,group=GRmp))
+			elif name=="stop":
+				self.curscr=5
 			else:
 				print(f"\033[33mWarning:\033[39m tried to spawn unknown enemy {name} at pos {x}x{y} with arguments {args}")
 	def pressproc(self,scr):
@@ -192,6 +194,7 @@ class GameWin(pyglet.window.Window):
 			MISCE.menubg=None
 		elif scr==3:
 			self.lv.stop()
+			self.lv=None
 			self.paused=False
 			LABELS.lives=None
 			PHYS.walls.clear()
