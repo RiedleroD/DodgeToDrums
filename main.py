@@ -56,11 +56,6 @@ class GameWin(pyglet.window.Window):
 			for bullet in PHYS.bullets:
 				bullet.cycle(self.curt)
 			self.check_projectiles()
-			#remove all expired physical objects
-			for i in range(len(PHYS.bullets)-1,-1,-1):
-				bullet=PHYS.bullets[i]
-				if bullet.dead or bullet.x>WIDTH or bullet._x<0 or bullet.y>HEIGHT or bullet._y<0:
-					del PHYS.bullets[i]
 			#execute all acts
 			if self.lv:
 				self.exec_acts()
@@ -69,6 +64,12 @@ class GameWin(pyglet.window.Window):
 			#process pressed buttons
 			self.pressproc(self.curscr)
 	def check_projectiles(self):
+		#remove all expired projectiles
+		for i in range(len(PHYS.bullets)-1,-1,-1):
+			bullet=PHYS.bullets[i]
+			if bullet.dead or bullet.x>GBG_x or bullet._x<GBGx or bullet.y>GBG_y or bullet._y<GBGy:
+				del PHYS.bullets[i]
+		#check if main char got hit
 		x=PHYS.char.x
 		y=PHYS.char.y
 		_x=PHYS.char._x
@@ -88,13 +89,13 @@ class GameWin(pyglet.window.Window):
 			name=act.pop(0)
 			if name=="knife":
 				x,y,wait=act
-				PHYS.bullets.append(entities.DirectedMissile(WIDTH20*x-SIZE/64,HEIGHT10*y-SIZE/26,SIZE/32,SIZE/13,PHYS.char,self.curt+wait,(255,255,0,255),MEDIA.knife,curt,batch=self.batch,group=GRmp))
+				PHYS.bullets.append(entities.DirectedMissile(GBGw20*x+GBGx-SIZE/64,GBGh10*y+GBGy-SIZE/26,SIZE/32,SIZE/13,PHYS.char,self.curt+wait,(255,255,0,255),MEDIA.knife,curt,batch=self.batch,group=GRmp))
 			elif name=="flame":
 				x,y,dx,dy=act
-				PHYS.bullets.append(entities.ProjectileRot(WIDTH20*x-SIZE/52,HEIGHT10*y-SIZE/30,SIZE/26,SIZE/15,entities.Point(WIDTH20*dx,WIDTH20*dy),(255,0,0,255),MEDIA.flame_big,curt,batch=self.batch,group=GRmp))
+				PHYS.bullets.append(entities.ProjectileRot(GBGw20*x+GBGx-SIZE/52,GBGh10*y+GBGy-SIZE/30,SIZE/26,SIZE/15,entities.Point(WIDTH20*dx,WIDTH20*dy),(255,0,0,255),MEDIA.flame_big,curt,batch=self.batch,group=GRmp))
 			elif name=="flame2":
 				x,y,exp=act
-				PHYS.bullets.append(entities.HomingMissile(WIDTH20*x-SIZE/64,HEIGHT10*y-SIZE/26,SIZE/32,SIZE/13,PHYS.char,self.curt+exp,(255,255,0,255),MEDIA.flame_smol,curt,batch=self.batch,group=GRmp))
+				PHYS.bullets.append(entities.HomingMissile(GBGw20*x+GBGx-SIZE/64,GBGh10*y+GBGy-SIZE/26,SIZE/32,SIZE/13,PHYS.char,self.curt+exp,(255,255,0,255),MEDIA.flame_smol,curt,batch=self.batch,group=GRmp))
 			elif name=="stop":
 				self.curscr=5
 			else:
@@ -172,7 +173,7 @@ class GameWin(pyglet.window.Window):
 			BTNS.sett=None
 			BTNS.start=None
 			BTNS.creds=None
-			MISCE.menubg=None
+			MISCE.bg=None
 		elif scr==1:
 			BTNS.back=None
 			BTNS.cancle=None
@@ -185,13 +186,13 @@ class GameWin(pyglet.window.Window):
 			BTNS.volmaster=None
 			BTNS.volmusic=None
 			BTNS.volsfx=None
-			MISCE.menubg=None
+			MISCE.bg=None
 			LABELS.version=None
 		elif scr==2:
 			BTNS.back=None
 			BTNS.mode=None
 			BTNS.start=None
-			MISCE.menubg=None
+			MISCE.bg=None
 		elif scr==3:
 			self.lv.stop()
 			self.lv=None
@@ -203,6 +204,7 @@ class GameWin(pyglet.window.Window):
 			MISCE.overlay=None
 			BTNS.pause=None
 			BTNS.back=None
+			MISCE.bg=None
 		elif scr==4:
 			BTNS.back=None
 			LABELS.creds.clear()
@@ -220,7 +222,7 @@ class GameWin(pyglet.window.Window):
 			BTNS.start=entities.Button(WIDTH2,HEIGHT2,BTNWIDTH,BTNHEIGHT,"Start",anch=4,key=k_OK,batch=self.batch,group=GRmp)
 			BTNS.sett=entities.Button(WIDTH2,HEIGHT2-BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Settings",anch=7,batch=self.batch,group=GRmp)
 			BTNS.creds=entities.Button(WIDTH2,HEIGHT2-BTNHEIGHT*2.5,BTNWIDTH,BTNHEIGHT,"Credits",anch=7,batch=self.batch,group=GRmp)
-			MISCE.menubg=entities.Background(0,0,WIDTH,HEIGHT,(0,0,0,255),tex=MEDIA.menu,batch=self.batch,group=GRbg)
+			MISCE.bg=entities.Background(0,0,WIDTH,HEIGHT,(0,0,0,255),tex=MEDIA.menu,batch=self.batch,group=GRbg)
 		elif scr==1:
 			BTNS.back=entities.Button(WIDTH-BTNWIDTH*2.5,BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Save",anch=4,key=k_OK,batch=self.batch,group=GRmp)
 			BTNS.cancle=entities.Button(WIDTH-BTNWIDTH,BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Cancle",anch=4,key=k_BACK,batch=self.batch,group=GRmp)
@@ -248,12 +250,12 @@ class GameWin(pyglet.window.Window):
 			BTNS.volmaster=entities.Slider(WIDTH-BTNWIDTH*3.5,HEIGHT-BTNHEIGHT*2,BTNWIDTH*2,BTNHEIGHT2,"master volume",CONF.volmaster,batch=self.batch,group=GRmp)
 			BTNS.volmusic=entities.Slider(WIDTH-BTNWIDTH*3.5,HEIGHT-BTNHEIGHT*3.5,BTNWIDTH*2,BTNHEIGHT2,"music volume",CONF.volmusic,batch=self.batch,group=GRmp)
 			BTNS.volsfx=entities.Slider(WIDTH-BTNWIDTH*3.5,HEIGHT-BTNHEIGHT*5,BTNWIDTH*2,BTNHEIGHT2,"sfx volume",CONF.volsfx,batch=self.batch,group=GRmp)
-			MISCE.menubg=entities.Background(0,0,WIDTH,HEIGHT,(0,0,0,255),tex=MEDIA.menu,batch=self.batch,group=GRbg)
+			MISCE.bg=entities.Background(0,0,WIDTH,HEIGHT,(0,0,0,255),tex=MEDIA.menu,batch=self.batch,group=GRbg)
 		elif scr==2:
 			BTNS.back=entities.Button(WIDTH2,BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Back",anch=4,key=k_BACK,batch=self.batch,group=GRmp)
 			BTNS.start=entities.Button(WIDTH2,HEIGHT-BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Start",anch=4,key=k_OK,batch=self.batch,group=GRmp)
 			BTNS.mode=entities.RadioList(WIDTH2,HEIGHT2,BTNWIDTH,BTNHEIGHT*3,["Normal","Normal","also Normal lol"],selected=self.diffmode,anch=1,batch=self.batch,group=GRmp)
-			MISCE.menubg=entities.Background(0,0,WIDTH,HEIGHT,(0,0,0,255),tex=MEDIA.menu,batch=self.batch,group=GRbg)
+			MISCE.bg=entities.Background(0,0,WIDTH,HEIGHT,(0,0,0,255),tex=MEDIA.menu,batch=self.batch,group=GRbg)
 		elif scr==3:
 			self.lv=LVLS.lvls[LVLS.curlv]
 			self.lv.play()
@@ -262,6 +264,7 @@ class GameWin(pyglet.window.Window):
 			PHYS.char=entities.Hooman(WIDTH2,HEIGHT2,SIZE/15,SIZE/12.5,(64,64,255,255),self.batch,group=GRmp)
 			PHYS.char.set_boundaries(WIDTH,HEIGHT)
 			MISCE.overlay=entities.Overlay(0,0,WIDTH,HEIGHT,(0,0,0,64),batch=self.batch,group=GRobg)
+			MISCE.bg=entities.Background(0,0,WIDTH,HEIGHT,(0,0,0,0),self.batch,GRfb,tex=MEDIA.bg1)
 		elif scr==4:
 			BTNS.back=entities.Button(WIDTH-BTNWIDTH,BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Back",anch=4,key=k_BACK,batch=self.batch,group=GRmp)
 			LABELS.creds+=[

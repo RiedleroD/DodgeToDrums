@@ -89,6 +89,14 @@ BTNWIDTH=WIDTH/10
 BTNHEIGHT2=BTNHEIGHT/2
 BTNWIDTH2=BTNWIDTH/2
 SIZE=(WIDTH+HEIGHT)/2#for scaling stuff where the aspect ratio shouldn't be changed but the size should
+GBGw=5*WIDTH/6
+GBGx=WIDTH/12
+GBG_x=11*WIDTH/12
+GBGh=3*HEIGHT/4
+GBGy=HEIGHT/4
+GBG_y=HEIGHT
+GBGh10=GBGh/10
+GBGw20=GBGw/20
 ANCHORSy=("bottom","center","top")
 ANCHORSx=("left","center","right")
 print(f"initialized screen with size {WIDTH}x{HEIGHT}")
@@ -99,9 +107,10 @@ DTIME=0
 
 GRbg=pyglet.graphics.OrderedGroup(0)#background
 GRmp=pyglet.graphics.OrderedGroup(1)#midpoint (widgets, objects)
-GRfg=pyglet.graphics.OrderedGroup(2)#foreground (labels)
-GRobg=pyglet.graphics.OrderedGroup(3)#overlay background
-GRomp=pyglet.graphics.OrderedGroup(4)#overlay midpoint (overlay widgets)
-GRofg=pyglet.graphics.OrderedGroup(5)#overlay foreground (overlay labels)
+GRfb=pyglet.graphics.OrderedGroup(2)#fore-back-ground – for backgrounds that want to overlap game sprites but not labels
+GRfg=pyglet.graphics.OrderedGroup(3)#foreground (labels)
+GRobg=pyglet.graphics.OrderedGroup(4)#overlay background
+GRomp=pyglet.graphics.OrderedGroup(5)#overlay midpoint (overlay widgets)
+GRofg=pyglet.graphics.OrderedGroup(6)#overlay foreground (overlay labels)
 GRs=[GRbg,GRmp,GRfg,GRobg,GRomp,GRofg]
 print(f"Initialized OpenGL groups")

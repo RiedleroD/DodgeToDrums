@@ -219,6 +219,9 @@ class MEDIA:
 	progrfill=None
 	#backgrounds
 	menu=None
+	bg_1=None
+	bg_2=None
+	bg_3=None
 	#projectiles
 	knife=None
 	flame_smol=None
@@ -246,7 +249,13 @@ class MEDIA:
 			print(f"no resources loaded as {fp} wasn't found")
 	@classmethod
 	def loads_all(cls,imgs,sfx):
-		for n in ("idle","up","down","side","cup","cdown","cside","cidle","btn","btnp","menu","knife","flame_big","flame_smol","progrleft","progrmid","progrright","progrfill"):
+		for n in (
+				"idle","up","down","side",#main character
+				"cup","cdown","cside","cidle",#main character crouching
+				"btn","btnp",#ui elements
+				"knife","flame_big","flame_smol",#projectiles
+				"progrleft","progrmid","progrright","progrfill",#progress bar
+				"menu","bg1","bg2","bg3"):#backgrounds
 			if n in imgs:
 				if isinstance(imgs[n][0],str):
 					fn,nn=imgs[n]
@@ -470,10 +479,10 @@ class PHYS(ENTCONTAINER):#physical objects
 
 class MISCE(ENTCONTAINER):#miscellanious entities
 	overlay=None#for pause screen
-	menubg=None#menu background
+	bg=None#generic background
 	@classmethod
 	def all(cls):
 		yield cls.overlay
-		yield cls.menubg
+		yield cls.bg
 
 print("initialized entity containers")
