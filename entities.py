@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-from containers import MEDIA,Sprite
+from containers import MEDIA,Sprite,LVLS
 from CONSTANTS import *
 
 class Point:
@@ -126,6 +126,7 @@ class Background(Entity):
 			self.vl=self.batch.add(4,pyglet.gl.GL_QUADS,self.group,self.quad,self.cquad)
 
 class Label(Entity):
+	label=None
 	def __init__(self,x,y,w,h,text,anch=0,color=(255,255,255,255),bgcolor=(0,0,0,0),size=12,batch=None,group=None):
 		self.label=pyglet.text.Label(text,x=x,y=y,color=color,font_size=size,batch=batch,group=group)
 		self.setText(text)
@@ -351,6 +352,10 @@ class LevelSelect(Label):
 		self.keyprv=keyprv
 		self.b=b=(w+h)/50
 		self.sprts=[lv.img.get(x+b*2,y+b*2,w-b*4,h-b*4,batch,group) for i,lv in enumerate(self.lvls)]
+		self.progrmid=MEDIA.progrmid.get(x+b*2,y+h,w-b*4,BTNHEIGHT*1.25,batch,group)
+		self.progrleft=MEDIA.progrleft.get(x,y+h,b*2,BTNHEIGHT*1.25,batch,group)
+		self.progrright=MEDIA.progrright.get(x+w-b*2,y+h,b*2,BTNHEIGHT*1.25,batch,group)
+		self.progrfill=MEDIA.progrfill.get(x+b*2,y+h,0,BTNHEIGHT*1.25,batch,GRs[GRs.index(group)+1])
 		super().__init__(x,y,w,h,lvls[selected].name,bgcolor=(255,255,255,255),size=size,batch=batch,group=group)
 		self.label.anchor_x=ANCHORSx[1]
 		self.label.anchor_y=ANCHORSy[2]
@@ -390,6 +395,8 @@ class LevelSelect(Label):
 			x,y,		xb,y,		xb,_y,		x,_y))#left bar
 		for i,sprt in enumerate(self.sprts):
 			sprt.set_pos(x+b*2+(self.w+b)*(i-self.curlv),self.y+b*2)
+		curlv=LVLS.lvls[self.curlv]
+		self.progrfill.set_size((self.w-self.b*4)*(max(curlv.progr)/curlv.len),BTNHEIGHT*1.25)
 		self.rendered=True
 	def draw(self):
 		if not self.rendered:
@@ -400,7 +407,8 @@ class LevelSelect(Label):
 	def __del__(self):
 		if self.vl:
 			self.vl.delete()
-		self.label.delete()
+		if self.label:
+			self.label.delete()
 
 class RadioList(Entity):
 	def __init__(self,x,y,w,h,texts,anch=0,keys=None,pressedTexts=None,selected=None,size=16,batch=None,group=None):

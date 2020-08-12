@@ -215,6 +215,8 @@ class MEDIA:
 	#ui stuff
 	btn=None
 	btnp=None
+	progrbar=None
+	progrfill=None
 	#backgrounds
 	menu=None
 	#projectiles
@@ -244,7 +246,7 @@ class MEDIA:
 			print(f"no resources loaded as {fp} wasn't found")
 	@classmethod
 	def loads_all(cls,imgs,sfx):
-		for n in ("idle","up","down","side","cup","cdown","cside","cidle","btn","btnp","menu","knife","flame_big","flame_smol"):
+		for n in ("idle","up","down","side","cup","cdown","cside","cidle","btn","btnp","menu","knife","flame_big","flame_smol","progrleft","progrmid","progrright","progrfill"):
 			if n in imgs:
 				if isinstance(imgs[n][0],str):
 					fn,nn=imgs[n]
@@ -286,6 +288,7 @@ class Level():
 		self.name=name
 		self.img=img
 		self.mus=mus
+		self.len=self.mus.duration
 		self.player=None
 		self.vol=CONF.volmaster*CONF.volmusic
 		self.fit=None
@@ -329,6 +332,7 @@ class Level():
 			self.progr.append(round(self.player.time,2))
 			with open(os.path.join(self.lp,"progress.json"),"w+") as f:
 				json.dump(self.progr,f)
+			print(f"added new score {self.player.time} to level {self.name}")
 			self.player.next_source()#else the StreamingSource doesn't get unqueued
 			self.player.delete()
 			self.player=None
