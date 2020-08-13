@@ -494,8 +494,10 @@ class Hooman(PhysEntity):
 	u=False
 	d=False
 	sh=False#shift → crouch
-	wb=None#width boundary
-	hb=None#height boundary
+	xb=None#minimum possible x pos
+	yb=None#minimum possible y pos
+	_xb=None#maximum possible x pos
+	_yb=None#maximum possible y pos
 	bh=None#holds the base height when crouching
 	s_side=None
 	s_up=None
@@ -539,9 +541,11 @@ class Hooman(PhysEntity):
 			return True
 		else:
 			return False
-	def set_boundaries(self,w,h):
-		self.wb=w
-		self.hb=h
+	def set_boundaries(self,x,y,_x,_y):
+		self.xb=x
+		self.yb=y
+		self._xb=_x
+		self._yb=_y
 	def checkKey(self,k,prsd):
 		if k==k_LEFT:
 			self.l=prsd
@@ -619,19 +623,19 @@ class Hooman(PhysEntity):
 		elif self.spdx>0:
 			self.flipped=False
 		#repecting boundaries
-		if self.x<0:
-			x=0
-		elif self.x+self.w>self.wb:
-			x=self.wb-self.w
+		if self.x<self.xb:
+			x=self.xb
+		elif self.x+self.w>self._xb:
+			x=self._xb-self.w
 		else:
 			x=None
-		if self.y<0:
-			y=0
-		elif self.y+self.h>self.hb:
-			y=self.hb-self.h
+		if self.y<self.yb:
+			y=self.yb
+		elif self.y+self.h>self._yb:
+			y=self._yb-self.h
 		else:
 			y=None
-		if not (x==None and y==None):
+		if not x==y==None:
 			self.set_pos(x if x!=None else self.x,y if y!=None else self.y)
 		#setting the current sprite/animation position & cycle it,
 		#or set rendered status to false if no sprite/animation is selected
