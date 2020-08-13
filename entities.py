@@ -356,7 +356,7 @@ class LevelSelect(Label):
 		self.progrleft=MEDIA.progrleft.get(x,y+h,b*2,BTNHEIGHT*1.25,batch,group)
 		self.progrright=MEDIA.progrright.get(x+w-b*2,y+h,b*2,BTNHEIGHT*1.25,batch,group)
 		self.progrfill=MEDIA.progrfill.get(x+b*2,y+h,0,BTNHEIGHT*1.25,batch,GRs[GRs.index(group)+1])
-		super().__init__(x,y,w,h,lvls[selected].name,bgcolor=(255,255,255,255),size=size,batch=batch,group=group)
+		super().__init__(x,y,w,h,lvls[selected].name if self.lvli>0 else "No Levels were found",bgcolor=(255,255,255,255),size=size,batch=batch,group=group)
 		self.label.anchor_x=ANCHORSx[1]
 		self.label.anchor_y=ANCHORSy[2]
 	def setBgColor(self,colr):
@@ -395,8 +395,12 @@ class LevelSelect(Label):
 			x,y,		xb,y,		xb,_y,		x,_y))#left bar
 		for i,sprt in enumerate(self.sprts):
 			sprt.set_pos(x+b*2+(self.w+b)*(i-self.curlv),self.y+b*2)
-		curlv=LVLS.lvls[self.curlv]
-		self.progrfill.set_size((self.w-self.b*4)*(max(curlv.progr)/curlv.len),BTNHEIGHT*1.25)
+		try:
+			curlv=LVLS.lvls[self.curlv]
+		except IndexError:
+			pass
+		else:
+			self.progrfill.set_size((self.w-self.b*4)*(max(curlv.progr)/curlv.len),BTNHEIGHT*1.25)
 		self.rendered=True
 	def draw(self):
 		if not self.rendered:

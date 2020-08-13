@@ -394,11 +394,10 @@ class Level():
 
 class LVLS:
 	curlv=0
-	lvls=None
+	lvls=[]
 	@classmethod
 	def load_all(cls,fp):
 		if os.path.exists(fp):
-			cls.lvls=[]
 			for d in os.listdir(fp):
 				d=os.path.join(fp,d)
 				if os.path.isdir(d):
@@ -408,9 +407,9 @@ class LVLS:
 						except Exception as e:
 							print(e.__class__.__name__,e,sep=": ")
 			if len(cls.lvls)==0:
-				raise ValueError(f"No levels found in level directory {fp}")
+				print(f"No levels found in level directory {fp}")
 		else:
-			raise ValueError(f"Couldn't find level directory {fp}")
+			print(f"Couldn't find level directory {fp}")
 
 LVLS.load_all(lvlfp)
 print("loaded levels")
