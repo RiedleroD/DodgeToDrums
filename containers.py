@@ -437,6 +437,7 @@ class ENTCONTAINER:#base for all entity containers
 
 LABELS=ENTCONTAINER()
 BTNS=ENTCONTAINER()
+BTNS.strg=[]
 PHYS=ENTCONTAINER()#physical objects
 PHYS.bullets=[]
 MISCE=ENTCONTAINER()#miscellanious entities
