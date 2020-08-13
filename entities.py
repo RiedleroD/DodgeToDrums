@@ -507,16 +507,18 @@ class Hooman(PhysEntity):
 	s_cup=None
 	s_cdown=None
 	s_cidle=None
-	s_hurt=None
+	s_death=None
+	s_hurt=None#hurt sound
 	a=None
 	preva=None
 	flipped=False
 	lives=4
+	dead=False#gets set to True once the death animation finishes
 	lasthit=0
 	apl=None#audio player
 	prvt=0#previous cycle time
 	def __init__(self,x,y,w,h,c,batch,group):
-		for anim in ("side","up","down","idle","cside","cup","cdown","cidle"):
+		for anim in ("side","up","down","idle","death","cside","cup","cdown","cidle"):
 			img=getattr(MEDIA,anim,None)
 			if anim.startswith('c'):
 				_h=h/2
@@ -558,6 +560,25 @@ class Hooman(PhysEntity):
 		elif k==k_CROUCH:
 			self.sh=prsd
 	def cycle(self,t):
+		#if lifeless, only play death animation
+		if self.lives<=0:
+			if self.a!=self.s_death:
+				self.a=self.s_death
+				self.a.set_pos(self.x,self.y)
+				self.a.dead=0
+			if self.a:
+				if self.a.dead>0:
+					if self.a.dead==1:
+						self.dead=True
+					else:
+						self.a.dead-=1
+				elif self.a.cycle()==self.a.lens-1:
+					self.a.hide()
+					self.a.dead=10
+			else:
+				self.dead=True
+			return
+		#calculate time
 		td=t-self.prvt
 		self.prvt=t
 		#reset speed

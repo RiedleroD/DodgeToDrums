@@ -50,15 +50,20 @@ class GameWin(pyglet.window.Window):
 			self.construct_scene(self.curscr)
 			self.prvscr=self.curscr
 		#in-game stuff
-		if self.curscr==3 and not self.paused:
-			#cycle all physical objects that need cycling
-			PHYS.char.cycle(self.curt)
-			for bullet in PHYS.bullets:
-				bullet.cycle(self.curt)
-			self.check_projectiles()
-			#execute all acts
-			if self.lv:
-				self.exec_acts()
+		if self.curscr==3:
+			if not self.paused:
+				#cycle all physical objects that need cycling
+				PHYS.char.cycle(self.curt)
+				for bullet in PHYS.bullets:
+					bullet.cycle(self.curt)
+				self.check_projectiles()
+				#execute all acts
+				if self.lv:
+					self.exec_acts()
+			elif self.paused==2:
+				PHYS.char.cycle(0)
+				if PHYS.char.dead:
+					self.curscr=5#return to main menu if char dead
 		#only if no scene change is due
 		if self.curscr==self.prvscr:
 			#process pressed buttons
@@ -81,7 +86,8 @@ class GameWin(pyglet.window.Window):
 					self.lv.fade_in(1)
 				break
 		if PHYS.char.lives<=0:
-			self.curscr=5
+			self.paused=2#paused as far as everything is concerned, but human still cycles.
+			self.lv.stop()
 	def exec_acts(self):
 		acts,curt=self.lv.cycle()
 		self.curt=curt
@@ -146,13 +152,14 @@ class GameWin(pyglet.window.Window):
 				self.diffmode=BTNS.mode.getSelected()
 		elif scr==3:#game
 			if BTNS.pause.pressed:
-				self.paused=not self.paused
 				BTNS.pause.release()
-				if self.paused:
-					BTNS.back=entities.Button(WIDTH2,HEIGHT-HEIGHT4,BTNWIDTH,BTNHEIGHT,"Exit",anch=4,batch=self.batch,group=GRomp)
-				else:
-					BTNS.back=None
-				self.lv.pause()
+				if self.paused!=2:
+					self.paused=not self.paused
+					if self.paused:
+						BTNS.back=entities.Button(WIDTH2,HEIGHT-HEIGHT4,BTNWIDTH,BTNHEIGHT,"Exit",anch=4,batch=self.batch,group=GRomp)
+					else:
+						BTNS.back=None
+					self.lv.pause()
 			elif BTNS.back and BTNS.back.pressed:
 				self.curscr=5
 		elif scr==4:#credits

@@ -20,6 +20,7 @@ class Sprite():
 	pw=None
 	ph=None
 	prot=None
+	lens=0
 	def __init__(self,x,y,w,h,img,nn,batch,group):
 		self.x=x
 		self.y=y
@@ -107,7 +108,7 @@ class Sprite():
 		x,y,_x,_y=self.get_poss()
 		return (x,y,_x-x,_y-y)
 	def cycle(self):
-		pass
+		return 0
 	def show(self):
 		self.sprite.visible=True
 	def hide(self):
@@ -132,6 +133,8 @@ class ANIMC(IMGC):
 		return s
 
 class AnimSprite(Sprite):
+	curs=0
+	curw=0
 	def __init__(self,x,y,w,h,imgs,nn,wait,batch,group):
 		self.x=x
 		self.y=y
@@ -140,8 +143,6 @@ class AnimSprite(Sprite):
 		self.oh=imgs[0].height
 		self.visible=True
 		self.wait=wait
-		self.curs=0
-		self.curw=0
 		self.flipped=False
 		self.lens=len(imgs)
 		self.sprites=[]
@@ -189,6 +190,7 @@ class AnimSprite(Sprite):
 			self.curs%=self.lens
 			self.sprites[self.curs].visible=self.visible
 			self.curw=0
+		return self.curs
 	def show(self):
 		self.visible=True
 		self.sprites[self.curs].visible=True
@@ -212,6 +214,7 @@ class MEDIA:
 	cdown=None
 	cside=None
 	cidle=None
+	death=None
 	#ui stuff
 	btn=None
 	btnp=None
@@ -252,6 +255,7 @@ class MEDIA:
 		for n in (
 				"idle","up","down","side",#main character
 				"cup","cdown","cside","cidle",#main character crouching
+				"death",
 				"btn","btnp",#ui elements
 				"knife","flame_big","flame_smol",#projectiles
 				"progrleft","progrmid","progrright","progrfill",#progress bar
@@ -316,20 +320,23 @@ class Level():
 		self.player.volume=vol
 		self.vol=vol
 	def cycle(self)->"list with all actions to do":
-		t=self.player.time
-		if self.fit:
-			v=(t-self.fit)/self.fot
-			if v>=1:
-				v=1
-				self.fit=None
-			self.player.volume=self.vol*v
-		acts=[]
-		while self.unf and self.unf[0][1]<t:
-			act=self.unf.pop(0)
-			acts.append([act[0],*act[2:]])
-		if not self.player.playing:
-			acts.append(["stop"])
-		return acts,t
+		if self.player and self.player.playing:
+			t=self.player.time
+			if self.fit:
+				v=(t-self.fit)/self.fot
+				if v>=1:
+					v=1
+					self.fit=None
+				self.player.volume=self.vol*v
+			acts=[]
+			while self.unf and self.unf[0][1]<t:
+				act=self.unf.pop(0)
+				acts.append([act[0],*act[2:]])
+			if not self.player.playing:
+				acts.append(["stop"])
+			return acts,t
+		else:
+			return [],0
 	def fade_in(self,t):
 		if self.player:
 			self.player.volume=0
