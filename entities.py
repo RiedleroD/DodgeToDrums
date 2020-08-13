@@ -488,10 +488,6 @@ class PhysEntity(Entity):
 			self.vl=None
 		self.vl=self.batch.add(4,pyglet.gl.GL_QUADS,group,self.quad,self.cquad)
 
-class Wall(PhysEntity):
-	def __init__(self,x,y,w,h,c,batch,group):
-		super().__init__(x,y,w,h,c,batch,group)
-
 class Hooman(PhysEntity):
 	l=False
 	r=False

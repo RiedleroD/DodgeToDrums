@@ -205,7 +205,6 @@ class GameWin(pyglet.window.Window):
 			self.lv=None
 			self.paused=False
 			LABELS.lives=None
-			PHYS.walls.clear()
 			PHYS.bullets.clear()
 			PHYS.char=None
 			MISCE.overlay=None

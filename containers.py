@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 from CONSTANTS import *
 from time import time
+from collections.abc import Iterable
 
 class IMGC():
 	def __init__(self,fp,nn):
@@ -218,20 +219,23 @@ class MEDIA:
 	#ui stuff
 	btn=None
 	btnp=None
-	progrbar=None
+	#progress bar
+	progrleft=None
+	progrmid=None
+	progrright=None
 	progrfill=None
 	#backgrounds
 	menu=None
-	bg_1=None
-	bg_2=None
-	bg_3=None
+	bg1=None
+	bg2=None
+	bg3=None
 	#projectiles
 	knife=None
 	flame_smol=None
 	flame_big=None
 	#sounds
-	click=None
-	hurt=None
+	click=1
+	hurt=1
 	@classmethod
 	def load_all(cls,fp):
 		if os.path.isdir(fp):
@@ -252,46 +256,44 @@ class MEDIA:
 			print(f"no resources loaded as {fp} wasn't found")
 	@classmethod
 	def loads_all(cls,imgs,sfx):
-		for n in (
-				"idle","up","down","side",#main character
-				"cup","cdown","cside","cidle",#main character crouching
-				"death",
-				"btn","btnp",#ui elements
-				"knife","flame_big","flame_smol",#projectiles
-				"progrleft","progrmid","progrright","progrfill",#progress bar
-				"menu","bg1","bg2","bg3"):#backgrounds
-			if n in imgs:
-				if isinstance(imgs[n][0],str):
-					fn,nn=imgs[n]
-					fp=os.path.join(datafp,f"{fn}.png")
-					if os.path.exists(fp):
-						setattr(cls,n,IMGC(fp,nn))
-					else:
-						print(f"not loading sprite {fn} as it wasn't found")
-				else:
-					fps=[]
-					for fn in imgs[n][0]:
+		for n,val in cls.__dict__.items():
+			if n.startswith("_"):
+				continue
+			elif val==None:
+				if n in imgs:
+					if isinstance(imgs[n][0],str):
+						fn,nn=imgs[n]
 						fp=os.path.join(datafp,f"{fn}.png")
 						if os.path.exists(fp):
-							fps.append(fp)
+							setattr(cls,n,IMGC(fp,nn))
 						else:
-							print(f"not loading frame {fn} from animation {n} as it wasn't found")
-					if len(fps)>0:
-						setattr(cls,n,ANIMC(fps,*imgs[n][1][:2]))
+							print(f"not loading sprite {fn} as it wasn't found")
 					else:
-						print(f"not loading animation {n} as no frames were found")
-			else:
-				print(f"not loading image {n} as it's not in the resource pack")
-		for n in ("hurt","click"):
-			if n in sfx:
-				fn,strem=sfx[n]
-				fp=os.path.join(datafp,f"{fn}.opus")
-				if os.path.exists(fp):
-					setattr(cls,n,pyglet.media.load(fp,streaming=strem))
+						fps=[]
+						for fn in imgs[n][0]:
+							fp=os.path.join(datafp,f"{fn}.png")
+							if os.path.exists(fp):
+								fps.append(fp)
+							else:
+								print(f"not loading frame {fn} from animation {n} as it wasn't found")
+						if len(fps)>0:
+							setattr(cls,n,ANIMC(fps,*imgs[n][1][:2]))
+						else:
+							print(f"not loading animation {n} as no frames were found")
 				else:
-					print(f"not loading sound {fn} as it wasn't found")
+					print(f"not loading image {n} as it's not in the resource pack")
+			elif val==1:
+				if n in sfx:
+					fn,strem=sfx[n]
+					fp=os.path.join(datafp,f"{fn}.opus")
+					if os.path.exists(fp):
+						setattr(cls,n,pyglet.media.load(fp,streaming=strem))
+					else:
+						print(f"not loading sound {fn} as it wasn't found")
+				else:
+					print(f"not loading sound {n} as it's not in the resource pack")
 			else:
-				print(f"not loading sound {n} as it's not in the resource pack")
+				pass
 
 MEDIA.load_all(datafp)
 print("Loaded media")
@@ -414,81 +416,29 @@ class LVLS:
 LVLS.load_all(lvlfp)
 print("loaded levels")
 
-class ENTCONTAINER:#base class for all entity containers
-	@classmethod
-	def draw(cls):
-		for ent in cls.all():
+class ENTCONTAINER:#base for all entity containers
+	def all(self):
+		l=[]
+		for val in self.__dict__.values():
+			if isinstance(val,Iterable):
+				l+=val
+			else:
+				l.append(val)
+		return l
+	def draw(self):
+		for ent in self.all():
 			if ent:
 				ent.draw()
+	def __getattr__(self,name):
+		if name in self.__dict__.keys():
+			return self.__dict__[name]
+		else:
+			return None
 
-class LABELS(ENTCONTAINER):
-	fps=None
-	ups=None
-	notice=None
-	version=None
-	lives=None
-	creds=[]
-	@classmethod
-	def all(cls):
-		return (cls.fps,cls.ups,cls.notice,cls.version,cls.lives,*cls.creds)
-
-class BTNS(ENTCONTAINER):
-	#menu
-	sett=None
-	creds=None
-	#generic back, start & cancle buttons
-	start=None
-	back=None
-	cancle=None
-	#settings
-	fullscr=None
-	showfps=None
-	vsync=None
-	showcoll=None
-	strg=[]
-	volmaster=None
-	volmusic=None
-	volsfx=None
-	#game mode select
-	mode=None
-	#while in game
-	pause=None
-	#level select
-	lvls=None
-	@classmethod
-	def all(cls):
-		return (
-			*cls.strg,
-			cls.lvls,
-			cls.start,
-			cls.sett,
-			cls.volmaster,
-			cls.volmusic,
-			cls.volsfx,
-			cls.cancle,
-			cls.back,
-			cls.fullscr,
-			cls.showfps,
-			cls.vsync,
-			cls.showcoll,
-			cls.mode,
-			cls.pause,
-			cls.creds)
-
-class PHYS(ENTCONTAINER):#physical objects
-	walls=[]
-	char=None
-	bullets=[]
-	@classmethod
-	def all(cls):
-		return (*cls.walls,*cls.bullets,cls.char)
-
-class MISCE(ENTCONTAINER):#miscellanious entities
-	overlay=None#for pause screen
-	bg=None#generic background
-	@classmethod
-	def all(cls):
-		yield cls.overlay
-		yield cls.bg
+LABELS=ENTCONTAINER()
+BTNS=ENTCONTAINER()
+PHYS=ENTCONTAINER()#physical objects
+PHYS.bullets=[]
+MISCE=ENTCONTAINER()#miscellanious entities
 
 print("initialized entity containers")
