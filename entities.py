@@ -351,12 +351,14 @@ class LevelSelect(Label):
 		self.keynxt=keynxt
 		self.keyprv=keyprv
 		self.b=b=(w+h)/50
+		GRou=GRs[GRs.index(group)+1]
 		self.sprts=[lv.img.get(x+b*2,y+b*2,w-b*4,h-b*4,batch,group) for i,lv in enumerate(self.lvls)]
 		self.progrmid=MEDIA.progrmid.get(x+b*2,y+h,w-b*4,BTNHEIGHT*1.25,batch,group)
 		self.progrleft=MEDIA.progrleft.get(x,y+h,b*2,BTNHEIGHT*1.25,batch,group)
 		self.progrright=MEDIA.progrright.get(x+w-b*2,y+h,b*2,BTNHEIGHT*1.25,batch,group)
-		self.progrfill=MEDIA.progrfill.get(x+b*2,y+h,0,BTNHEIGHT*1.25,batch,GRs[GRs.index(group)+1])
-		super().__init__(x,y,w,h,lvls[selected].name if self.lvli>0 else "No Levels were found",bgcolor=(255,255,255,255),size=size,batch=batch,group=group)
+		self.progrfill=MEDIA.progrfill.get(x+b*2,y+h,0,BTNHEIGHT*1.25,batch,GRou)
+		self.sign=MEDIA.sign.get(x,y-BTNHEIGHT*2.5,w,BTNHEIGHT*4,batch,group)
+		super().__init__(x,y,w,h,lvls[selected].name if self.lvli>0 else "No Levels were found",color=(0,0,0,255),bgcolor=(255,255,255,255),size=size,batch=batch,group=GRou)
 		self.label.anchor_x=ANCHORSx[1]
 		self.label.anchor_y=ANCHORSy[2]
 	def setBgColor(self,colr):
@@ -378,7 +380,7 @@ class LevelSelect(Label):
 		pass
 	def render(self):
 		self.label.x=self.cx
-		self.label.y=self.y-5
+		self.label.y=self.y-BTNHEIGHT/3
 		b=self.b
 		x=self.x
 		y=self.y

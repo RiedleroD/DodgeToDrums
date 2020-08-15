@@ -219,6 +219,8 @@ class MEDIA:
 	#ui stuff
 	btn=None
 	btnp=None
+	sign=None
+	signp=None
 	#progress bar
 	progrleft=None
 	progrmid=None
