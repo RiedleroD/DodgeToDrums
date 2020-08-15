@@ -174,7 +174,7 @@ class GameWin(pyglet.window.Window):
 			if BTNS.back.pressed:
 				self.curscr=2
 				LVLS.curlv=BTNS.lvls.curlv
-			elif BTNS.start.pressed:
+			elif BTNS.lvls.pressed:
 				self.curscr=3
 				LVLS.curlv=BTNS.lvls.curlv
 	def clear_scene(self,scr):
@@ -222,7 +222,6 @@ class GameWin(pyglet.window.Window):
 		elif scr==5:
 			BTNS.lvls=None
 			BTNS.back=None
-			BTNS.start=None
 		else:
 			raise ValueError(f"Scene {scr} does not exist to clear")
 	def construct_scene(self,scr):
@@ -288,8 +287,7 @@ class GameWin(pyglet.window.Window):
 				entities.Label(BTNWIDTH,HEIGHT-BTNHEIGHT*4,0,0,"Philip D.",anch=6,batch=self.batch,group=GRfg)]
 		elif scr==5:
 			BTNS.back=entities.Button(WIDTH-BTNWIDTH,BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Back",anch=4,key=k_BACK,batch=self.batch,group=GRmp)
-			BTNS.start=entities.Button(0,0,0,0,"",anch=4,key=k_OK,batch=self.batch,group=GRmp)
-			BTNS.lvls=entities.LevelSelect(WIDTH3,HEIGHT4,WIDTH3,HEIGHT2,LVLS.lvls,k_RIGHT,k_LEFT,selected=LVLS.curlv,batch=self.batch,group=GRmp)
+			BTNS.lvls=entities.LevelSelect(WIDTH3,HEIGHT4,WIDTH3,HEIGHT2,LVLS.lvls,k_RIGHT,k_LEFT,k_OK,selected=LVLS.curlv,batch=self.batch,group=GRmp)
 		else:
 			raise ValueError(f"Scene {scr} does not exist to construct")
 	def on_draw(self):#gets called on draw (duh)

@@ -344,12 +344,14 @@ class Slider(Button):
 			self.vl2.delete()
 
 class LevelSelect(Label):
-	def __init__(self,x,y,w,h,lvls,keynxt,keyprv,selected=0,size=16,batch=None,group=None):
+	pressed=False
+	def __init__(self,x,y,w,h,lvls,keynxt,keyprv,keyok,selected=0,size=16,batch=None,group=None):
 		self.lvls=lvls
 		self.lvli=len(lvls)
 		self.curlv=selected
 		self.keynxt=keynxt
 		self.keyprv=keyprv
+		self.keyok=keyok
 		self.b=b=(w+h)/50
 		GRou=GRs[GRs.index(group)+1]
 		self.sprts=[lv.img.get(x+b*2,y+b*2,w-b*4,h-b*4,batch,group) for i,lv in enumerate(self.lvls)]
@@ -371,10 +373,15 @@ class LevelSelect(Label):
 			self.setText(self.lvls[self.curlv].name)
 			return pyglet.event.EVENT_HANDLED
 		elif key==self.keyprv and self.curlv>0:
-			MEDIA.click.play().volume=CONF.volsfx
+			MEDIA.click.play().volume=CONF.volsfx*CONF.volmaster
 			self.curlv-=1
 			self.rendered=False
 			self.setText(self.lvls[self.curlv].name)
+			return pyglet.event.EVENT_HANDLED
+		elif key==self.keyok:
+			self.setText("")
+			self.sign=MEDIA.signp.get(self.x,self.y-BTNHEIGHT*2.5,self.w,BTNHEIGHT*4,self.batch,self.group)
+			self.pressed=None
 			return pyglet.event.EVENT_HANDLED
 	def checkpress(self,x,y):
 		pass
@@ -409,6 +416,16 @@ class LevelSelect(Label):
 			self.render()
 		if self.vl:
 			self.vl.delete()
+		if self.pressed==None:
+			if self.sign:
+				if self.sign.cycle()+1==self.sign.lens:
+					self.pressed=True
+					self.sign.hide()
+			else:
+				self.pressed=True
+		else:
+			if self.sign:
+				self.sign.cycle()
 		self.vl=self.batch.add(16,pyglet.gl.GL_QUADS,self.group,self.quad,self.cquad)
 	def __del__(self):
 		if self.vl:
