@@ -272,12 +272,30 @@ class MEDIA:
 							print(f"not loading sprite {fn} as it wasn't found")
 					else:
 						fps=[]
-						for fn in imgs[n][0]:
-							fp=os.path.join(datafp,f"{fn}.png")
-							if os.path.exists(fp):
-								fps.append(fp)
-							else:
-								print(f"not loading frame {fn} from animation {n} as it wasn't found")
+						if isinstance(imgs[n][0][0],int):
+							st,nd,nm=imgs[n][0]
+							faulty=False
+							for i in range(st,nd+1):
+								try:
+									fn=nm%i
+								except TypeError:
+									print(f"not loading animation {n} as its string formatting is faulty")
+									faulty=True
+									break
+								fp=os.path.join(datafp,f"{fn}.png")
+								if os.path.exists(fp):
+									fps.append(fp)
+								else:
+									print(f"not loading frame {fn} from animation {n} as it wasn't found")
+							if faulty:
+								continue
+						else:
+							for fn in imgs[n][0]:
+								fp=os.path.join(datafp,f"{fn}.png")
+								if os.path.exists(fp):
+									fps.append(fp)
+								else:
+									print(f"not loading frame {fn} from animation {n} as it wasn't found")
 						if len(fps)>0:
 							setattr(cls,n,ANIMC(fps,*imgs[n][1][:2]))
 						else:
