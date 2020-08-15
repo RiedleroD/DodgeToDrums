@@ -694,12 +694,18 @@ class Hooman(PhysEntity):
 
 class Projectile(PhysEntity):
 	dead=False
+	explosive=False
+	deadly=True
 	prvt=0
 	def __init__(self,x,y,w,h,target,c,img,t,batch,group):
 		self.sprt=img.get(x,y,w,h,batch,group) if img else None
 		self.x=x
 		self.y=y
-		super().__init__(x,y,w,h,c,batch,group,*self.calc_speed(target.x,target.y,10))
+		if target:
+			spdx,spdy=self.calc_speed(target.x,target.y,10)
+		else:
+			spdx=spdy=0
+		super().__init__(x,y,w,h,c,batch,group,spdx,spdy)
 		self.prvt=t
 		self.target=target
 	def doesCollide(self,ox,oy,_ox,_oy):
@@ -720,7 +726,11 @@ class Projectile(PhysEntity):
 		self.move(td*60*self.spdx,td*60*self.spdy)
 	def render(self):
 		if self.sprt:
-			self.sprt.set_pos(self.x,self.y)
+			sx,sy,sw,sh=self.sprt.get_bb()
+			if self.x!=sx or self.y!=sy:
+				self.sprt.set_pos(self.x,self.y)
+			if self.w!=sw or self.h!=sh:
+				self.sprt.set_size(self.w,self.h)
 			#for drawing the collision box when enabled
 			x,y,_x,_y,x_,y_,_x_,_y_=self.get_posss()
 			self.quad=('v2f',(x,y,_x,_y,_x,_y,x_,y_,x_,y_,_x_,_y_,_x_,_y_,x,y))
@@ -739,6 +749,42 @@ class Projectile(PhysEntity):
 				self.vl=self.batch.add(8,pyglet.gl.GL_LINES,self.group,self.quad,('c3B',(255,0,0)*8))
 		else:
 			self.vl=self.batch.add(4,pyglet.gl.GL_QUADS,self.group,self.quad,self.cquad)
+
+class Bomb(Projectile):
+	deadly=False
+	explosive=True
+	def __init__(self,x,y,w,h,target,c,img,t,exp,batch,group):
+		self.bw=w
+		self.bh=h
+		self.spd=math.sqrt(abs(x-target.x)**2+abs(y-target.y)**2)/(60*(exp-t))
+		self.exp=exp
+		super().__init__(x,y,w,h,target,c,img,t,batch,group)
+	def cycle(self,t):
+		td=t-self.prvt
+		self.prvt=t
+		if t>=self.exp:
+			self.dead=True
+		if self.sprt:
+			self.sprt.cycle()
+		dist=math.sqrt(abs(self.x-self.target.x)**2+abs(self.y-self.target.y)**2)
+		sz=1+math.sqrt(32*dist/(SIZE*self.spd))
+		self.set_size(self.bw*sz,self.bh*sz)
+		self.set_speed(*self.calc_speed(self.target.x,self.target.y,self.spd))
+		self.move(td*60*self.spdx,td*60*self.spdy)
+
+class Explosion(Projectile):
+	def __init__(self,x,y,w,h,c,img,t,batch,group):
+		self.exp=t+1
+		super().__init__(x,y,w,h,None,c,img,t,batch,group)
+	def cycle(self,t):
+		if self.exp<=t:
+			self.dead=True
+		if self.sprt and self.sprt.visible:
+			#cycle until last frame, then wait until last frame finishes, then hide animation
+			if self.dead==None and self.sprt.cycle()==0:
+				self.sprt.hide()
+			elif self.sprt.cycle()+1==self.sprt.lens:
+				self.dead=None
 
 class ProjectileRot(Projectile):
 	def __init__(self,x,y,w,h,target,c,img,t,batch,group):

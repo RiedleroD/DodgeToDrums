@@ -72,15 +72,17 @@ class GameWin(pyglet.window.Window):
 		#remove all expired projectiles
 		for i in range(len(PHYS.bullets)-1,-1,-1):
 			bullet=PHYS.bullets[i]
-			if bullet.dead or bullet.x>GBG_x or bullet._x<GBGx or bullet.y>GBG_y or bullet._y<GBGy:
+			x,y,_x,_y=bullet.get_poss()
+			if bullet.dead:
+				if bullet.explosive:
+					PHYS.bullets.append(entities.Explosion(bullet.x,bullet.y,SIZE/16,SIZE/16,(64,0,255,255),MEDIA.explosion,self.curt,batch=self.batch,group=GRmp))
+				del PHYS.bullets[i]
+			elif x>GBG_x or _x<GBGx or y>GBG_y or _y<GBGy:
 				del PHYS.bullets[i]
 		#check if main char got hit
-		x=PHYS.char.x
-		y=PHYS.char.y
-		_x=PHYS.char._x
-		_y=PHYS.char._y
+		x,y,_x,_y=PHYS.char.get_poss()
 		for blt in PHYS.bullets:
-			if blt.doesCollide(x,y,_x,_y):
+			if blt.deadly and blt.doesCollide(x,y,_x,_y):
 				if PHYS.char.lose_life():
 					LABELS.lives.setText(f"Lives: {PHYS.char.lives}")
 					self.lv.fade_in(1)
@@ -98,14 +100,17 @@ class GameWin(pyglet.window.Window):
 				PHYS.bullets.append(entities.DirectedMissile(GBGw20*x+GBGx-SIZE/64,GBGh10*y+GBGy-SIZE/26,SIZE/32,SIZE/13,PHYS.char,self.curt+wait,(255,255,0,255),MEDIA.knife,curt,batch=self.batch,group=GRmp))
 			elif name=="flame":
 				x,y,dx,dy=act
-				PHYS.bullets.append(entities.ProjectileRot(GBGw20*x+GBGx-SIZE/52,GBGh10*y+GBGy-SIZE/30,SIZE/26,SIZE/15,entities.Point(WIDTH20*dx,WIDTH20*dy),(255,0,0,255),MEDIA.flame_big,curt,batch=self.batch,group=GRmp))
+				PHYS.bullets.append(entities.ProjectileRot(GBGw20*x+GBGx-SIZE/52,GBGh10*y+GBGy-SIZE/30,SIZE/26,SIZE/15,entities.Point(GBGx+GBGw20*dx,GBGy+GBGh10*dy),(255,0,0,255),MEDIA.flame_big,curt,batch=self.batch,group=GRmp))
 			elif name=="flame2":
 				x,y,exp=act
 				PHYS.bullets.append(entities.HomingMissile(GBGw20*x+GBGx-SIZE/64,GBGh10*y+GBGy-SIZE/26,SIZE/32,SIZE/13,PHYS.char,self.curt+exp,(255,255,0,255),MEDIA.flame_smol,curt,batch=self.batch,group=GRmp))
+			elif name=="bomb":
+				x,y,dx,dy,exp=act
+				PHYS.bullets.append(entities.Bomb(GBGw20*x+GBGx-SIZE/32,GBGh10*y+GBGy-SIZE/32,SIZE/16,SIZE/16,entities.Point(GBGx+GBGw20*dx,GBGy+GBGh10*dy),(0,0,255,255),MEDIA.bomb,curt,curt+exp,batch=self.batch,group=GRmp))
 			elif name=="stop":
 				self.curscr=5
 			else:
-				print(f"\033[33mWarning:\033[39m tried to spawn unknown enemy {name} at pos {x}x{y} with arguments {args}")
+				print(f"\033[33mWarning:\033[39m tried to spawn unknown enemy \"{name}\" with arguments {act}")
 	def pressproc(self,scr):
 		if scr==None:#exit the game
 			print("WARNING: extra cycle after closing the game")

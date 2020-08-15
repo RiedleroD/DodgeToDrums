@@ -111,9 +111,9 @@ class Sprite():
 	def cycle(self):
 		return 0
 	def show(self):
-		self.sprite.visible=True
+		self.visible=self.sprite.visible=True
 	def hide(self):
-		self.sprite.visible=False
+		self.visible=self.sprite.visible=False
 	def __del__(self):
 		self.sprite.delete()
 
@@ -233,6 +233,8 @@ class MEDIA:
 	knife=None
 	flame_smol=None
 	flame_big=None
+	bomb=None
+	explosion=None
 	#sounds
 	click=1
 	hurt=1
