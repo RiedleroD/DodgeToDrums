@@ -233,6 +233,9 @@ class MEDIA:
 	bg1=None
 	bg2=None
 	bg3=None
+	bg4=None
+	bg5=None
+	bg6=None
 	#projectiles
 	knife=None
 	flame_smol=None
@@ -323,9 +326,10 @@ MEDIA.load_all(datafp)
 print("Loaded media")
 
 class Level():
-	def __init__(self,name,img,mus,acts,lp,progr=None):
+	def __init__(self,name,img,bg,mus,acts,lp,progr=None):
 		self.name=name
 		self.img=img
+		self.bg=bg
 		self.mus=mus
 		self.len=self.mus.duration
 		self.player=None
@@ -410,13 +414,17 @@ class Level():
 		else:
 			raise ValueError(f"Level music not found at {musfp}")
 		imgfn,imgdat=data["img"]
+		bg=data["bg"]
+		bg=getattr(MEDIA,f"bg{bg}",None)
+		if bg==None:
+			bg=MEDIA.bg1
 		if isinstance(imgfn,str):
 			nn,=imgdat
 			img=IMGC(os.path.join(fp,imgfn+".png"),nn)
 		else:
 			wait,nn=imgdat
 			img=ANIMC([os.path.join(fp,fn+".png") for fn in imgfn],nn,wait)
-		return cls(data["name"],img,mus,data["act"],fp,progress)
+		return cls(data["name"],img,bg,mus,data["act"],fp,progress)
 
 class LVLS:
 	curlv=0

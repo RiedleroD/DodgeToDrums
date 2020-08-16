@@ -283,7 +283,7 @@ class GameWin(pyglet.window.Window):
 			PHYS.char=entities.Hooman(WIDTH2,HEIGHT2,SIZE/15,SIZE/12.5,(64,64,255,255),self.batch,group=GRmp)
 			PHYS.char.set_boundaries(GBGx,GBGy,GBG_x,GBG_y)
 			MISCE.overlay=entities.Overlay(0,0,WIDTH,HEIGHT,(0,0,0,64),batch=self.batch,group=GRobg)
-			MISCE.bg=entities.Background(0,0,WIDTH,HEIGHT,(0,0,0,0),self.batch,GRfb,tex=MEDIA.bg1)
+			MISCE.bg=entities.Background(0,0,WIDTH,HEIGHT,(0,0,0,0),self.batch,GRfb,tex=self.lv.bg)
 		elif scr==4:
 			BTNS.back=entities.Button(WIDTH-BTNWIDTH,BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Back",anch=4,key=k_BACK,batch=self.batch,group=GRmp)
 			LABELS.creds+=[
