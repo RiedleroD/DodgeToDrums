@@ -56,11 +56,19 @@ class GameWin(pyglet.window.Window):
 				PHYS.char.cycle(self.curt)
 				for bullet in PHYS.bullets:
 					bullet.cycle(self.curt)
+				for heart in LABELS.lives:
+					heart.cycle(self.curt)
+				if LABELS.lives[-1].dead:
+					LABELS.lives.pop()
 				self.check_projectiles()
 				#execute all acts
 				if self.lv:
 					self.exec_acts()
-			elif self.paused==2:
+			elif self.paused==2:#while dying
+				for heart in LABELS.lives:
+					heart.cycle(0)
+				if LABELS.lives and LABELS.lives[-1].dead:
+					LABELS.lives.pop()
 				PHYS.char.cycle(0)
 				if PHYS.char.dead:
 					self.curscr=5#return to main menu if char dead
@@ -84,7 +92,7 @@ class GameWin(pyglet.window.Window):
 		for blt in PHYS.bullets:
 			if blt.deadly and blt.doesCollide(x,y,_x,_y):
 				if PHYS.char.lose_life():
-					LABELS.lives.setText(f"Lives: {PHYS.char.lives}")
+					LABELS.lives[-1].die()
 					self.lv.fade_in(1)
 				break
 		if PHYS.char.lives<=0:
@@ -209,7 +217,7 @@ class GameWin(pyglet.window.Window):
 			self.lv.stop()
 			self.lv=None
 			self.paused=False
-			LABELS.lives=None
+			LABELS.lives.clear()
 			PHYS.bullets.clear()
 			PHYS.char=None
 			MISCE.overlay=None
@@ -269,7 +277,8 @@ class GameWin(pyglet.window.Window):
 		elif scr==3:
 			self.lv=LVLS.lvls[LVLS.curlv]
 			self.lv.play()
-			LABELS.lives=entities.Label(WIDTH2,2,WIDTH20,19,"Lives: 4",anch=1,batch=self.batch,group=GRfg)
+			for i in range(4):
+				LABELS.lives.append(entities.Heart(WIDTH3-SIZE20*(3-i),GBGy-SIZE20*1.5,SIZE20,SIZE20,MEDIA.heart,MEDIA.heart_death,batch=self.batch,group=GRfg))
 			BTNS.pause=entities.Button(0,0,0,0,"",0,key=k_BACK,batch=self.batch,group=GRmp)
 			PHYS.char=entities.Hooman(WIDTH2,HEIGHT2,SIZE/15,SIZE/12.5,(64,64,255,255),self.batch,group=GRmp)
 			PHYS.char.set_boundaries(GBGx,GBGy,GBG_x,GBG_y)

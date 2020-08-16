@@ -98,6 +98,7 @@ BTNWIDTH=WIDTH/10
 BTNHEIGHT2=BTNHEIGHT/2
 BTNWIDTH2=BTNWIDTH/2
 SIZE=(WIDTH+HEIGHT)/2#for scaling stuff where the aspect ratio shouldn't be changed but the size should
+SIZE20=SIZE/20
 GBGw=5*WIDTH/6
 GBGx=WIDTH/12
 GBG_x=11*WIDTH/12
@@ -121,5 +122,5 @@ GRfg=pyglet.graphics.OrderedGroup(3)#foreground (labels)
 GRobg=pyglet.graphics.OrderedGroup(4)#overlay background
 GRomp=pyglet.graphics.OrderedGroup(5)#overlay midpoint (overlay widgets)
 GRofg=pyglet.graphics.OrderedGroup(6)#overlay foreground (overlay labels)
-GRs=[GRbg,GRmp,GRfg,GRobg,GRomp,GRofg]
+GRs=[GRbg,GRmp,GRfb,GRfg,GRobg,GRomp,GRofg]
 print(f"Initialized OpenGL groups")

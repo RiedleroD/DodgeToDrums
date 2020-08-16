@@ -5,7 +5,7 @@ from collections.abc import Iterable
 
 class IMGC():
 	def __init__(self,fp,nn):
-		pyglet.image.Texture.default_min_filter=pyglet.image.Texture.default_mag_filter=pyglet.gl.GL_NEAREST if nn else pyglet.gl.GL_LINEAR
+		pyglet.image.Texture.default_mag_filter=pyglet.gl.GL_NEAREST if nn else pyglet.gl.GL_LINEAR
 		self.img=pyglet.image.load(fp)
 		self.texture=self.img.get_texture()
 		self.nn=nn
@@ -119,7 +119,7 @@ class Sprite():
 
 class ANIMC(IMGC):
 	def __init__(self,fps,nn,wait):
-		pyglet.image.Texture.default_min_filter=pyglet.image.Texture.default_mag_filter=pyglet.gl.GL_NEAREST if nn else pyglet.gl.GL_LINEAR
+		pyglet.image.Texture.default_mag_filter=pyglet.gl.GL_NEAREST if nn else pyglet.gl.GL_LINEAR
 		self.imgs=[pyglet.image.load(fp) for fp in fps]
 		self.textures=[]
 		for img in self.imgs:
@@ -221,6 +221,8 @@ class MEDIA:
 	btnp=None
 	sign=None
 	signp=None
+	heart=None
+	heart_death=None
 	#progress bar
 	progrleft=None
 	progrmid=None
@@ -458,6 +460,7 @@ class ENTCONTAINER:#base for all entity containers
 			return None
 
 LABELS=ENTCONTAINER()
+LABELS.lives=[]
 BTNS=ENTCONTAINER()
 BTNS.strg=[]
 PHYS=ENTCONTAINER()#physical objects

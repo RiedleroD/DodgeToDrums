@@ -479,6 +479,39 @@ class RadioList(Entity):
 	def __del__(self):
 		pass
 
+class Heart(Entity):
+	s_d=None
+	s_l=None
+	dead=False
+	def __init__(self,x,y,w,h,imgl,imgd,batch,group):
+		super().__init__(x,y,w,h,0,batch,group)
+		self.s_d=imgd.get(x,y,w,h,batch,group,visible=False)
+		self.s_l=imgl.get(x,y,w,h,batch,group,visible=True)
+		self.ti=0
+	def die(self):
+		self.dead=None
+		self.s_l.hide()
+		self.s_d.show()
+		self.ti=0
+	def cycle(self,t):
+		if self.dead:
+			pass
+		elif self.dead==None:
+			if self.ti<0:
+				if self.s_d.cycle()==0:
+					self.s_d.hide()
+					self.dead=True
+			elif self.s_d.cycle()+1==self.s_d.lens:
+				self.ti=-1
+		else:
+			if t>self.ti:
+				if self.s_l.cycle()+1==self.s_l.lens:
+					self.ti+=1
+					self.s_l.curw=self.s_l.wait
+	def draw(self):
+		if not self.rendered:
+			self.render()
+
 class PhysEntity(Entity):
 	def __init__(self,x,y,w,h,c,batch,group,spdx=0,spdy=0):
 		super().__init__(x,y,w,h,0,batch,group)
