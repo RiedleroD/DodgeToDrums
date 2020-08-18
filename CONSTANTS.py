@@ -92,11 +92,6 @@ class Window(pgw.Window):
 		TIME=t
 		del t
 		self.clear()
-		if self.MISCE.overlay:
-			if self.game.paused:
-				self.MISCE.overlay.show()
-			else:
-				self.MISCE.overlay.hide()
 		self.LABELS.draw()
 		self.BTNS.draw()
 		self.PHYS.draw()

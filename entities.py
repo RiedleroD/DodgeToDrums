@@ -81,8 +81,9 @@ class Entity(Point):
 			self.render()
 		if self.vl:
 			self.vl.delete()
+			self.vl=None
 		if not self.hidden:
-			self.batch.add(4,pyglet.gl.GL_QUADS,self.group,self.quad)
+			self.vl=self.batch.add(4,pyglet.gl.GL_QUADS,self.group,self.quad)
 	def __del__(self):
 		if self.vl:
 			self.vl.delete()
@@ -513,32 +514,21 @@ class Heart(Entity):
 			self.render()
 
 class PhysEntity(Entity):
-	def __init__(self,x,y,w,h,c,batch,group,spdx=0,spdy=0):
+	def __init__(self,x,y,w,h,batch,group,spdx=0,spdy=0):
 		super().__init__(x,y,w,h,0,batch,group)
 		self.set_speed(spdx,spdy)
-		self.set_color(c)
 	def set_speed(self,x,y):
 		self.spdx=x
 		self.spdy=y
 	def set_color(self,c):
 		if len(c)!=4:
-			raise ValueError(f"Invalid color tuple {c}: must be exactly 3 integers long")
+			raise ValueError(f"Invalid color tuple {c}: doesn't match RGBA format")
 		elif max(c)>255 or min(c)<0:
-			raise ValueError(f"Invalid color tuple {c}: numbers must range between 0 and 255")
+			raise ValueError(f"Invalid color tuple {c}: values must range between 0 and 255")
 		self.cquad=('c4B',c*4)
 	def cycle(self):
 		if self.spdx>0 or self.spdy>0:
 			self.move(self.spdx,self.spdy)
-	def render(self):
-		self.quad=('v2f',(self.x,self.y,self._x,self.y,self._x,self._y,self.x,self._y))
-		self.rendered=True
-	def draw(self):
-		if not self.rendered:
-			self.render()
-		if self.vl:
-			self.vl.delete()
-			self.vl=None
-		self.vl=self.batch.add(4,pyglet.gl.GL_QUADS,group,self.quad,self.cquad)
 
 class Hooman(PhysEntity):
 	l=False
@@ -569,17 +559,16 @@ class Hooman(PhysEntity):
 	lasthit=0
 	apl=None#audio player
 	prvt=0#previous cycle time
-	def __init__(self,x,y,w,h,c,batch,group):
+	def __init__(self,x,y,w,h,batch,group):
 		for anim in ("side","up","down","idle","death","cside","cup","cdown","cidle"):
 			img=getattr(MEDIA,anim,None)
 			if anim.startswith('c'):
 				_h=h/2
 			else:
 				_h=h
-			if img:
-				setattr(self,f"s_{anim}",img.get(x,y,w,_h,batch,group,visible=False))
+			setattr(self,f"s_{anim}",img.get(x,y,w,_h,batch,group,visible=False))
 		self.s_hurt=MEDIA.hurt
-		super().__init__(x,y,w,h,c,batch,group)
+		super().__init__(x,y,w,h,batch,group)
 	def lose_life(self):
 		t=time()
 		if t>self.lasthit+1.5:#immunity for 1.5 seconds
@@ -661,37 +650,27 @@ class Hooman(PhysEntity):
 			self.move(self.spdx,self.spdy)
 		#choosing animation/sprite for current action
 		if self.spdx!=0:
-			if self.s_cside and self.sh:
+			if self.sh:
 				self.a=self.s_cside
-			elif self.s_side and not self.sh:
+			else:
 				self.a=self.s_side
-			else:
-				self.a=None
 		elif self.spdy>0:
-			if self.s_cup and self.sh:
+			if self.sh:
 				self.a=self.s_cup
-			elif self.s_up and not self.sh:
+			else:
 				self.a=self.s_up
-			else:
-				self.a=None
 		elif self.spdy<0:
-			if self.s_cdown and self.sh:
+			if self.sh:
 				self.a=self.s_cdown
-			elif self.s_down and not self.sh:
+			else:
 				self.a=self.s_down
-			else:
-				self.a=None
 		else:
-			if self.s_cidle and self.sh:
-				self.s_cidle.cycle()
+			if self.sh:
 				self.a=self.s_cidle
-			elif self.s_idle and not self.sh:
-				self.s_idle.cycle()
-				self.a=self.s_idle
 			else:
-				self.a=None
+				self.a=self.s_idle
 		#determine if we should flip the current sprite/animation
-		if self.spdx<0:
+		if self.spdx<0:#if spdx==0, don't change it
 			self.flipped=True
 		elif self.spdx>0:
 			self.flipped=False
@@ -710,26 +689,19 @@ class Hooman(PhysEntity):
 			y=None
 		if not x==y==None:
 			self.set_pos(x if x!=None else self.x,y if y!=None else self.y)
-		#setting the current sprite/animation position & cycle it,
-		#or set rendered status to false if no sprite/animation is selected
-		if self.a:
-			self.a.set_pos(self.x,self.y)
-			self.a.cycle()
-		else:
-			self.rendered=False
+		#setting the current sprite/animation position & cycle it
+		self.a.set_pos(self.x,self.y)
+		self.a.cycle()
 	def draw(self):
 		if not self.rendered:
 			self.render()
 		if self.vl:
 			self.vl.delete()
 			self.vl=None
-		if self.a==None:
-			self.vl=self.batch.add(4,pyglet.gl.GL_QUADS,self.group,self.quad,self.cquad)
-		else:
-			if CONF.showcoll:
-				self.vl=self.batch.add(4,pyglet.gl.GL_LINE_LOOP,self.group,self.quad,("c3B",(255,0,0)*4))
-			if (self.flipped and not self.a.flipped) or (not self.flipped and self.a.flipped):
-				self.a.flip()
+		if CONF.showcoll:
+			self.vl=self.batch.add(4,pyglet.gl.GL_LINE_LOOP,self.group,self.quad,("c3B",(255,0,0)*4))
+		if (self.flipped and not self.a.flipped) or (not self.flipped and self.a.flipped):
+			self.a.flip()
 		if self.preva!=self.a:
 			if self.preva:
 				self.preva.hide()
@@ -740,7 +712,6 @@ class Hooman(PhysEntity):
 		if self.apl:
 			self.apl.next_source()
 			self.apl.delete()
-			self.apl=None
 		if self.vl:
 			self.vl.delete()
 
@@ -750,7 +721,7 @@ class Projectile(PhysEntity):
 	deadly=True
 	despawn=True
 	prvt=0
-	def __init__(self,x,y,w,h,target,c,img,t,batch,group):
+	def __init__(self,x,y,w,h,target,img,t,batch,group):
 		self.sprt=img.get(x,y,w,h,batch,group) if img else None
 		self.x=x
 		self.y=y
@@ -758,7 +729,7 @@ class Projectile(PhysEntity):
 			spdx,spdy=self.calc_speed(target.x,target.y,10)
 		else:
 			spdx=spdy=0
-		super().__init__(x,y,w,h,c,batch,group,spdx,spdy)
+		super().__init__(x,y,w,h,batch,group,spdx,spdy)
 		self.prvt=t
 		self.target=target
 	def doesCollide(self,ox,oy,_ox,_oy):
@@ -778,18 +749,14 @@ class Projectile(PhysEntity):
 			self.sprt.cycle()
 		self.move(td*60*self.spdx,td*60*self.spdy)
 	def render(self):
-		if self.sprt:
-			sx,sy,sw,sh=self.sprt.get_bb()
-			if self.x!=sx or self.y!=sy:
-				self.sprt.set_pos(self.x,self.y)
-			if self.w!=sw or self.h!=sh:
-				self.sprt.set_size(self.w,self.h)
-			#for drawing the collision box when enabled
-			x,y,_x,_y,x_,y_,_x_,_y_=self.get_posss()
-			self.quad=('v2f',(x,y,_x,_y,_x,_y,x_,y_,x_,y_,_x_,_y_,_x_,_y_,x,y))
-		else:
-			#no collision box is visible since it's a square anyway when no sprite is available.
-			self.quad=('v2f',self.get_posss())
+		sx,sy,sw,sh=self.sprt.get_bb()
+		if self.x!=sx or self.y!=sy:
+			self.sprt.set_pos(self.x,self.y)
+		if self.w!=sw or self.h!=sh:
+			self.sprt.set_size(self.w,self.h)
+		#for drawing the collision box when enabled
+		x,y,_x,_y,x_,y_,_x_,_y_=self.get_posss()
+		self.quad=('v2f',(x,y,_x,_y,_x,_y,x_,y_,x_,y_,_x_,_y_,_x_,_y_,x,y))
 		self.rendered=True
 	def draw(self):
 		if not self.rendered:
@@ -797,22 +764,19 @@ class Projectile(PhysEntity):
 		if self.vl:
 			self.vl.delete()
 			self.vl=None
-		if self.sprt:
-			if CONF.showcoll:
-				self.vl=self.batch.add(8,pyglet.gl.GL_LINES,self.group,self.quad,('c3B',(255,0,0)*8))
-		else:
-			self.vl=self.batch.add(4,pyglet.gl.GL_QUADS,self.group,self.quad,self.cquad)
+		if CONF.showcoll:
+			self.vl=self.batch.add(8,pyglet.gl.GL_LINES,self.group,self.quad,('c3B',(255,0,0)*8))
 
 class Bomb(Projectile):
 	deadly=False
 	explosive=True
 	despawn=False
-	def __init__(self,x,y,w,h,target,c,img,t,exp,batch,group):
+	def __init__(self,x,y,w,h,target,img,t,exp,batch,group):
 		self.bw=w
 		self.bh=h
 		self.spd=math.sqrt(abs(x-target.x)**2+abs(y-target.y)**2)/(60*(exp-t))
 		self.exp=exp
-		super().__init__(x,y,w,h,target,c,img,t,batch,group)
+		super().__init__(x,y,w,h,target,img,t,batch,group)
 	def cycle(self,t):
 		td=t-self.prvt
 		self.prvt=t
@@ -825,12 +789,16 @@ class Bomb(Projectile):
 		self.set_size(self.bw*sz,self.bh*sz)
 		self.set_speed(*self.calc_speed(self.target.x,self.target.y,self.spd))
 		self.move(td*60*self.spdx,td*60*self.spdy)
+	def draw(self):
+		if not self.rendered:
+			self.render()
+		#no collision box, therefore no drawing of that box. The sprite is in the batch, it draws itself.
 
 class Explosion(Projectile):
 	despawn=False
-	def __init__(self,x,y,w,h,c,img,t,batch,group):
+	def __init__(self,x,y,w,h,img,t,batch,group):
 		self.exp=t+1
-		super().__init__(x,y,w,h,None,c,img,t,batch,group)
+		super().__init__(x,y,w,h,None,img,t,batch,group)
 	def cycle(self,t):
 		if self.exp<=t:
 			self.dead=True
@@ -842,12 +810,11 @@ class Explosion(Projectile):
 				self.dead=None
 
 class ProjectileRot(Projectile):
-	def __init__(self,x,y,w,h,target,c,img,t,batch,group):
-		super().__init__(x,y,w,h,target,c,img,t,batch,group)
-		if self.sprt:
-			self.get_posss=self.sprt.get_posss
-			self.get_poss=self.sprt.get_poss
-			self.get_bb=self.sprt.get_bb
+	def __init__(self,x,y,w,h,target,img,t,batch,group):
+		super().__init__(x,y,w,h,target,img,t,batch,group)
+		self.get_posss=self.sprt.get_posss
+		self.get_poss=self.sprt.get_poss
+		self.get_bb=self.sprt.get_bb
 	def doesCollide(self,ox,oy,_ox,_oy):
 		posss=self.get_posss()
 		#check for every own point if it lies within the other rect
@@ -873,9 +840,9 @@ class ProjectileRot(Projectile):
 			self.rendered=False
 
 class DirectedMissile(ProjectileRot):
-	def __init__(self,x,y,w,h,target,wait,c,img,t,batch,group):
+	def __init__(self,x,y,w,h,target,wait,img,t,batch,group):
 		self.wait=wait
-		super().__init__(x,y,w,h,target,c,img,t,batch,group)
+		super().__init__(x,y,w,h,target,img,t,batch,group)
 	def cycle(self,t):
 		td=t-self.prvt
 		self.prvt=t
@@ -891,9 +858,9 @@ class DirectedMissile(ProjectileRot):
 
 class HomingMissile(ProjectileRot):
 	despawn=False
-	def __init__(self,x,y,w,h,target,expiration,c,img,t,batch,group):
+	def __init__(self,x,y,w,h,target,expiration,img,t,batch,group):
 		self.ex=expiration
-		super().__init__(x,y,w,h,target,c,img,t,batch,group)
+		super().__init__(x,y,w,h,target,img,t,batch,group)
 	def cycle(self,t):
 		td=t-self.prvt
 		self.prvt=t

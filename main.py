@@ -58,6 +58,10 @@ class Game(pyglet.window.Window):
 			self.prvscr=self.curscr
 		#in-game stuff
 		if self.curscr==3:
+			if self.paused==True:
+				MISCE.overlay.show()
+			else:
+				MISCE.overlay.hide()
 			if not self.paused:
 				#cycle all physical objects that need cycling
 				PHYS.char.cycle(self.curt)
@@ -89,7 +93,7 @@ class Game(pyglet.window.Window):
 			bullet=PHYS.bullets[i]
 			if bullet.dead:
 				if bullet.explosive:
-					PHYS.bullets.append(entities.Explosion(bullet.x,bullet.y,SIZE/16,SIZE/16,(64,0,255,255),MEDIA.explosion,self.curt,batch=self.batch,group=GRmp))
+					PHYS.bullets.append(entities.Explosion(bullet.x,bullet.y,SIZE/16,SIZE/16,MEDIA.explosion,self.curt,batch=self.batch,group=GRmp))
 				del PHYS.bullets[i]
 			elif bullet.despawn:
 				x,y,_x,_y=bullet.get_poss()
@@ -113,16 +117,16 @@ class Game(pyglet.window.Window):
 			name=act.pop(0)
 			if name=="knife":
 				x,y,wait=act
-				PHYS.bullets.append(entities.DirectedMissile(GBGw20*x+GBGx-SIZE/64,GBGh10*y+GBGy-SIZE/26,SIZE/32,SIZE/13,PHYS.char,self.curt+wait,(255,255,0,255),MEDIA.knife,curt,batch=self.batch,group=GRmp))
+				PHYS.bullets.append(entities.DirectedMissile(GBGw20*x+GBGx-SIZE/64,GBGh10*y+GBGy-SIZE/26,SIZE/32,SIZE/13,PHYS.char,self.curt+wait,MEDIA.knife,curt,batch=self.batch,group=GRmp))
 			elif name=="flame":
 				x,y,dx,dy=act
-				PHYS.bullets.append(entities.ProjectileRot(GBGw20*x+GBGx-SIZE/52,GBGh10*y+GBGy-SIZE/30,SIZE/26,SIZE/15,entities.Point(GBGx+GBGw20*dx,GBGy+GBGh10*dy),(255,0,0,255),MEDIA.flame_big,curt,batch=self.batch,group=GRmp))
+				PHYS.bullets.append(entities.ProjectileRot(GBGw20*x+GBGx-SIZE/52,GBGh10*y+GBGy-SIZE/30,SIZE/26,SIZE/15,entities.Point(GBGx+GBGw20*dx,GBGy+GBGh10*dy),MEDIA.flame_big,curt,batch=self.batch,group=GRmp))
 			elif name=="flame2":
 				x,y,exp=act
-				PHYS.bullets.append(entities.HomingMissile(GBGw20*x+GBGx-SIZE/64,GBGh10*y+GBGy-SIZE/26,SIZE/32,SIZE/13,PHYS.char,self.curt+exp,(255,255,0,255),MEDIA.flame_smol,curt,batch=self.batch,group=GRmp))
+				PHYS.bullets.append(entities.HomingMissile(GBGw20*x+GBGx-SIZE/64,GBGh10*y+GBGy-SIZE/26,SIZE/32,SIZE/13,PHYS.char,self.curt+exp,MEDIA.flame_smol,curt,batch=self.batch,group=GRmp))
 			elif name=="bomb":
 				x,y,dx,dy,exp=act
-				PHYS.bullets.append(entities.Bomb(GBGw20*x+GBGx-SIZE/32,GBGh10*y+GBGy-SIZE/32,SIZE/16,SIZE/16,entities.Point(GBGx+GBGw20*dx,GBGy+GBGh10*dy),(0,0,255,255),MEDIA.bomb,curt,curt+exp,batch=self.batch,group=GRmp))
+				PHYS.bullets.append(entities.Bomb(GBGw20*x+GBGx-SIZE/32,GBGh10*y+GBGy-SIZE/32,SIZE/16,SIZE/16,entities.Point(GBGx+GBGw20*dx,GBGy+GBGh10*dy),MEDIA.bomb,curt,curt+exp,batch=self.batch,group=GRmp))
 			elif name=="stop":
 				self.curscr=5
 			else:
@@ -305,7 +309,7 @@ class Game(pyglet.window.Window):
 			for i in range(4):
 				LABELS.lives.append(entities.Heart(WIDTH3-SIZE20*(3-i),GBGy-SIZE20*1.5,SIZE20,SIZE20,MEDIA.heart,MEDIA.heart_death,batch=self.batch,group=GRfg))
 			BTNS.pause=entities.Button(0,0,0,0,"",0,key=k_BACK,batch=self.batch,group=GRmp)
-			PHYS.char=entities.Hooman(WIDTH2,HEIGHT2,SIZE/15,SIZE/12.5,(64,64,255,255),self.batch,group=GRmp)
+			PHYS.char=entities.Hooman(WIDTH2,HEIGHT2,SIZE/15,SIZE/12.5,self.batch,group=GRmp)
 			PHYS.char.set_boundaries(GBGx,GBGy,GBG_x,GBG_y)
 			MISCE.overlay=entities.Overlay(0,0,WIDTH,HEIGHT,(0,0,0,64),batch=self.batch,group=GRobg)
 			MISCE.bg=entities.Background(0,0,WIDTH,HEIGHT,(0,0,0,0),self.batch,GRfb,tex=self.lv.bg)
