@@ -71,10 +71,65 @@ else:
 	CONF.loads({})
 	CONF.dump(conffp)
 
+class Window(pgw.Window):
+	def set_game(self,game):
+		self.game=game
+	def set_containers(self,LABELS,BTNS,PHYS,MISCE):
+		self.LABELS=LABELS
+		self.BTNS=BTNS
+		self.PHYS=PHYS
+		self.MISCE=MISCE
+	def on_draw(self):#gets called on draw (duh)
+		global TIME,DTIME,TIMEC
+		t=time()
+		DTIME+=t-TIME
+		TIMEC+=1
+		if DTIME>=0.1:
+			if self.LABELS.fps:
+				self.LABELS.fps.setText(f"FPS:{TIMEC/DTIME:.1f}/{self.game.fps}")
+			TIMEC=0
+			DTIME=0
+		TIME=t
+		del t
+		self.clear()
+		if self.MISCE.overlay:
+			if self.game.paused:
+				self.MISCE.overlay.show()
+			else:
+				self.MISCE.overlay.hide()
+		self.LABELS.draw()
+		self.BTNS.draw()
+		self.PHYS.draw()
+		self.MISCE.draw()
+		self.game.batch.draw()
+		pyglet.clock.tick()
+	def on_mouse_press(self,x,y,button,modifiers):
+		if button==pgw.mouse.LEFT:
+			for item in self.BTNS.all():
+				if item:
+					ret=item.checkpress(x,y)
+					if ret:
+						return ret
+		elif button==pgw.mouse.RIGHT:
+			pass
+		elif button==pgw.mouse.MIDDLE:
+			pass
+	def on_key_press(self,symbol,modifiers):
+		if self.PHYS.char:
+			self.PHYS.char.checkKey(symbol,True)
+		for item in self.BTNS.all():
+			if item:
+				ret=item.checkKey(symbol)
+				if ret:
+					return ret
+	def on_key_release(self,symbol,modifiers):
+		if self.PHYS.char:
+			self.PHYS.char.checkKey(symbol,False)
+
 DISPLAY=pyglet.canvas.get_display()#It took ages to find these functions, so don't question them.
 SCREEN=DISPLAY.get_default_screen()
 
-_win=pgw.Window(
+window=Window(
 		fullscreen=CONF.fullscreen,
 		style=pgw.Window.WINDOW_STYLE_BORDERLESS,
 		screen=SCREEN,
@@ -83,10 +138,12 @@ _win=pgw.Window(
 		visible=True)#invisible windows sometimes get ignored from certain stuff I need here
 
 if not CONF.fullscreen:
-	_win.maximize()
+	window.maximize()
 
-WIDTH,HEIGHT=_win.get_size()
-_win.close()
+#enable transparency
+pyglet.gl.glEnable(pyglet.gl.GL_BLEND)
+
+WIDTH,HEIGHT=window.get_size()
 WIDTH2=WIDTH/2
 WIDTH3=WIDTH/3
 WIDTH20=WIDTH/20
@@ -109,7 +166,7 @@ GBGh10=GBGh/10
 GBGw20=GBGw/20
 ANCHORSy=("bottom","center","top")
 ANCHORSx=("left","center","right")
-print(f"initialized screen with size {WIDTH}x{HEIGHT}")
+print(f"opened window with size {WIDTH}x{HEIGHT}")
 
 TIME=time()
 TIMEC=0

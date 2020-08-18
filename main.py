@@ -3,7 +3,7 @@ from CONSTANTS import *
 import entities
 from containers import LABELS,BTNS,PHYS,MISCE,MEDIA,LVLS
 
-class GameWin(pyglet.window.Window):
+class Game(pyglet.window.Window):
 	prvscr=None#which scene was shown last frame
 	curscr=0#which scene is shown
 	#scenes include:
@@ -22,13 +22,14 @@ class GameWin(pyglet.window.Window):
 	paused=False
 	lv=None
 	curt=0#current time, used for spawning and cycling in the main game
-	def __init__(self,*args,**kwargs):
+	def __init__(self,win):
+		self.window=win
 		self.set_fps(60)
 		self.batch=pyglet.graphics.Batch()
 		if CONF.showfps:
 			LABELS.fps=entities.Label(0,HEIGHT,WIDTH/15,19,"FPS:60.0",6,bgcolor=(0,0,0,255),batch=self.batch,group=GRofg)
 			LABELS.ups=entities.Label(0,HEIGHT-19,WIDTH/15,19,"UPS:60.0",6,bgcolor=(0,0,0,255),batch=self.batch,group=GRofg)
-		super().__init__(*args,**kwargs)
+		win.set_game(self)
 	def set_fps(self,fps):
 		if fps!=self.fps and fps>0:
 			self.fps=fps
@@ -311,74 +312,10 @@ class GameWin(pyglet.window.Window):
 			BTNS.lvls=entities.LevelSelect(WIDTH3,HEIGHT4,WIDTH3,HEIGHT2,LVLS.lvls,k_RIGHT,k_LEFT,k_OK,selected=LVLS.curlv,batch=self.batch,group=GRmp)
 		else:
 			raise ValueError(f"Scene {scr} does not exist to construct")
-	def on_draw(self):#gets called on draw (duh)
-		global TIME,DTIME,TIMEC
-		t=time()
-		DTIME+=t-TIME
-		TIMEC+=1
-		if DTIME>=0.1:
-			if LABELS.fps:
-				LABELS.fps.setText(f"FPS:{TIMEC/DTIME:.1f}/{self.fps}")
-			TIMEC=0
-			DTIME=0
-		TIME=t
-		del t
-		self.clear()
-		if MISCE.overlay:
-			if self.paused:
-				MISCE.overlay.show()
-			else:
-				MISCE.overlay.hide()
-		LABELS.draw()
-		BTNS.draw()
-		PHYS.draw()
-		MISCE.draw()
-		self.batch.draw()
-		pyglet.clock.tick()
-	def on_mouse_press(self,x,y,button,modifiers):
-		if button==pgw.mouse.LEFT:
-			for item in BTNS.all():
-				if item:
-					ret=item.checkpress(x,y)
-					if ret:
-						return ret
-		elif button==pgw.mouse.RIGHT:
-			pass
-		elif button==pgw.mouse.MIDDLE:
-			pass
-	def on_key_press(self,symbol,modifiers):
-		if PHYS.char:
-			PHYS.char.checkKey(symbol,True)
-		for item in BTNS.all():
-			if item:
-				ret=item.checkKey(symbol)
-				if ret:
-					return ret
-	def on_key_release(self,symbol,modifiers):
-		if PHYS.char:
-			PHYS.char.checkKey(symbol,False)
 
-if CONF.fullscreen:
-	h=w=None
-else:
-	h=HEIGHT
-	w=WIDTH
-#I don't like window borders & I have a tiling window manager so I couldn't test it anyway.
-window=GameWin(
-		width=w,height=h,
-		fullscreen=CONF.fullscreen,
-		style=GameWin.WINDOW_STYLE_BORDERLESS,
-		screen=SCREEN,
-		caption="Dodge to Drums",
-		vsync=CONF.vsync,
-		visible=True)
-del w,h
 
-window.set_location(0,0)
+game=Game(window)
 
-#enable transparency
-pyglet.gl.glEnable(pyglet.gl.GL_BLEND)
-
-print(f"opened window with size {WIDTH}x{HEIGHT}")
+print("created Game object")
 
 pyglet.app.run()

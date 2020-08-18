@@ -482,4 +482,6 @@ PHYS=ENTCONTAINER()#physical objects
 PHYS.bullets=[]
 MISCE=ENTCONTAINER()#miscellanious entities
 
+window.set_containers(LABELS,BTNS,PHYS,MISCE)
+
 print("initialized entity containers")
