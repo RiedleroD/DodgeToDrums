@@ -245,6 +245,7 @@ class MEDIA:
 	#sounds
 	click=1
 	hurt=1
+	menubgm=1
 	@classmethod
 	def load_all(cls,fp):
 		if os.path.isdir(fp):
@@ -270,57 +271,63 @@ class MEDIA:
 				continue
 			elif val==None:
 				if n in imgs:
-					if isinstance(imgs[n][0],str):
-						fn,nn=imgs[n]
-						fp=os.path.join(datafp,f"{fn}.png")
-						if os.path.exists(fp):
-							setattr(cls,n,IMGC(fp,nn))
-						else:
-							print(f"not loading sprite {fn} as it wasn't found")
-					else:
-						fps=[]
-						if isinstance(imgs[n][0][0],int):
-							st,nd,nm=imgs[n][0]
-							faulty=False
-							for i in range(st,nd+1):
-								try:
-									fn=nm%i
-								except TypeError:
-									print(f"not loading animation {n} as its string formatting is faulty")
-									faulty=True
-									break
-								fp=os.path.join(datafp,f"{fn}.png")
-								if os.path.exists(fp):
-									fps.append(fp)
-								else:
-									print(f"not loading frame {fn} from animation {n} as it wasn't found")
-							if faulty:
-								continue
-						else:
-							for fn in imgs[n][0]:
-								fp=os.path.join(datafp,f"{fn}.png")
-								if os.path.exists(fp):
-									fps.append(fp)
-								else:
-									print(f"not loading frame {fn} from animation {n} as it wasn't found")
-						if len(fps)>0:
-							setattr(cls,n,ANIMC(fps,*imgs[n][1][:2]))
-						else:
-							print(f"not loading animation {n} as no frames were found")
+					cls.load_img(imgs[n],n)
 				else:
 					print(f"not loading image {n} as it's not in the resource pack")
 			elif val==1:
 				if n in sfx:
-					fn,strem=sfx[n]
-					fp=os.path.join(datafp,f"{fn}.opus")
-					if os.path.exists(fp):
-						setattr(cls,n,pyglet.media.load(fp,streaming=strem))
-					else:
-						print(f"not loading sound {fn} as it wasn't found")
+					cls.load_sfx(sfx[n],n)
 				else:
 					print(f"not loading sound {n} as it's not in the resource pack")
+	@classmethod
+	def load_img(cls,img,n):
+		val=None
+		if isinstance(img[0],str):
+			fn,nn=img
+			fp=os.path.join(datafp,f"{fn}.png")
+			if os.path.exists(fp):
+				val=IMGC(fp,nn)
 			else:
-				pass
+				print(f"not loading sprite {fn} as it wasn't found")
+		else:
+			fps=[]
+			if isinstance(img[0][0],int):
+				st,nd,nm=img[0]
+				faulty=False
+				for i in range(st,nd+1):
+					try:
+						fn=nm%i
+					except TypeError:
+						print(f"not loading animation {n} as its string formatting is faulty")
+						faulty=True
+						return
+					fp=os.path.join(datafp,f"{fn}.png")
+					if os.path.exists(fp):
+						fps.append(fp)
+					else:
+						print(f"not loading frame {fn} from animation {n} as it wasn't found")
+			else:
+				for fn in img[0]:
+					fp=os.path.join(datafp,f"{fn}.png")
+					if os.path.exists(fp):
+						fps.append(fp)
+					else:
+						print(f"not loading frame {fn} from animation {n} as it wasn't found")
+			if len(fps)>0:
+				val=ANIMC(fps,*img[1][:2])
+			else:
+				print(f"not loading animation {n} as no frames were found")
+		setattr(cls,n,val)
+	@classmethod
+	def load_sfx(cls,sfx,n):
+		val=None
+		fn,strem=sfx
+		fp=os.path.join(datafp,f"{fn}.opus")
+		if os.path.exists(fp):
+			val=pyglet.media.load(fp,streaming=strem)
+		else:
+			print(f"not loading sound {fn} as it wasn't found in {fp}")
+		setattr(cls,n,val)
 
 MEDIA.load_all(datafp)
 print("Loaded media")

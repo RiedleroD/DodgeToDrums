@@ -150,9 +150,11 @@ class GameWin(pyglet.window.Window):
 			elif BTNS.volmaster.pressed:
 				CONF.volmaster=BTNS.volmaster.perc
 				BTNS.volmaster.release()
+				self.mus.volume=CONF.volmaster*CONF.volmusic
 			elif BTNS.volmusic.pressed:
 				CONF.volmusic=BTNS.volmusic.perc
 				BTNS.volmusic.release()
+				self.mus.volume=CONF.volmaster*CONF.volmusic
 			elif BTNS.volsfx.pressed:
 				CONF.volsfx=BTNS.volsfx.perc
 				BTNS.volsfx.release()
@@ -164,6 +166,10 @@ class GameWin(pyglet.window.Window):
 				self.curscr=5
 				self.diffmode=BTNS.mode.getSelected()
 		elif scr==3:#game
+			if self.mus:
+				self.mus.next_source()
+				self.mus.delete()
+				self.mus=None
 			if BTNS.pause.pressed:
 				BTNS.pause.release()
 				if self.paused!=2:
@@ -186,8 +192,10 @@ class GameWin(pyglet.window.Window):
 				self.curscr=3
 				LVLS.curlv=BTNS.lvls.curlv
 	def clear_scene(self,scr):
-		if scr==None:
-			pass
+		if scr==None:#at startup
+			self.mus=MEDIA.menubgm.play()
+			self.mus.loop=True
+			self.mus.volume=CONF.volmaster*CONF.volmusic
 		elif scr==0:
 			BTNS.back=None
 			BTNS.sett=None
@@ -224,6 +232,9 @@ class GameWin(pyglet.window.Window):
 			BTNS.pause=None
 			BTNS.back=None
 			MISCE.bg=None
+			self.mus=MEDIA.menubgm.play()
+			self.mus.loop=True
+			self.mus.volume=CONF.volmaster*CONF.volmusic
 		elif scr==4:
 			BTNS.back=None
 			LABELS.creds.clear()
