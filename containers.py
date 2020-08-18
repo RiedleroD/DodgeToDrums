@@ -22,6 +22,10 @@ class Sprite():
 	ph=None
 	prot=None
 	lens=0
+	w=0
+	h=0
+	x=0
+	y=0
 	def __init__(self,x,y,w,h,img,nn,batch,group):
 		self.x=x
 		self.y=y
@@ -45,22 +49,26 @@ class Sprite():
 			x+=self.w*(3+abs(1-j)-abs(n-1)-j-abs(j-3))
 		self.sprite.update(x=x,scale_x=scale_x)
 	def set_size(self,w,h):
-		self.w=w
-		self.h=h
-		self.sprite.update(scale_x=w/self.ow,scale_y=h/self.oh)
+		if w!=self.w or h!=self.h:
+			self.w=w
+			self.h=h
+			self.sprite.update(scale_x=w/self.ow,scale_y=h/self.oh)
 	def set_pos(self,x,y):
-		self.x=x
-		self.y=y
-		if self.rot:
-			x,y,_x,_y,__x,__y,_x_,_y_=self.get_posss()
-		if self.flipped:
-			x+=self.w
-		self.sprite.update(x=x,y=y)
+		if x!=self.x or y!=self.y:#optimisation
+			self.x=x
+			self.y=y
+			if self.rot:
+				x,y,_x,_y,__x,__y,_x_,_y_=self.get_posss()
+			if self.flipped:
+				x+=self.w
+			self.sprite.update(x=x,y=y)
 	def set_rotation(self,rot):
-		rot%=360
-		self.rot=rot
-		x,y,_x,_y,__x,__y,_x_,_y_=self.get_posss()
-		self.sprite.update(rotation=rot,y=y,x=x)
+		if self.flipped:
+			rot=(360-rot)%360
+		if rot!=self.rot:
+			self.rot=rot
+			x,y,_x,_y,__x,__y,_x_,_y_=self.get_posss()
+			self.sprite.update(rotation=rot,y=y,x=x)
 	def get_posss(self):
 		x=self.x
 		y=self.y
@@ -162,34 +170,43 @@ class AnimSprite(Sprite):
 			for sprite in self.sprites:
 				sprite.update(x=self.x,scale_x=self.w/self.ow)
 	def set_size(self,w,h):
-		self.w=w
-		self.h=h
-		if self.flipped:
-			w=-w
-		for sprite in self.sprites:
-			sprite.update(scale_x=w/self.ow,scale_y=h/self.oh)
+		if w!=self.w or h!=self.h:
+			self.w=w
+			self.h=h
+			if self.flipped:
+				w=-w
+			for sprite in self.sprites:
+				sprite.update(scale_x=w/self.ow,scale_y=h/self.oh)
 	def set_pos(self,x,y):
-		self.x=x
-		self.y=y
-		if self.rot:
-			x,y,_x,_y,__x,__y,_x_,_y_=self.get_posss()
-		if self.flipped:
-			x+=self.w
-		for sprite in self.sprites:
-			sprite.update(x=x,y=y)
+		if x!=self.x or y!=self.y:#optimisation
+			self.x=x
+			self.y=y
+			if self.rot:
+				x,y,_x,_y,__x,__y,_x_,_y_=self.get_posss()
+			if self.flipped:
+				x+=self.w
+			self.sprites[self.curs].update(x=x,y=y)#only update current frame location and update the nexts when changing
 	def set_rotation(self,rot):
 		if self.flipped:
 			rot=(360-rot)%360
-		self.rot=rot
-		for sprite in self.sprites:
-			sprite.update(rotation=rot)
+		if rot!=self.rot:
+			self.rot=rot
+			self.sprites[self.curs].update(rotation=rot)
 	def cycle(self):
 		self.curw+=1
 		if self.curw>=self.wait:
 			self.sprites[self.curs].visible=False
 			self.curs+=1
 			self.curs%=self.lens
-			self.sprites[self.curs].visible=self.visible
+			news=self.sprites[self.curs]
+			news.visible=self.visible
+			x=self.x
+			y=self.y
+			if self.rot:
+				x,y,_x,_y,__x,__y,_x_,_y_=self.get_posss()
+			if self.flipped:
+				x+=self.w
+			news.update(x=x,y=y,rotation=self.rot)
 			self.curw=0
 		return self.curs
 	def show(self):

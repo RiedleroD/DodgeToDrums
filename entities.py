@@ -49,6 +49,14 @@ class Entity(Point):
 		self._x=self.x+self.w
 		self._y=self.y+self.h
 		self.rendered=False
+	def set_color(self,c):
+		if len(c)!=4:
+			raise ValueError(f"Invalid color tuple {c}: must be exactly 3 integers long")
+		elif max(c)>255 or min(c)<0:
+			raise ValueError(f"Invalid color tuple {c}: numbers must range between 0 and 255")
+		if not getattr(self,"quad",None):
+			self.render()
+		self.cquad=('c4B',c*(len(self.quad[1])//2))		
 	def render(self):
 		self.quad=('v2f',(self.x,self.y,self._x,self.y,self._x,self._y,self.x,self._y))
 		self.rendered=True
@@ -79,11 +87,14 @@ class Entity(Point):
 	def draw(self):
 		if not self.rendered:
 			self.render()
-		if self.vl:
+		if not self.hidden:
+			if self.vl:
+				self.vl.vertices[:]=self.quad[1]
+			else:
+				self.vl=self.batch.add(4,pyglet.gl.GL_QUADS,self.group,self.quad,self.cquad)
+		elif self.vl:
 			self.vl.delete()
 			self.vl=None
-		if not self.hidden:
-			self.vl=self.batch.add(4,pyglet.gl.GL_QUADS,self.group,self.quad)
 	def __del__(self):
 		if self.vl:
 			self.vl.delete()
@@ -92,39 +103,25 @@ class Overlay(Entity):
 	def __init__(self,x,y,w,h,c,batch,group):
 		super().__init__(x,y,w,h,batch=batch,group=group)
 		self.set_color(c)
-	def set_color(self,c):
-		if len(c)!=4:
-			raise ValueError(f"Invalid color tuple {c}: must be exactly 3 integers long")
-		elif max(c)>255 or min(c)<0:
-			raise ValueError(f"Invalid color tuple {c}: numbers must range between 0 and 255")
-		self.cquad=('c4B',c*4)
-	def draw(self):
-		if not self.rendered:
-			self.render()
-		if self.vl:
-			self.vl.delete()
-		self.vl=pyglet.graphics.draw(4,pyglet.gl.GL_QUADS,self.quad,self.cquad)
 
 class Background(Entity):
 	def __init__(self,x,y,w,h,c,batch,group,tex=None):
 		super().__init__(x,y,w,h,batch=batch,group=group)
 		self.sprite=tex.get(x,y,w,h,batch,group) if tex else None
 		self.set_color(c)
-	def set_color(self,c):
-		if len(c)!=4:
-			raise ValueError(f"Invalid color tuple {c}: must be exactly 3 integers long")
-		elif max(c)>255 or min(c)<0:
-			raise ValueError(f"Invalid color tuple {c}: numbers must range between 0 and 255")
-		self.cquad=('c4B',c*4)
 	def draw(self):
 		if not self.rendered:
 			self.render()
-		if self.vl:
-			self.vl.delete()
 		if self.sprite:
 			self.sprite.cycle()
-		else:
-			self.vl=self.batch.add(4,pyglet.gl.GL_QUADS,self.group,self.quad,self.cquad)
+		elif not self.hidden:
+			if self.vl:
+				self.vl.vertices[:]=self.quad[1]
+			else:
+				self.vl=self.batch.add(4,pyglet.gl.GL_QUADS,self.group,self.quad,self.cquad)
+		elif self.vl:
+			self.vl.delete()
+			self.vl=None
 
 class Label(Entity):
 	label=None
@@ -160,10 +157,15 @@ class Label(Entity):
 	def draw(self):
 		if not self.rendered:
 			self.render()
-		if self.vl:
-			self.vl.delete()
 		if self.w>0 and self.h>0:
-			self.vl=self.batch.add(4,pyglet.gl.GL_QUADS,self.group,self.quad,self.cquad)
+			if not self.hidden:
+				if self.vl:
+					self.vl.vertices[:]=self.quad[1]
+				else:
+					self.vl=self.batch.add(4,pyglet.gl.GL_QUADS,self.group,self.quad,self.cquad)
+			elif self.vl:
+				self.vl.delete()
+				self.vl=None
 	def __del__(self):
 		self.label.delete()
 		if self.vl:
@@ -217,20 +219,12 @@ class Button(Label):
 	def draw(self):
 		if not self.rendered:
 			self.render()
-		if self.vl:
-			self.vl.delete()
-			self.vl=None
-		if self.sprite and self.pressed:
+		if self.pressed:
 			self.sprite.hide()
-		elif self.psprit and not self.pressed:
-			self.psprit.hide()
-		if self.psprit and self.pressed:
 			self.psprit.show()
-		elif self.sprite and not self.pressed:
-			self.sprite.show()
 		else:
-			if self.w>0 and self.h>0:
-				self.vl=self.batch.add(4,pyglet.gl.GL_QUADS,self.group,self.quad,self.cquad)
+			self.psprit.hide()
+			self.sprite.show()
 
 class ButtonSwitch(Button):
 	def checkpress(self,x,y):
@@ -329,14 +323,14 @@ class Slider(Button):
 	def draw(self):
 		if not self.rendered:
 			self.render()
-		if self.vl:
-			self.vl.delete()
-			self.vl=None
 		if self.vl2:
-			self.vl2.delete()
-			self.vl2=None
-		self.vl2=self.batch.add(8,pyglet.gl.GL_LINES,self.group,self.quad2,self.cquad2)
-		self.vl=self.batch.add(4,pyglet.gl.GL_QUADS,self.group,self.quad,self.cquad)
+			self.vl2.vertices[:]=self.quad2[1]
+		else:
+			self.vl2=self.batch.add(8,pyglet.gl.GL_LINES,self.group,self.quad2,self.cquad2)
+		if self.vl:
+			self.vl.vertices[:]=self.quad[1]
+		else:
+			self.vl=self.batch.add(4,pyglet.gl.GL_QUADS,self.group,self.quad,self.cquad)
 	def __del__(self):
 		self.label.delete()
 		if self.vl:
@@ -415,8 +409,6 @@ class LevelSelect(Label):
 	def draw(self):
 		if not self.rendered:
 			self.render()
-		if self.vl:
-			self.vl.delete()
 		if self.pressed==None:
 			if self.sign:
 				if self.sign.cycle()+1==self.sign.lens:
@@ -427,12 +419,14 @@ class LevelSelect(Label):
 		else:
 			if self.sign:
 				self.sign.cycle()
-		self.vl=self.batch.add(16,pyglet.gl.GL_QUADS,self.group,self.quad,self.cquad)
+		if self.vl:
+			self.vl.vertices[:]=self.quad[1]
+		else:
+			self.vl=self.batch.add(16,pyglet.gl.GL_QUADS,self.group,self.quad,self.cquad)
 	def __del__(self):
 		if self.vl:
 			self.vl.delete()
-		if self.label:
-			self.label.delete()
+		self.label.delete()
 
 class RadioList(Entity):
 	def __init__(self,x,y,w,h,texts,anch=0,keys=None,pressedTexts=None,selected=None,size=16,batch=None,group=None):
@@ -507,11 +501,10 @@ class Heart(Entity):
 		else:
 			if t>self.ti:
 				if self.s_l.cycle()+1==self.s_l.lens:
-					self.ti+=1
+					self.ti+=1#change this for seconds per heartbeat
 					self.s_l.curw=self.s_l.wait
 	def draw(self):
-		if not self.rendered:
-			self.render()
+		pass
 
 class PhysEntity(Entity):
 	def __init__(self,x,y,w,h,batch,group,spdx=0,spdy=0):
@@ -520,12 +513,6 @@ class PhysEntity(Entity):
 	def set_speed(self,x,y):
 		self.spdx=x
 		self.spdy=y
-	def set_color(self,c):
-		if len(c)!=4:
-			raise ValueError(f"Invalid color tuple {c}: doesn't match RGBA format")
-		elif max(c)>255 or min(c)<0:
-			raise ValueError(f"Invalid color tuple {c}: values must range between 0 and 255")
-		self.cquad=('c4B',c*4)
 	def cycle(self):
 		if self.spdx>0 or self.spdy>0:
 			self.move(self.spdx,self.spdy)
@@ -695,11 +682,14 @@ class Hooman(PhysEntity):
 	def draw(self):
 		if not self.rendered:
 			self.render()
-		if self.vl:
+		if CONF.showcoll:
+			if self.vl:
+				self.vl.vertices[:]=self.quad[1]
+			else:
+				self.vl=self.batch.add(4,pyglet.gl.GL_LINE_LOOP,self.group,self.quad,("c3B",(255,0,0)*4))
+		elif self.vl:
 			self.vl.delete()
 			self.vl=None
-		if CONF.showcoll:
-			self.vl=self.batch.add(4,pyglet.gl.GL_LINE_LOOP,self.group,self.quad,("c3B",(255,0,0)*4))
 		if (self.flipped and not self.a.flipped) or (not self.flipped and self.a.flipped):
 			self.a.flip()
 		if self.preva!=self.a:
@@ -732,6 +722,7 @@ class Projectile(PhysEntity):
 		super().__init__(x,y,w,h,batch,group,spdx,spdy)
 		self.prvt=t
 		self.target=target
+		self.cquad=('c3B',(255,0,0)*8)#fixed red color for collision boxes
 	def doesCollide(self,ox,oy,_ox,_oy):
 		x,y,_x,_y=self.get_poss()
 		return not (x>_ox or _x<ox or y>_oy or _y<oy)
@@ -761,11 +752,11 @@ class Projectile(PhysEntity):
 	def draw(self):
 		if not self.rendered:
 			self.render()
-		if self.vl:
-			self.vl.delete()
-			self.vl=None
 		if CONF.showcoll:
-			self.vl=self.batch.add(8,pyglet.gl.GL_LINES,self.group,self.quad,('c3B',(255,0,0)*8))
+			if self.vl:
+				self.vl.vertices[:]=self.quad[1]
+			else:
+				self.vl=self.batch.add(8,pyglet.gl.GL_LINES,self.group,self.quad,self.cquad)
 
 class Bomb(Projectile):
 	deadly=False
