@@ -266,29 +266,36 @@ class MEDIA:
 			print(f"no resources loaded as {fp} wasn't found")
 	@classmethod
 	def loads_all(cls,imgs,sfx):
+		errs=[]
 		for n,val in cls.__dict__.items():
 			if n.startswith("_"):
 				continue
 			elif val==None:
 				if n in imgs:
-					cls.load_img(imgs[n],n)
+					result=cls.load_img(imgs[n],n)
+					if result:
+						errs+=result
 				else:
-					print(f"not loading image {n} as it's not in the resource pack")
+					errs.append(f"not loading image {n} as it's not in the resource pack")
 			elif val==1:
 				if n in sfx:
-					cls.load_sfx(sfx[n],n)
+					result=cls.load_sfx(sfx[n],n)
+					if result:
+						errs.append(result)
 				else:
-					print(f"not loading sound {n} as it's not in the resource pack")
+					errs.append(f"not loading sound {n} as it's not in the resource pack")
+		cls.errs=errs
 	@classmethod
 	def load_img(cls,img,n):
 		val=None
+		errs=[]
 		if isinstance(img[0],str):
 			fn,nn=img
 			fp=os.path.join(datafp,f"{fn}.png")
 			if os.path.exists(fp):
 				val=IMGC(fp,nn)
 			else:
-				print(f"not loading sprite {fn} as it wasn't found")
+				errs.append(f"not loading sprite {fn} as it wasn't found")
 		else:
 			fps=[]
 			if isinstance(img[0][0],int):
@@ -298,36 +305,39 @@ class MEDIA:
 					try:
 						fn=nm%i
 					except TypeError:
-						print(f"not loading animation {n} as its string formatting is faulty")
+						errs.append(f"not loading animation {n} as its string formatting is faulty")
 						faulty=True
 						return
 					fp=os.path.join(datafp,f"{fn}.png")
 					if os.path.exists(fp):
 						fps.append(fp)
 					else:
-						print(f"not loading frame {fn} from animation {n} as it wasn't found")
+						errs.append(f"not loading frame {fn} from animation {n} as it wasn't found")
 			else:
 				for fn in img[0]:
 					fp=os.path.join(datafp,f"{fn}.png")
 					if os.path.exists(fp):
 						fps.append(fp)
 					else:
-						print(f"not loading frame {fn} from animation {n} as it wasn't found")
+						errs.append(f"not loading frame {fn} from animation {n} as it wasn't found")
 			if len(fps)>0:
 				val=ANIMC(fps,*img[1][:2])
 			else:
-				print(f"not loading animation {n} as no frames were found")
+				errs.append(f"not loading animation {n} as no frames were found")
 		setattr(cls,n,val)
+		return errs
 	@classmethod
 	def load_sfx(cls,sfx,n):
 		val=None
+		err=None
 		fn,strem=sfx
 		fp=os.path.join(datafp,f"{fn}.opus")
 		if os.path.exists(fp):
 			val=pyglet.media.load(fp,streaming=strem)
 		else:
-			print(f"not loading sound {fn} as it wasn't found in {fp}")
+			err=f"not loading sound {fn} as it wasn't found in {fp}"
 		setattr(cls,n,val)
+		return err
 
 MEDIA.load_all(datafp)
 print("Loaded media")

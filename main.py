@@ -13,6 +13,7 @@ class Game(pyglet.window.Window):
 	#3 → the game itself
 	#4 → credits
 	#5 → level select
+	#6 → error screen
 	fps=0#maximum fps and ups
 	tc=0#how many cycles have passed since ups label has last been updated
 	dt=0#how much time has passed since ups label has last been updated
@@ -30,6 +31,11 @@ class Game(pyglet.window.Window):
 			LABELS.fps=entities.Label(0,HEIGHT,WIDTH/15,19,"FPS:60.0",6,bgcolor=(0,0,0,255),batch=self.batch,group=GRofg)
 			LABELS.ups=entities.Label(0,HEIGHT-19,WIDTH/15,19,"UPS:60.0",6,bgcolor=(0,0,0,255),batch=self.batch,group=GRofg)
 		win.set_game(self)
+		if MEDIA.errs:
+			self.curscr=self.prvscr=6#to prevent startup initialisation
+			BTNS.back=entities.Button(0,0,0,0,"",key=k_BACK,batch=self.batch,group=GRmp)
+			for i,err in enumerate(MEDIA.errs):
+				setattr(LABELS,f"err{i}",entities.Label(0,20*i,0,0,err,batch=self.batch,group=GRfg))
 	def set_fps(self,fps):
 		if fps!=self.fps and fps>0:
 			self.fps=fps
@@ -193,6 +199,9 @@ class Game(pyglet.window.Window):
 			elif BTNS.lvls.pressed:
 				self.curscr=3
 				LVLS.curlv=BTNS.lvls.curlv
+		elif scr==6:#error screen
+			if BTNS.back.pressed:
+				pyglet.app.exit()
 	def clear_scene(self,scr):
 		if scr==None:#at startup
 			self.mus=MEDIA.menubgm.play()
@@ -246,8 +255,11 @@ class Game(pyglet.window.Window):
 		else:
 			raise ValueError(f"Scene {scr} does not exist to clear")
 	def construct_scene(self,scr):
-		if scr==None:
-			pass
+		if scr==None:#at shutdown
+			if self.mus:
+				self.mus.next_source()
+				self.mus.delete()
+				self.mus=None
 		elif scr==0:
 			BTNS.back=entities.Button(WIDTH2,BTNHEIGHT,BTNWIDTH,BTNHEIGHT,"Exit",anch=4,key=k_BACK,batch=self.batch,group=GRmp)
 			BTNS.start=entities.Button(WIDTH2,HEIGHT2,BTNWIDTH,BTNHEIGHT,"Start",anch=4,key=k_OK,batch=self.batch,group=GRmp)
