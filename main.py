@@ -80,13 +80,14 @@ class GameWin(pyglet.window.Window):
 		#remove all expired projectiles
 		for i in range(len(PHYS.bullets)-1,-1,-1):
 			bullet=PHYS.bullets[i]
-			x,y,_x,_y=bullet.get_poss()
 			if bullet.dead:
 				if bullet.explosive:
 					PHYS.bullets.append(entities.Explosion(bullet.x,bullet.y,SIZE/16,SIZE/16,(64,0,255,255),MEDIA.explosion,self.curt,batch=self.batch,group=GRmp))
 				del PHYS.bullets[i]
-			elif x>GBG_x or _x<GBGx or y>GBG_y or _y<GBGy:
-				del PHYS.bullets[i]
+			elif bullet.despawn:
+				x,y,_x,_y=bullet.get_poss()
+				if x>GBG_x or _x<GBGx or y>GBG_y or _y<GBGy:
+					del PHYS.bullets[i]
 		#check if main char got hit
 		x,y,_x,_y=PHYS.char.get_poss()
 		for blt in PHYS.bullets:

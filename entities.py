@@ -748,6 +748,7 @@ class Projectile(PhysEntity):
 	dead=False
 	explosive=False
 	deadly=True
+	despawn=True
 	prvt=0
 	def __init__(self,x,y,w,h,target,c,img,t,batch,group):
 		self.sprt=img.get(x,y,w,h,batch,group) if img else None
@@ -805,6 +806,7 @@ class Projectile(PhysEntity):
 class Bomb(Projectile):
 	deadly=False
 	explosive=True
+	despawn=False
 	def __init__(self,x,y,w,h,target,c,img,t,exp,batch,group):
 		self.bw=w
 		self.bh=h
@@ -825,6 +827,7 @@ class Bomb(Projectile):
 		self.move(td*60*self.spdx,td*60*self.spdy)
 
 class Explosion(Projectile):
+	despawn=False
 	def __init__(self,x,y,w,h,c,img,t,batch,group):
 		self.exp=t+1
 		super().__init__(x,y,w,h,None,c,img,t,batch,group)
@@ -887,6 +890,7 @@ class DirectedMissile(ProjectileRot):
 			self.move(td*60*self.spdx,td*60*self.spdy)
 
 class HomingMissile(ProjectileRot):
+	despawn=False
 	def __init__(self,x,y,w,h,target,expiration,c,img,t,batch,group):
 		self.ex=expiration
 		super().__init__(x,y,w,h,target,c,img,t,batch,group)
