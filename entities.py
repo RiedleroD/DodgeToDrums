@@ -299,10 +299,15 @@ class Slider(Button):
 		perc=(x-self.x)/(self.w-1)
 		if perc>1:
 			perc=1
+		elif perc<0:
+			perc=0
 		self.perc=perc
 		self.setText(f"{self.desc}:{int(perc*100)}%")
 		self.rendered=False
 		return pyglet.event.EVENT_HANDLED
+	def checkdrag(self,x,y,dx,dy):
+		if self.doesPointCollide(x-dx,y-dy):
+			self.press(x,y)
 	def release(self):
 		MEDIA.click.play().volume=CONF.volsfx*CONF.volmaster
 		self.pressed=False

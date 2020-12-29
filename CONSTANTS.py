@@ -109,6 +109,12 @@ class Window(pgw.Window):
 			pass
 		elif button==pgw.mouse.MIDDLE:
 			pass
+	def on_mouse_drag(self,x,y,dx,dy,button,modifiers):
+		if button==pgw.mouse.LEFT:
+			for item in self.BTNS.draggable():
+				ret=item.checkdrag(x,y,dx,dy)
+				if ret:
+					return ret
 	def on_key_press(self,symbol,modifiers):
 		if self.PHYS.char:
 			self.PHYS.char.checkKey(symbol,True)

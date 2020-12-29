@@ -484,13 +484,16 @@ print("loaded levels")
 
 class ENTCONTAINER:#base for all entity containers
 	def all(self):
-		l=[]
 		for val in self.__dict__.values():
 			if isinstance(val,Iterable):
-				l+=val
+				for i in val:
+					yield i
 			else:
-				l.append(val)
-		return l
+				yield val
+	def draggable(self):
+		for ent in self.all():
+			if hasattr(ent,"checkdrag"):
+				yield ent
 	def draw(self):
 		for ent in self.all():
 			if ent:
