@@ -319,7 +319,7 @@ class Game(pyglet.window.Window):
 				entities.Label(BTNWIDTH2,HEIGHT-BTNHEIGHT,0,0,"Programming:",anch=6,batch=self.batch,group=GRfg),
 				entities.Label(BTNWIDTH,HEIGHT-BTNHEIGHT*1.5,0,0,"Riedler",anch=6,batch=self.batch,group=GRfg),
 				entities.Label(BTNWIDTH2,HEIGHT-BTNHEIGHT*2,0,0,"Graphics:",anch=6,batch=self.batch,group=GRfg),
-				entities.Label(BTNWIDTH,HEIGHT-BTNHEIGHT*2.5,0,0,"Dark Rosemary",anch=6,batch=self.batch,group=GRfg),
+				entities.Label(BTNWIDTH,HEIGHT-BTNHEIGHT*2.5,0,0,"Dark Rosemary (Sage)",anch=6,batch=self.batch,group=GRfg),
 				entities.Label(BTNWIDTH2,HEIGHT-BTNHEIGHT*3,0,0,"Testing:",anch=6,batch=self.batch,group=GRfg),
 				entities.Label(BTNWIDTH,HEIGHT-BTNHEIGHT*3.5,0,0,"Andreas S.",anch=6,batch=self.batch,group=GRfg),
 				entities.Label(BTNWIDTH,HEIGHT-BTNHEIGHT*4,0,0,"Philip D.",anch=6,batch=self.batch,group=GRfg)]

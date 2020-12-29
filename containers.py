@@ -506,6 +506,7 @@ class ENTCONTAINER:#base for all entity containers
 
 LABELS=ENTCONTAINER()
 LABELS.lives=[]
+LABELS.creds=[]
 BTNS=ENTCONTAINER()
 BTNS.strg=[]
 PHYS=ENTCONTAINER()#physical objects
