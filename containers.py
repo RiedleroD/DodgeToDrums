@@ -1,8 +1,11 @@
 #!/usr/bin/python3
+print("    importing constants…")
 from CONSTANTS import *
+print("    importing time,collections.abc.Iterable…")
 from time import time
 from collections.abc import Iterable
 
+print("    defining media containers…")
 class IMGC():
 	def __init__(self,fp,nn):
 		pyglet.image.Texture.default_mag_filter=pyglet.gl.GL_NEAREST if nn else pyglet.gl.GL_LINEAR
@@ -356,8 +359,9 @@ class MEDIA:
 		setattr(cls,n,val)
 		return err
 
+print("    loading media…")
 MEDIA.load_all(datafp)
-print("Loaded media")
+print("    defining level containers…")
 
 class Level():
 	def __init__(self,name,img,bg,mus,acts,lp,progr=None):
@@ -479,9 +483,10 @@ class LVLS:
 		else:
 			print(f"Couldn't find level directory {fp}")
 
+print("    loading levels…")
 LVLS.load_all(lvlfp)
-print("loaded levels")
 
+print("    defining various other containers…")
 class ENTCONTAINER:#base for all entity containers
 	def all(self):
 		for val in self.__dict__.values():
@@ -514,5 +519,3 @@ PHYS.bullets=[]
 MISCE=ENTCONTAINER()#miscellanious entities
 
 window.set_containers(LABELS,BTNS,PHYS,MISCE)
-
-print("initialized entity containers")

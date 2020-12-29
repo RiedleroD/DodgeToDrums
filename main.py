@@ -1,7 +1,12 @@
 #!/usr/bin/python3
+print("importing constants…")
 from CONSTANTS import *
+print("importing entities…")
 import entities
+print("importing containers…")
 from containers import LABELS,BTNS,PHYS,MISCE,MEDIA,LVLS
+
+print("defining main game class…")
 
 class Game(pyglet.window.Window):
 	prvscr=None#which scene was shown last frame
@@ -329,9 +334,8 @@ class Game(pyglet.window.Window):
 		else:
 			raise ValueError(f"Scene {scr} does not exist to construct")
 
-
+print("initializing main game class…")
 game=Game(window)
 
-print("created Game object")
-
+print("starting main loop…")
 pyglet.app.run()

@@ -1,24 +1,25 @@
 #!/usr/bin/python3
-print("started")
 VERSION="0.3-dev"
+print("  importing os,sys,math,json,time…")
 import os,sys,math
 import json
+from time import time
+print("  importing pyglet…")
 import pyglet
 import pyglet.window as pgw
-from time import time
-print("imported libraries")
 
 if getattr(sys, 'frozen', False):
 	curdir=os.path.abspath(os.path.dirname(sys.executable))
 else:
 	curdir=os.path.abspath(os.path.dirname(__file__))
 
-print(f"started in dir {curdir} with arguments {sys.argv}")
+print(f"  running in {curdir}, with arguments {sys.argv}")
 
 conffp=os.path.join(curdir,"conf.json")
 datafp=os.path.join(curdir,"data")
 lvlfp=os.path.join(curdir,"levels")
 
+print("  loading config…")
 class CONF:
 	defaults={"fullscreen":True,"showfps":True,"vsync":True,"showcoll":False,"volmaster":1,"volmusic":0.8,"volsfx":0.5}
 	defstrg={
@@ -35,7 +36,7 @@ class CONF:
 		with open(fp,"r") as f:
 			data=json.load(f)
 		cls.loads(data)
-		print(f"loaded config from {fp}")
+		print(f"    loaded config from {fp}")
 	@classmethod
 	def loads(cls,data):
 		for sett, default in cls.defaults.items():
@@ -71,6 +72,7 @@ else:
 	CONF.loads({})
 	CONF.dump(conffp)
 
+print("  opening window…")
 class Window(pgw.Window):
 	def set_game(self,game):
 		self.game=game
@@ -134,7 +136,7 @@ window=Window(
 		fullscreen=CONF.fullscreen,
 		style=pgw.Window.WINDOW_STYLE_BORDERLESS,
 		screen=SCREEN,
-		caption="Dodge to Drums",
+		caption=f"Dodge to Drums {VERSION}",
 		vsync=CONF.vsync,
 		visible=True)#invisible windows sometimes get ignored from certain stuff I need here
 
@@ -144,6 +146,7 @@ if not CONF.fullscreen:
 #enable transparency
 pyglet.gl.glEnable(pyglet.gl.GL_BLEND)
 
+print("  defining constants…")
 WIDTH,HEIGHT=window.get_size()
 WIDTH2=WIDTH/2
 WIDTH3=WIDTH/3
@@ -167,12 +170,13 @@ GBGh10=GBGh/10
 GBGw20=GBGw/20
 ANCHORSy=("bottom","center","top")
 ANCHORSx=("left","center","right")
-print(f"opened window with size {WIDTH}x{HEIGHT}")
+print(f"  window has a size of {WIDTH}x{HEIGHT}")
 
 TIME=time()
 TIMEC=0
 DTIME=0
 
+print("  initializing OpenGL groups…")
 GRbg=pyglet.graphics.OrderedGroup(0)#background
 GRmp=pyglet.graphics.OrderedGroup(1)#midpoint (widgets, objects)
 GRfb=pyglet.graphics.OrderedGroup(2)#fore-back-ground – for backgrounds that want to overlap game sprites but not labels
@@ -181,4 +185,3 @@ GRobg=pyglet.graphics.OrderedGroup(4)#overlay background
 GRomp=pyglet.graphics.OrderedGroup(5)#overlay midpoint (overlay widgets)
 GRofg=pyglet.graphics.OrderedGroup(6)#overlay foreground (overlay labels)
 GRs=[GRbg,GRmp,GRfb,GRfg,GRobg,GRomp,GRofg]
-print(f"Initialized OpenGL groups")

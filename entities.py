@@ -1,7 +1,9 @@
 #!/usr/bin/python3
+print("  importing containers…")
 from containers import MEDIA,Sprite,LVLS
+print("  importing constants…")
 from CONSTANTS import *
-
+print("  defining entities…")
 class Point:
 	def __init__(self,x,y):
 		self.x=x
@@ -25,7 +27,7 @@ class Entity(Point):
 		#|0 1 2|
 		#——————
 		if anch>8:
-			raise ValueError("Entity initialized with invalid position anchor: %i"%anch)
+			raise ValueError(f"Entity initialized with invalid position anchor: {anch}")
 		if anch%3==0:
 			self.x=x
 		elif anch%3==1:
@@ -869,4 +871,3 @@ class HomingMissile(ProjectileRot):
 			self.set_speed(spdx,spdy)
 		self.move(td*60*self.spdx,td*60*self.spdy)
 
-print("defined entities")
